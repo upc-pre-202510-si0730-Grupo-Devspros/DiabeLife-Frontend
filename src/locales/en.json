@@ -3,7 +3,7 @@
   "page-not-found": {
     "title": "Page Not Found",
     "content": "The path {unavailable-route} is not available.",
-    "go-home": "Go Home"
+    "go-home": "Go home"
   },
 
   "errors": {
