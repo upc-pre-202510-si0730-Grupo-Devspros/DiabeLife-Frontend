@@ -6,6 +6,42 @@
       "weight": "70",
       "bloodPressure": "120/80",
       "id": 1
+    },
+    {
+      "heartRate": "90",
+      "glucose": "80",
+      "weight": "70",
+      "bloodPressure": "120/80",
+      "id": 2
+    },
+    {
+      "heartRate": "90",
+      "glucose": "80",
+      "weight": "70",
+      "bloodPressure": "120/80",
+      "id": 3
+    }
+  ],
+  "recommendations": [
+    {
+      "id": 1,
+      "text": "Eat a balanced breakfast with protein and fiber."
+    },
+    {
+      "id": 2,
+      "text": "Include leafy greens in at least one meal today."
+    },
+    {
+      "id": 3,
+      "text": "Choose whole grains over refined carbs for sustained energy."
+    },
+    {
+      "id": 4,
+      "text": "Stay hydrated: aim for 8 glasses of water."
+    },
+    {
+      "id": 5,
+      "text": "Reduce added sugars and processed snacks."
     }
   ]
 }

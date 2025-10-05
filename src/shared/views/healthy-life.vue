@@ -3,11 +3,14 @@ import { reactive, onMounted } from 'vue'
 import axios from 'axios'
 
 const endpoint = 'http://localhost:3000/healthy'
+const recEndpoint = 'http://localhost:3000/recommendations'
 
 type HealthyRecord = { id?: number; heartRate?: number | string; glucose?: number | string; weight?: number | string; bloodPressure?: string }
 
 const data = reactive<HealthyRecord>({ heartRate: '', glucose: '', weight: '', bloodPressure: '' })
 const summary = reactive<{ heartRate: number; glucose: number; weight: number; bloodPressure: string }>({ heartRate: 0, glucose: 0, weight: 0, bloodPressure: '0/0' })
+const recommendations = reactive<Array<{ id?: number; text: string }>>([])
+const currentReco = reactive<{ text: string }>({ text: '—' })
 
 const load = async () => {
 	try {
@@ -22,9 +25,27 @@ const load = async () => {
 		summary.glucose = Number(record.glucose) || 0
 		summary.weight = Number(record.weight) || 0
 		summary.bloodPressure = record.bloodPressure || '0/0'
+
+		// load recommendations too
+		try {
+			const rres = await axios.get(recEndpoint)
+			recommendations.splice(0, recommendations.length, ...(Array.isArray(rres.data) ? rres.data : []))
+			pickRandomReco()
+		} catch (re) {
+			console.warn('Cannot load recommendations', re)
+		}
 	} catch (e) {
 		console.warn('Cannot load healthy data', e)
 	}
+}
+
+const pickRandomReco = () => {
+ 	if (!recommendations || recommendations.length === 0) {
+ 		currentReco.text = '—'
+ 		return
+ 	}
+ 	const idx = Math.floor(Math.random() * recommendations.length)
+ 	currentReco.text = recommendations[idx].text || '—'
 }
 
 const save = async () => {
@@ -51,6 +72,8 @@ const save = async () => {
 
 		await load()
 		window.alert('Data saved')
+		// pick a new recommendation after save
+		pickRandomReco()
 	} catch (e) {
 		console.error('Save failed', e)
 		window.alert('Save failed')
@@ -68,6 +91,8 @@ const addRecord = async () => {
 		await axios.post(endpoint, payload)
 		await load()
 		window.alert('Record added')
+		// pick a new recommendation after adding
+		pickRandomReco()
 	} catch (e) {
 		console.error('Add record failed', e)
 		window.alert('Add failed')
@@ -113,7 +138,7 @@ onMounted(load)
 
 				<div class="card reco-card">
 					<div class="reco-title">Food Recommendations:</div>
-					<div class="reco-body">—</div>
+					<div class="reco-body">{{ currentReco.text }}</div>
 				</div>
 
 				<div class="actions-row">
