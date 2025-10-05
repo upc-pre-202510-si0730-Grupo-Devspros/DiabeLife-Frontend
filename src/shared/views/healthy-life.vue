@@ -300,7 +300,7 @@ onMounted(load)
 .healthy-page {
 	max-width: 1200px;
 	margin: 0 auto;
-	background-color: #f7fafc;
+	background-color: #f5f6fa;
 	min-height: 100vh;
 	padding: 2rem;
 }
