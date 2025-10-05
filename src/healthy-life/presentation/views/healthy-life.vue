@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../../infrastructure/healthy-life.api'
+import { toHealthyRequest, toHealthyResource, toFoodResource } from '../../infrastructure/healthy-life.assembler'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import HealthSummary from '../components/HealthSummary.vue'
+import FoodList from '../components/FoodList.vue'
 
-const endpoint = 'http://localhost:3000/healthy'
-const recEndpoint = 'http://localhost:3000/recommendations'
-const foodEndpoint = 'http://localhost:3000/foodData'
+// endpoints handled by api module
 
 type HealthyRecord = { id?: number; heartRate?: number; glucose?: number; weight?: number; bloodPressure?: string }
 type FoodRecord = { id?: number; food?: string; timestamp?: string }
@@ -24,19 +25,20 @@ const isLoading = reactive<{ health: boolean; food: boolean }>({ health: false, 
 
 const load = async () => {
 	try {
-		const res = await axios.get(endpoint)
+		const res = await api.getHealthy()
 		const record = Array.isArray(res.data) ? res.data[0] || {} : res.data
-		
+
 		// Don't load data into input fields - keep them empty for new entries
-		// Only load summary for display
-		summary.heartRate = record.heartRate || 0
-		summary.glucose = record.glucose || 0
-		summary.weight = record.weight || 0
-		summary.bloodPressure = record.bloodPressure || '0/0'
+		// Only load summary for display using assembler
+		const resource = toHealthyResource(record)
+		summary.heartRate = resource.heartRate || 0
+		summary.glucose = resource.glucose || 0
+		summary.weight = resource.weight || 0
+		summary.bloodPressure = resource.bloodPressure || '0/0'
 
 		// load recommendations too
 		try {
-			const rres = await axios.get(recEndpoint)
+			const rres = await api.getRecommendations()
 			recommendations.splice(0, recommendations.length, ...(Array.isArray(rres.data) ? rres.data : []))
 			pickRandomReco()
 		} catch (re) {
@@ -45,8 +47,9 @@ const load = async () => {
 
 		// load food data
 		try {
-			const fres = await axios.get(foodEndpoint)
-			savedFoods.splice(0, savedFoods.length, ...(Array.isArray(fres.data) ? fres.data : []))
+			const fres = await api.getFoodData()
+			const foods = Array.isArray(fres.data) ? fres.data.map(toFoodResource) : []
+			savedFoods.splice(0, savedFoods.length, ...foods)
 		} catch (fe) {
 			console.warn('Cannot load food data', fe)
 		}
@@ -67,24 +70,23 @@ const pickRandomReco = () => {
 const saveHealthData = async () => {
 	isLoading.health = true
 	try {
-		const res = await axios.get(endpoint)
+		const res = await api.getHealthy()
 		const exists = Array.isArray(res.data) ? res.data.length > 0 : !!res.data.id
-		const healthPayload = {
-			heartRate: data.heartRate,
-			glucose: data.glucose,
-			weight: data.weight,
-			bloodPressure: data.bloodPressure
-		}
+		const healthPayload = toHealthyRequest(data)
 
 		if (exists) {
 			if (Array.isArray(res.data)) {
 				const id = res.data[0].id
-				await axios.put(`${endpoint}/${id}`, healthPayload)
+				await api.updateHealthy(id, healthPayload)
+			} else if (res.data.id) {
+				await api.updateHealthy(res.data.id, healthPayload)
 			} else {
-				await axios.put(endpoint, healthPayload)
+				// fallback: update first item
+				const id = Array.isArray(res.data) && res.data[0] ? res.data[0].id : undefined
+				if (id) await api.updateHealthy(id, healthPayload)
 			}
 		} else {
-			await axios.post(endpoint, healthPayload)
+			await api.createHealthy(healthPayload)
 		}
 
 		// Update summary immediately with the saved data
@@ -120,7 +122,7 @@ const saveFoodData = async () => {
 			food: foodData.food,
 			timestamp: new Date().toISOString()
 		}
-		await axios.post(foodEndpoint, foodPayload)
+		await api.createFoodData(foodPayload)
 		foodData.food = '' // Clear the field after saving
 		await load() // Reload to show the new food
 		pickRandomReco() // Show recommendation after adding food
@@ -212,36 +214,7 @@ onMounted(load)
 				<Card class="mb-3">
 					<template #title>Health Summary</template>
 					<template #content>
-						<div class="grid">
-							<div class="col-6 md:col-3 text-center mb-3">
-								<div class="metric-icon heart-icon mb-2">
-									<i class="pi pi-heart-fill"></i>
-								</div>
-								<div class="metric-label">Heart Rate</div>
-								<div class="metric-value">{{ summary.heartRate }} bpm</div>
-							</div>
-							<div class="col-6 md:col-3 text-center mb-3">
-								<div class="metric-icon glucose-icon mb-2">
-									<i class="pi pi-chart-line"></i>
-								</div>
-								<div class="metric-label">Glucose</div>
-								<div class="metric-value">{{ summary.glucose }} mg/dL</div>
-							</div>
-							<div class="col-6 md:col-3 text-center mb-3">
-								<div class="metric-icon weight-icon mb-2">
-									<i class="pi pi-chart-bar"></i>
-								</div>
-								<div class="metric-label">Weight</div>
-								<div class="metric-value">{{ summary.weight }} kg</div>
-							</div>
-							<div class="col-6 md:col-3 text-center mb-3">
-								<div class="metric-icon pressure-icon mb-2">
-									<i class="pi pi-arrow-up"></i>
-								</div>
-								<div class="metric-label">Blood Pressure</div>
-								<div class="metric-value">{{ summary.bloodPressure }}</div>
-							</div>
-						</div>
+						<HealthSummary :summary="summary" />
 					</template>
 				</Card>
 
@@ -276,19 +249,7 @@ onMounted(load)
 				<Card class="mb-3">
 					<template #title>Recent Foods</template>
 					<template #content>
-						<div v-if="savedFoods.length > 0" class="food-list">
-							<div 
-								v-for="food in savedFoods.slice(-5)" 
-								:key="food.id"
-								class="food-item mb-2"
-							>
-								<div class="food-text">{{ food.food }}</div>
-								<div class="food-time">{{ formatTimestamp(food.timestamp) }}</div>
-							</div>
-						</div>
-						<div v-else class="text-center text-muted">
-							No food data recorded yet
-						</div>
+						<FoodList :foods="savedFoods" :formatTimestamp="formatTimestamp" />
 					</template>
 				</Card>
 			</div>
@@ -335,18 +296,18 @@ onMounted(load)
 
 .metric-label {
 	font-size: 0.875rem;
-	color: #718096;
+	color: #000000;
 	margin-bottom: 0.25rem;
 }
 
 .metric-value {
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: #2d3748;
+	color: #000000;
 }
 
 .text-muted {
-	color: #718096;
+	color: #000000;
 }
 
 /* Light theme for cards */
@@ -363,7 +324,7 @@ onMounted(load)
 
 :deep(.p-card-title) {
 	margin-bottom: 1rem;
-	color: #2d3748;
+	color: #000000;
 	font-weight: 600;
 }
 
@@ -372,14 +333,14 @@ onMounted(load)
 	border-radius: 6px;
 	background-color: #ffffff;
 	border: 1px solid #d1d5db;
-	color: #374151;
+	color: #000000;
 }
 
 :deep(.p-inputtext) {
 	border-radius: 6px;
 	background-color: #ffffff;
 	border: 1px solid #d1d5db;
-	color: #374151;
+	color: #000000;
 }
 
 :deep(.p-inputnumber-input:focus) {
@@ -394,7 +355,7 @@ onMounted(load)
 
 /* Labels */
 :deep(label) {
-	color: #374151;
+	color: #000000;
 	font-weight: 500;
 }
 
@@ -450,13 +411,19 @@ onMounted(load)
 
 .food-text {
 	font-weight: 500;
-	color: #2d3748;
+	color: #000000;
 	flex: 1;
 }
 
 .food-time {
 	font-size: 0.75rem;
-	color: #718096;
+	color: #000000;
 	margin-left: 1rem;
+}
+
+/* Ensure most text inside Healthy Life is black by default */
+.healthy-page,
+.healthy-page :where(*) {
+	color: #000000;
 }
 </style>
