@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-const Home = () => import("../src/shared/views/home.vue");
-const NotFound = () => import("../src/shared/views/page-not-found.vue");
-const Healthy = () => import("../src/shared/views/healthy-life.vue");
+const Home = () => import("./shared/presentation/views/home.vue");
+const NotFound = () => import("./shared/presentation/views/page-not-found.vue");
+const Healthy = () => import("./healthy-life/presentation/views/healthy-life.vue");
 
 const routes = [
     {
