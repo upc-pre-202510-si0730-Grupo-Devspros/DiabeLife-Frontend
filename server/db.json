@@ -1,25 +1,11 @@
 {
   "healthy": [
     {
-      "heartRate": "90",
-      "glucose": "80",
-      "weight": "70",
-      "bloodPressure": "120/80",
+      "heartRate": 97,
+      "glucose": 82,
+      "weight": 90,
+      "bloodPressure": "110/90",
       "id": 1
-    },
-    {
-      "heartRate": "90",
-      "glucose": "80",
-      "weight": "70",
-      "bloodPressure": "120/80",
-      "id": 2
-    },
-    {
-      "heartRate": "90",
-      "glucose": "80",
-      "weight": "70",
-      "bloodPressure": "120/80",
-      "id": 3
     }
   ],
   "recommendations": [
@@ -42,6 +28,18 @@
     {
       "id": 5,
       "text": "Reduce added sugars and processed snacks."
+    }
+  ],
+  "foodData": [
+    {
+      "food": "Platano",
+      "timestamp": "2025-10-05T02:09:22.652Z",
+      "id": 1
+    },
+    {
+      "food": "Manzana",
+      "timestamp": "2025-10-05T02:36:19.390Z",
+      "id": 2
     }
   ]
 }

@@ -1,29 +1,37 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
 import axios from 'axios'
+import Card from 'primevue/card'
+import InputText from 'primevue/inputtext'
+import InputNumber from 'primevue/inputnumber'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
 
 const endpoint = 'http://localhost:3000/healthy'
 const recEndpoint = 'http://localhost:3000/recommendations'
+const foodEndpoint = 'http://localhost:3000/foodData'
 
-type HealthyRecord = { id?: number; heartRate?: number | string; glucose?: number | string; weight?: number | string; bloodPressure?: string }
+type HealthyRecord = { id?: number; heartRate?: number; glucose?: number; weight?: number; bloodPressure?: string }
+type FoodRecord = { id?: number; food?: string; timestamp?: string }
 
-const data = reactive<HealthyRecord>({ heartRate: '', glucose: '', weight: '', bloodPressure: '' })
+const data = reactive<HealthyRecord>({ heartRate: undefined, glucose: undefined, weight: undefined, bloodPressure: '' })
+const foodData = reactive<{ food: string }>({ food: '' })
 const summary = reactive<{ heartRate: number; glucose: number; weight: number; bloodPressure: string }>({ heartRate: 0, glucose: 0, weight: 0, bloodPressure: '0/0' })
 const recommendations = reactive<Array<{ id?: number; text: string }>>([])
 const currentReco = reactive<{ text: string }>({ text: '—' })
+const savedFoods = reactive<Array<FoodRecord>>([])
+const isLoading = reactive<{ health: boolean; food: boolean }>({ health: false, food: false })
 
 const load = async () => {
 	try {
 		const res = await axios.get(endpoint)
 		const record = Array.isArray(res.data) ? res.data[0] || {} : res.data
-		data.heartRate = record.heartRate ?? ''
-		data.glucose = record.glucose ?? ''
-		data.weight = record.weight ?? ''
-		data.bloodPressure = record.bloodPressure ?? ''
-
-		summary.heartRate = Number(record.heartRate) || 0
-		summary.glucose = Number(record.glucose) || 0
-		summary.weight = Number(record.weight) || 0
+		
+		// Don't load data into input fields - keep them empty for new entries
+		// Only load summary for display
+		summary.heartRate = record.heartRate || 0
+		summary.glucose = record.glucose || 0
+		summary.weight = record.weight || 0
 		summary.bloodPressure = record.bloodPressure || '0/0'
 
 		// load recommendations too
@@ -33,6 +41,14 @@ const load = async () => {
 			pickRandomReco()
 		} catch (re) {
 			console.warn('Cannot load recommendations', re)
+		}
+
+		// load food data
+		try {
+			const fres = await axios.get(foodEndpoint)
+			savedFoods.splice(0, savedFoods.length, ...(Array.isArray(fres.data) ? fres.data : []))
+		} catch (fe) {
+			console.warn('Cannot load food data', fe)
 		}
 	} catch (e) {
 		console.warn('Cannot load healthy data', e)
@@ -48,11 +64,12 @@ const pickRandomReco = () => {
  	currentReco.text = recommendations[idx].text || '—'
 }
 
-const save = async () => {
+const saveHealthData = async () => {
+	isLoading.health = true
 	try {
 		const res = await axios.get(endpoint)
 		const exists = Array.isArray(res.data) ? res.data.length > 0 : !!res.data.id
-		const payload = {
+		const healthPayload = {
 			heartRate: data.heartRate,
 			glucose: data.glucose,
 			weight: data.weight,
@@ -62,40 +79,67 @@ const save = async () => {
 		if (exists) {
 			if (Array.isArray(res.data)) {
 				const id = res.data[0].id
-				await axios.put(`${endpoint}/${id}`, payload)
+				await axios.put(`${endpoint}/${id}`, healthPayload)
 			} else {
-				await axios.put(endpoint, payload)
+				await axios.put(endpoint, healthPayload)
 			}
 		} else {
-			await axios.post(endpoint, payload)
+			await axios.post(endpoint, healthPayload)
 		}
 
-		await load()
-		window.alert('Data saved')
-		// pick a new recommendation after save
-		pickRandomReco()
+		// Update summary immediately with the saved data
+		summary.heartRate = data.heartRate || 0
+		summary.glucose = data.glucose || 0
+		summary.weight = data.weight || 0
+		summary.bloodPressure = data.bloodPressure || '0/0'
+
+		// Clear the input fields after saving
+		data.heartRate = undefined
+		data.glucose = undefined
+		data.weight = undefined
+		data.bloodPressure = ''
+
+		window.alert('Health data saved successfully')
 	} catch (e) {
-		console.error('Save failed', e)
-		window.alert('Save failed')
+		console.error('Save health data failed', e)
+		window.alert('Save health data failed')
+	} finally {
+		isLoading.health = false
 	}
 }
 
-const addRecord = async () => {
+const saveFoodData = async () => {
+	if (!foodData.food.trim()) {
+		window.alert('Please enter food information')
+		return
+	}
+
+	isLoading.food = true
 	try {
-		const payload = {
-			heartRate: data.heartRate,
-			glucose: data.glucose,
-			weight: data.weight,
-			bloodPressure: data.bloodPressure
+		const foodPayload = {
+			food: foodData.food,
+			timestamp: new Date().toISOString()
 		}
-		await axios.post(endpoint, payload)
-		await load()
-		window.alert('Record added')
-		// pick a new recommendation after adding
-		pickRandomReco()
+		await axios.post(foodEndpoint, foodPayload)
+		foodData.food = '' // Clear the field after saving
+		await load() // Reload to show the new food
+		pickRandomReco() // Show recommendation after adding food
+		window.alert('Food data saved successfully')
 	} catch (e) {
-		console.error('Add record failed', e)
-		window.alert('Add failed')
+		console.error('Save food data failed', e)
+		window.alert('Save food data failed')
+	} finally {
+		isLoading.food = false
+	}
+}
+
+const formatTimestamp = (timestamp: string | undefined) => {
+	if (!timestamp) return 'Unknown time'
+	try {
+		const date = new Date(timestamp)
+		return date.toLocaleString()
+	} catch {
+		return 'Invalid date'
 	}
 }
 
@@ -103,277 +147,316 @@ onMounted(load)
 </script>
 
 <template>
-	<div class="healthy-page">
-		<div class="content-wrap">
-			<div class="col left-col">
-				<div class="card form-card">
-					<div class="form-row">
-						<label>Heart Rate</label>
-						<input v-model="data.heartRate" placeholder="bpm" />
-					</div>
-					<div class="form-row">
-						<label>Glucose</label>
-						<input v-model="data.glucose" placeholder="mg/dL" />
-					</div>
-					<div class="form-row">
-						<label>Weight</label>
-						<input v-model="data.weight" placeholder="kg" />
-					</div>
-					<div class="form-row">
-						<label>Blood Pressure</label>
-						<input v-model="data.bloodPressure" placeholder="mmHg" />
-					</div>
+	<div class="healthy-page p-4">
+		<div class="grid">
+			<div class="col-12 md:col-4">
+				<Card class="mb-3">
+					<template #title>Health Metrics</template>
+					<template #content>
+						<div class="field mb-3">
+							<label for="heartRate" class="block mb-2 font-semibold">Heart Rate</label>
+							<InputNumber 
+								id="heartRate"
+								v-model="data.heartRate" 
+								placeholder="bpm"
+								class="w-full"
+								:useGrouping="false"
+							/>
+						</div>
+						<div class="field mb-3">
+							<label for="glucose" class="block mb-2 font-semibold">Glucose</label>
+							<InputNumber 
+								id="glucose"
+								v-model="data.glucose" 
+								placeholder="mg/dL"
+								class="w-full"
+								:useGrouping="false"
+							/>
+						</div>
+						<div class="field mb-3">
+							<label for="weight" class="block mb-2 font-semibold">Weight</label>
+							<InputNumber 
+								id="weight"
+								v-model="data.weight" 
+								placeholder="kg"
+								class="w-full"
+								:useGrouping="false"
+								:minFractionDigits="1"
+								:maxFractionDigits="2"
+							/>
+						</div>
+						<div class="field mb-3">
+							<label for="bloodPressure" class="block mb-2 font-semibold">Blood Pressure</label>
+							<InputText 
+								id="bloodPressure"
+								v-model="data.bloodPressure" 
+								placeholder="mmHg (e.g., 120/80)"
+								class="w-full"
+							/>
+						</div>
+					</template>
+				</Card>
+
+				<div class="mb-3">
+					<Button 
+						@click="saveHealthData" 
+						label="Save Data" 
+						severity="success"
+						:loading="isLoading.health"
+						class="w-full"
+					/>
 				</div>
 			</div>
 
-			<div class="col right-col">
-				<div class="card summary-card">
-					<ul class="summary-list">
-						<li class="item heart"><span class="icon">❤</span> <span class="label">Heart Rate:</span> <strong>{{ summary.heartRate }} bpm</strong></li>
-						<li class="item glucose"><span class="icon">💧</span> <span class="label">Glucose:</span> <strong>{{ summary.glucose }} mg/dL</strong></li>
-						<li class="item weight"><span class="icon">🔥</span> <span class="label">Weight:</span> <strong>{{ summary.weight }} kg</strong></li>
-						<li class="item pressure"><span class="icon">⬆</span> <span class="label">Blood Pressure:</span> <strong>{{ summary.bloodPressure }}</strong></li>
-					</ul>
-				</div>
+			<div class="col-12 md:col-8">
+				<Card class="mb-3">
+					<template #title>Health Summary</template>
+					<template #content>
+						<div class="grid">
+							<div class="col-6 md:col-3 text-center mb-3">
+								<div class="metric-icon heart-icon mb-2">
+									<i class="pi pi-heart-fill"></i>
+								</div>
+								<div class="metric-label">Heart Rate</div>
+								<div class="metric-value">{{ summary.heartRate }} bpm</div>
+							</div>
+							<div class="col-6 md:col-3 text-center mb-3">
+								<div class="metric-icon glucose-icon mb-2">
+									<i class="pi pi-chart-line"></i>
+								</div>
+								<div class="metric-label">Glucose</div>
+								<div class="metric-value">{{ summary.glucose }} mg/dL</div>
+							</div>
+							<div class="col-6 md:col-3 text-center mb-3">
+								<div class="metric-icon weight-icon mb-2">
+									<i class="pi pi-chart-bar"></i>
+								</div>
+								<div class="metric-label">Weight</div>
+								<div class="metric-value">{{ summary.weight }} kg</div>
+							</div>
+							<div class="col-6 md:col-3 text-center mb-3">
+								<div class="metric-icon pressure-icon mb-2">
+									<i class="pi pi-arrow-up"></i>
+								</div>
+								<div class="metric-label">Blood Pressure</div>
+								<div class="metric-value">{{ summary.bloodPressure }}</div>
+							</div>
+						</div>
+					</template>
+				</Card>
 
-				<div class="card reco-card">
-					<div class="reco-title">Food Recommendations:</div>
-					<div class="reco-body">{{ currentReco.text }}</div>
-				</div>
+				<Card class="mb-3">
+					<template #title>Food Recommendations</template>
+					<template #content>
+						<div class="field mb-3">
+							<label for="food" class="block mb-2 font-semibold">Add Food Consumed</label>
+							<InputText 
+								id="food"
+								v-model="foodData.food" 
+								placeholder="Enter food you consumed..."
+								class="w-full"
+							/>
+							<Button 
+								@click="saveFoodData" 
+								label="Add Food" 
+								severity="primary"
+								:loading="isLoading.food"
+								class="w-full mt-2"
+							/>
+						</div>
+						<Message v-if="currentReco.text !== '—'" severity="info" :closable="false">
+							{{ currentReco.text }}
+						</Message>
+						<div v-else class="text-center text-muted">
+							No recommendations available
+						</div>
+					</template>
+				</Card>
 
-				<div class="actions-row">
-					<button @click="save" class="btn btn-primary">Save Data</button>
-					<button @click="addRecord" class="btn btn-success">Add Record</button>
-				</div>
+				<Card class="mb-3">
+					<template #title>Recent Foods</template>
+					<template #content>
+						<div v-if="savedFoods.length > 0" class="food-list">
+							<div 
+								v-for="food in savedFoods.slice(-5)" 
+								:key="food.id"
+								class="food-item mb-2"
+							>
+								<div class="food-text">{{ food.food }}</div>
+								<div class="food-time">{{ formatTimestamp(food.timestamp) }}</div>
+							</div>
+						</div>
+						<div v-else class="text-center text-muted">
+							No food data recorded yet
+						</div>
+					</template>
+				</Card>
 			</div>
 		</div>
 	</div>
 </template>
 
 <style scoped>
-.healthy-page { padding: 3rem 2.5rem; }
-.content-wrap { display:flex; gap:3rem; align-items:flex-start }
-.col { display:flex; flex-direction:column }
-.left-col { flex:0 0 320px }
-.right-col { flex:1 }
-.card { background:#fff; border-radius:8px; padding:1.25rem; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-.form-card { padding:1.5rem; }
-.form-row { margin-bottom:1rem }
-.form-row label { display:block; font-weight:700; margin-bottom:0.5rem; color:#2b2b2b }
-.form-row input { width:100%; padding:0.6rem 0.75rem; border-radius:12px; border:1px solid #e6eef6; background:#fbfcfe; color:#333 }
-.summary-card { margin-bottom:1.25rem }
-.summary-list { list-style:none; padding:0; margin:0 }
-.summary-list li { display:flex; gap:0.75rem; align-items:center; padding:0.75rem 0 }
-.summary-list li + li { margin-top:0.25rem }
-.summary-list li .icon { display:inline-flex; width:40px; height:40px; align-items:center; justify-content:center; background:#111; color:#fff; border-radius:50%; font-size:16px }
-.summary-list li .label { color:#3b3b3b; margin-right:0.25rem }
-.summary-list li strong { color:#111 }
-.reco-card { margin-bottom:1.5rem; text-align:center }
-.reco-title { font-weight:600; margin-bottom:0.75rem; color:#2b2b2b; font-size:1.1rem }
-.reco-body { min-height:48px; color:#555}
-.actions-row { display:flex; gap:1rem; align-items:center }
-.btn { padding:0.75rem 1.5rem; border-radius:10px; border:none; cursor:pointer; font-weight:600 }
-.btn-primary { background:#2b6ce6; color:#fff }
-.btn-success { background:#2ec07a; color:#fff }
+.healthy-page {
+	max-width: 1200px;
+	margin: 0 auto;
+	background-color: #f7fafc;
+	min-height: 100vh;
+	padding: 2rem;
+}
 
-/* Colored icons per metric to match the design */
-.summary-list li.item.heart .icon { background: linear-gradient(135deg,#ff6b6b,#ff2d55); box-shadow: 0 6px 18px rgba(255,107,107,0.12) }
-.summary-list li.item.glucose .icon { background: linear-gradient(135deg,#00c6ff,#0072ff); box-shadow: 0 6px 18px rgba(0,198,255,0.12) }
-.summary-list li.item.weight .icon { background: linear-gradient(135deg,#ff9a3c,#ff6a00); box-shadow: 0 6px 18px rgba(255,154,60,0.12) }
-.summary-list li.item.pressure .icon { background: linear-gradient(135deg,#2ee6b6,#00b894); box-shadow: 0 6px 18px rgba(46,230,182,0.12) }
+.metric-icon {
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto;
+	font-size: 1.5rem;
+	color: white;
+}
 
-/* Slightly stronger card shadows to match Figma */
-.form-card, .summary-card, .reco-card { box-shadow: 0 10px 30px rgba(18,25,34,0.06); border-radius:12px }
+.heart-icon {
+	background: #e53e3e;
+}
 
-@media (max-width: 900px) {
-	.content-wrap { flex-direction:column }
-	.left-col { flex:unset }
+.glucose-icon {
+	background: #3182ce;
+}
+
+.weight-icon {
+	background: #dd6b20;
+}
+
+.pressure-icon {
+	background: #38a169;
+}
+
+.metric-label {
+	font-size: 0.875rem;
+	color: #718096;
+	margin-bottom: 0.25rem;
+}
+
+.metric-value {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #2d3748;
+}
+
+.text-muted {
+	color: #718096;
+}
+
+/* Light theme for cards */
+:deep(.p-card) {
+	background-color: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+:deep(.p-card-body) {
+	padding: 1.5rem;
+}
+
+:deep(.p-card-title) {
+	margin-bottom: 1rem;
+	color: #2d3748;
+	font-weight: 600;
+}
+
+/* Light theme for form inputs */
+:deep(.p-inputnumber-input) {
+	border-radius: 6px;
+	background-color: #ffffff;
+	border: 1px solid #d1d5db;
+	color: #374151;
+}
+
+:deep(.p-inputtext) {
+	border-radius: 6px;
+	background-color: #ffffff;
+	border: 1px solid #d1d5db;
+	color: #374151;
+}
+
+:deep(.p-inputnumber-input:focus) {
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+:deep(.p-inputtext:focus) {
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Labels */
+:deep(label) {
+	color: #374151;
+	font-weight: 500;
+}
+
+/* Button styling */
+:deep(.p-button) {
+	border-radius: 6px;
+	font-weight: 600;
+	border: none;
+	padding: 0.75rem 1.5rem;
+}
+
+:deep(.p-button-primary) {
+	background-color: #3b82f6;
+	color: #ffffff;
+}
+
+:deep(.p-button-success) {
+	background-color: #10b981;
+	color: #ffffff;
+}
+
+/* Message component for recommendations */
+:deep(.p-message) {
+	background-color: #dbeafe;
+	border: 1px solid #93c5fd;
+	color: #1e40af;
+	border-radius: 6px;
+}
+
+:deep(.p-message .p-message-text) {
+	color: #1e40af;
+}
+
+:deep(.p-message .p-message-icon) {
+	color: #3b82f6;
+}
+
+/* Food list styling */
+.food-list {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.food-item {
+	background-color: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 0.75rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.food-text {
+	font-weight: 500;
+	color: #2d3748;
+	flex: 1;
+}
+
+.food-time {
+	font-size: 0.75rem;
+	color: #718096;
+	margin-left: 1rem;
 }
 </style>
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+ 
