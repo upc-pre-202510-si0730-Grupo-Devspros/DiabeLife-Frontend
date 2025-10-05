@@ -1,3 +1,11 @@
 {
-
+  "healthy": [
+    {
+      "heartRate": "90",
+      "glucose": "80",
+      "weight": "70",
+      "bloodPressure": "120/80",
+      "id": 1
+    }
+  ]
 }

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const Home = () => import("../src/shared/views/home.vue");
 const NotFound = () => import("../src/shared/views/page-not-found.vue");
+const Healthy = () => import("../src/shared/views/healthy-life.vue");
 
 const routes = [
     {
@@ -9,6 +10,12 @@ const routes = [
         name: "home",
         component: Home,
         meta: { title: "Home" }
+    },
+    {
+        path: "/healthy",
+        name: "healthy",
+        component: Healthy,
+        meta: { title: "Healthy Life" }
     },
     {
         path: "/:pathMatch(.*)*",
