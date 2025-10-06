@@ -21,16 +21,13 @@ export class PostAssembler {
             return [];
         }
 
-        const resources = Array.isArray(response.data)
-            ? response.data
-            : response.data["posts"] ?? [];
-
-        return resources.map(resource => this.toEntityFromResource(resource));
+        return (response.data || []).map(resource => this.toEntityFromResource(resource));
     }
 
 
+
     static toResourceFromEntity(entity) {
-        return {
+        const resource = {
             id: entity.id,
             authorId: entity.authorId,
             content: entity.content,
@@ -39,5 +36,11 @@ export class PostAssembler {
             comments: entity.comments,
             createdAt: entity.createdAt,
         };
+
+        if (resource.id == null) {
+            delete resource.id;
+        }
+
+        return resource;
     }
 }
