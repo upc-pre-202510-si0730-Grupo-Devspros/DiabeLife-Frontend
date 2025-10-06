@@ -25,7 +25,7 @@
         <button
             class="generate-full-btn"
             @click="handleGenerateFullReport"
-            :disabled="loading"
+            :disabled="reportStore.loading"
         >
           Generate full health report
         </button>
@@ -53,7 +53,7 @@
       <button
           class="generate-btn"
           @click="handleGenerateSpecificReport"
-          :disabled="loading || selectedDataTypes.length === 0"
+          :disabled="reportStore.loading || selectedDataTypes.length === 0"
       >
         Generate
       </button>
@@ -68,7 +68,6 @@ import { useReportStore } from '@/Reports/application/stores/reportStore.js';
 const reportStore = useReportStore();
 const selectedFormat = ref('PDF');
 const selectedDataTypes = ref([]);
-const loading = ref(false);
 
 const dataOptions = [
   { label: 'Glucose levels', value: 'glucose' },
@@ -82,23 +81,21 @@ watch(selectedFormat, (newFormat) => {
 });
 
 const handleGenerateFullReport = async () => {
-  loading.value = true;
   try {
     await reportStore.generateFullHealthReport();
-  } finally {
-    loading.value = false;
+  } catch (error) {
+    console.error('Error generating full report:', error);
   }
 };
 
 const handleGenerateSpecificReport = async () => {
   if (selectedDataTypes.value.length === 0) return;
 
-  loading.value = true;
   try {
     await reportStore.generateSpecificReport(selectedDataTypes.value);
     selectedDataTypes.value = [];
-  } finally {
-    loading.value = false;
+  } catch (error) {
+    console.error('Error generating specific report:', error);
   }
 };
 </script>

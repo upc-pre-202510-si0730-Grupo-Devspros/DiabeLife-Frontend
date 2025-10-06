@@ -232,6 +232,7 @@ const handleShare = async () => {
   resize: vertical;
   transition: all 0.2s;
   background: #f9fafb;
+  color: #1f2937;
 }
 
 .message-input:focus {
