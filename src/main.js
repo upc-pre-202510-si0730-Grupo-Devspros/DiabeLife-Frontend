@@ -6,27 +6,52 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import PrimeVue from 'primevue/config';
 import Material from '@primeuix/themes/material';
+
+import Avatar from "primevue/avatar";
+import Textarea from "primevue/textarea";  // ✅ Solo este
+import Skeleton from "primevue/skeleton";
+
 import {
     Button,
     Card,
     Checkbox,
     Column,
     ConfirmationService,
-    ConfirmDialog, DataTable, Dialog,
-    DialogService, Drawer, FileUpload, FloatLabel, IconField, InputIcon, InputNumber, InputText, Menu,
-    Rating, Row, Select, SelectButton, Tag, Textarea, Toast,
-    ToastService, Toolbar, Tooltip
+    ConfirmDialog,
+    DataTable,
+    Dialog,
+    DialogService,
+    Drawer,
+    FileUpload,
+    FloatLabel,
+    IconField,
+    InputIcon,
+    InputNumber,
+    InputText,
+    Menu,
+    Rating,
+    Row,
+    Select,
+    SelectButton,
+    Tag,
+    Toast,
+    ToastService,
+    Toolbar,
+    Tooltip
 } from "primevue";
+
 import router from "./router.js";
 import pinia from "./pinia.js";
 
-// noinspection JSCheckFunctionSignatures
+// ✅ APP
 createApp(App)
     .use(i18n)
-    .use(PrimeVue, { theme: { preset: Material }, ripple: true})
+    .use(PrimeVue, { theme: { preset: Material }, ripple: true })
     .use(ConfirmationService)
     .use(DialogService)
     .use(ToastService)
+
+    // ✅ Registro de componentes PrimeVue
     .component('pv-button', Button)
     .component('pv-card', Card)
     .component('pv-column', Column)
@@ -47,9 +72,12 @@ createApp(App)
     .component('pv-row', Row)
     .component('pv-drawer', Drawer)
     .component('pv-tag', Tag)
-    .component('pv-textarea', Textarea)
+    .component('pv-textarea', Textarea)   // ✅ SOLO AQUÍ
     .component('pv-toolbar', Toolbar)
     .component('pv-toast', Toast)
+    .component('pv-avatar', Avatar)
+    .component('pv-skeleton', Skeleton)
+
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia)
