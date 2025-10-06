@@ -9,8 +9,8 @@
 </template>
 
 <script setup>
-import NewReportSection from '../components/NewReportSection.vue';
-import ShareReportSection from '../components/ShareReportSection.vue';
+import NewReportSection from '@/Reports/presentation/components/NewReportSection.vue';
+import ShareReportSection from '@/Reports/presentation/components/ShareReportSection.vue';
 </script>
 
 <style scoped>

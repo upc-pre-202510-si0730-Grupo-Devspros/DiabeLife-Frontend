@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 const Home = () => import("../src/shared/views/home.vue");
+const Reports = () => import("@/Reports/presentation/views/ReportView.vue");
 const NotFound = () => import("../src/shared/views/page-not-found.vue");
 
 const routes = [
@@ -9,6 +10,12 @@ const routes = [
         name: "home",
         component: Home,
         meta: { title: "Home" }
+    },
+    {
+        path: "/reports",
+        name: "reports",
+        component: Reports,
+        meta: { title: "Reports" }
     },
     {
         path: "/:pathMatch(.*)*",

@@ -14,6 +14,7 @@
           :class="['format-btn', { active: selectedFormat === 'WORD' }]"
           @click="selectedFormat = 'WORD'"
       >
+        <i class="pi pi-circle-fill"></i>
         WORD
       </button>
     </div>
@@ -62,7 +63,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { useReportStore } from '../stores/reportStore.js';
+import { useReportStore } from '@/Reports/application/stores/reportStore.js';
 
 const reportStore = useReportStore();
 const selectedFormat = ref('PDF');

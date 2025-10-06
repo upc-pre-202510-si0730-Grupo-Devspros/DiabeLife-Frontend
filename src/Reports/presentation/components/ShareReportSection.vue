@@ -52,7 +52,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useReportStore } from '../stores/reportStore.js';
+import { useReportStore } from '@/Reports/application/stores/reportStore.js';
 
 const reportStore = useReportStore();
 const message = ref('');

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { ReportService } from '../application/services/ReportService.js';
-import { JsonServerReportRepository } from '../infrastructure/repositories/JsonServerReportRepository.js';
+import { ReportService } from '@/Reports/application/services/ReportService.js';
+import { JsonServerReportRepository } from '@/Reports/infraestructure/repositories/JsonServerReportRepository.js';
 
 const reportRepository = new JsonServerReportRepository();
 const reportService = new ReportService(reportRepository);

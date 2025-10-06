@@ -1,5 +1,5 @@
-import { ReportRepository } from '../../domain/repositories/ReportRepository.js';
-import { Report } from '../../domain/entities/Report.js';
+import { ReportRepository } from '@/Reports/domain/repositories/ReportRepository.js';
+import { Report } from '@/Reports/domain/entities/Report.js';
 import { ApiClient } from '../http/ApiClient.js';
 
 export class JsonServerReportRepository extends ReportRepository {
