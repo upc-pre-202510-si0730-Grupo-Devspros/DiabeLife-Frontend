@@ -1,46 +1,5 @@
 {
   "reports": [
-    {
-      "id": 1,
-      "name": "Full Health Report - October 2025",
-      "date": "2025-10-05",
-      "type": "full",
-      "format": "PDF",
-      "selected": false,
-      "shared": false,
-      "createdAt": "2025-10-05T10:30:00Z",
-      "data": ["glucose", "weight", "blood_pressure", "heart_rate"]
-    },
-    {
-      "id": 2,
-      "name": "Glucose Levels Report",
-      "date": "2025-10-04",
-      "type": "specific",
-      "format": "PDF",
-      "selected": false,
-      "shared": false,
-      "createdAt": "2025-10-04T15:45:00Z",
-      "data": ["glucose"]
-    },
-    {
-      "id": 3,
-      "name": "Weekly Health Summary",
-      "date": "2025-10-01",
-      "type": "full",
-      "format": "WORD",
-      "selected": false,
-      "shared": true,
-      "createdAt": "2025-10-01T09:15:00Z",
-      "data": ["glucose", "weight", "blood_pressure"]
-    }
   ],
-  "sharedReports": [
-    {
-      "id": 1,
-      "reportIds": [3],
-      "message": "Here's my weekly health summary for review.",
-      "sharedAt": "2025-10-01T16:20:00Z",
-      "recipient": "doctor@clinic.com"
-    }
-  ]
+  "sharedReports": []
 }
