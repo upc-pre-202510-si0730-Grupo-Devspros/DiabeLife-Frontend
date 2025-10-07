@@ -34,9 +34,7 @@ const state = reactive({
     time: '',
     doctor: '',
     notes: ''
-  },
-  // Mock appointments data - no default appointments
-  appointments: [] as Appointment[]
+  }
 })
 
 // Available time slots for appointments
@@ -95,7 +93,7 @@ const calendarDays = computed(() => {
   for (let i = 0; i < firstDayOfWeek; i++) {
     const prevDate = new Date(state.currentYear, state.currentMonth, -(firstDayOfWeek - 1 - i))
     const dateStr = formatDate(prevDate)
-    const dayAppointments = state.appointments.filter(apt => apt.date === dateStr)
+    const dayAppointments = appointmentStore.state.appointments.filter(apt => apt.date === dateStr)
     
     days.push({
       day: prevDate.getDate(),
@@ -113,7 +111,7 @@ const calendarDays = computed(() => {
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(state.currentYear, state.currentMonth, day)
     const dateStr = formatDate(date)
-    const dayAppointments = state.appointments.filter(apt => apt.date === dateStr)
+    const dayAppointments = appointmentStore.state.appointments.filter(apt => apt.date === dateStr)
     
     days.push({
       day,
@@ -132,7 +130,7 @@ const calendarDays = computed(() => {
   for (let i = 1; i <= remainingDays; i++) {
     const nextDate = new Date(state.currentYear, state.currentMonth + 1, i)
     const dateStr = formatDate(nextDate)
-    const dayAppointments = state.appointments.filter(apt => apt.date === dateStr)
+    const dayAppointments = appointmentStore.state.appointments.filter(apt => apt.date === dateStr)
     
     days.push({
       day: nextDate.getDate(),
@@ -150,7 +148,7 @@ const calendarDays = computed(() => {
 })
 
 const upcomingAppointments = computed(() => {
-  return state.appointments
+  return appointmentStore.state.appointments
     .filter(apt => apt.status === 'scheduled')
     .sort((a, b) => {
       const dateA = new Date(`${a.date}T${a.time}`)
@@ -161,7 +159,7 @@ const upcomingAppointments = computed(() => {
 
 const selectedDateAppointments = computed(() => {
   if (!state.selectedDate) return []
-  return state.appointments.filter(apt => apt.date === state.selectedDate)
+  return appointmentStore.state.appointments.filter(apt => apt.date === state.selectedDate)
 })
 
 const formatDate = (date: Date): string => {
@@ -260,42 +258,44 @@ const onEditAppointment = (appointment: Appointment) => {
   state.showEditDialog = true
 }
 
-const saveAppointment = () => {
+const saveAppointment = async () => {
   if (!state.newAppointment.date || !state.newAppointment.time || !state.newAppointment.doctor) {
     alert('Please fill all required fields')
     return
   }
 
-  if (state.showEditDialog && state.selectedAppointment) {
-    // Update existing appointment
-    const index = state.appointments.findIndex(apt => apt.id === state.selectedAppointment!.id)
-    if (index !== -1) {
-      state.appointments[index] = {
-        ...state.selectedAppointment,
+  try {
+    if (state.showEditDialog && state.selectedAppointment) {
+      // Update existing appointment
+      await appointmentStore.updateAppointment(state.selectedAppointment.id!, {
         date: state.newAppointment.date,
         time: state.newAppointment.time,
         doctor: state.newAppointment.doctor,
+        specialty: 'General',
+        status: 'scheduled',
         notes: state.newAppointment.notes
-      }
+      })
+    } else {
+      // Create new appointment
+      await appointmentStore.createAppointment({
+        date: state.newAppointment.date,
+        time: state.newAppointment.time,
+        doctor: state.newAppointment.doctor,
+        specialty: 'General',
+        status: 'scheduled',
+        notes: state.newAppointment.notes
+      })
     }
-  } else {
-    // Create new appointment
-    const newId = state.appointments.length > 0 ? Math.max(...state.appointments.map(a => a.id || 0)) + 1 : 1
-    state.appointments.push({
-      id: newId,
-      date: state.newAppointment.date,
-      time: state.newAppointment.time,
-      doctor: state.newAppointment.doctor,
-      specialty: 'General',
-      status: 'scheduled',
-      notes: state.newAppointment.notes
-    })
-  }
 
-  // Close dialogs and reset form
-  state.showAddDialog = false
-  state.showEditDialog = false
-  state.newAppointment = { date: '', time: '', doctor: '', notes: '' }
+    // Close dialogs and reset form
+    state.showAddDialog = false
+    state.showEditDialog = false
+    state.newAppointment = { date: '', time: '', doctor: '', notes: '' }
+    state.selectedAppointment = null
+  } catch (error) {
+    console.error('Error saving appointment:', error)
+    alert('Error saving appointment. Please try again.')
+  }
 }
 
 const cancelDialog = () => {
@@ -306,13 +306,18 @@ const cancelDialog = () => {
 
 const deleteAppointment = async (appointment: Appointment) => {
   if (appointment.id && confirm('Are you sure you want to delete this appointment?')) {
-    state.appointments = state.appointments.filter(apt => apt.id !== appointment.id)
+    try {
+      await appointmentStore.deleteAppointment(appointment.id)
+    } catch (error) {
+      console.error('Error deleting appointment:', error)
+      alert('Error deleting appointment. Please try again.')
+    }
   }
 }
 
 onMounted(async () => {
-  // Initialize store when ready
-  // await appointmentStore.initialize()
+  // Initialize store when component mounts
+  await appointmentStore.initialize()
 })
 </script>
 
