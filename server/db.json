@@ -1,4 +1,8 @@
 {
+
+  "reports": [
+  ],
+  "sharedReports": [
   "healthy": [
     {
       "heartRate": 110,
