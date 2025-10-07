@@ -2,7 +2,7 @@
 
   "reports": [
   ],
-  "sharedReports": [
+  "sharedReports": [],
   "healthy": [
     {
       "heartRate": 110,
