@@ -45,6 +45,11 @@
     <div class="main">
       <header class="header">
         <div class="spacer"></div>
+
+        <RouterLink to="/notifications" class="notif-icon">
+          <i class="pi pi-bell"></i>
+        </RouterLink>
+
         <language-switcher />
       </header>
 
@@ -66,6 +71,7 @@ const toggleSidebar = () => {
   collapsed.value = !collapsed.value;
 };
 </script>
+
 <style scoped>
 .layout {
   display: flex;
@@ -158,10 +164,22 @@ const toggleSidebar = () => {
   justify-content: flex-end;
   padding: 0 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  gap: 1rem;
 }
 
 .spacer {
   flex: 1;
+}
+
+.notif-icon {
+  color: #1f2a36;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.notif-icon:hover {
+  color: #007ad9;
 }
 
 .content {
