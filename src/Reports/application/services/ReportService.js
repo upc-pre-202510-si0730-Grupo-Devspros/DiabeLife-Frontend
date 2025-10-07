@@ -16,10 +16,10 @@ export class ReportService {
         const reportNumber = reports.length + 1;
 
         const reportData = {
-            name: `Report ${reportNumber}`,
+            name: `Full Health Report ${reportNumber}`,
             date: new Date().toLocaleDateString('en-GB'),
             type: type.toUpperCase(),
-            data: 'all',
+            data: ['glucose', 'weight', 'blood_pressure', 'heart_rate'], // Todos los datos
             selected: false,
             shared: false
         };
@@ -30,12 +30,23 @@ export class ReportService {
     async generateSpecificReport(dataTypes, type = 'PDF') {
         const reports = await this.reportRepository.getAll();
         const reportNumber = reports.length + 1;
+        
+        // Crear nombre descriptivo basado en los datos seleccionados
+        const dataLabels = {
+            'glucose': 'Glucose',
+            'weight': 'Weight', 
+            'blood_pressure': 'Blood Pressure',
+            'heart_rate': 'Heart Rate'
+        };
+        
+        const selectedLabels = dataTypes.map(type => dataLabels[type]).join(', ');
+        const reportName = `${selectedLabels} Report ${reportNumber}`;
 
         const reportData = {
-            name: `Report ${reportNumber}`,
+            name: reportName,
             date: new Date().toLocaleDateString('en-GB'),
             type: type.toUpperCase(),
-            data: dataTypes.join(', '),
+            data: dataTypes, // Array con los tipos de datos seleccionados
             selected: false,
             shared: false
         };

@@ -1,59 +1,6 @@
 {
   "reports": [
-    {
-      "id": 1,
-      "name": "Report 1",
-      "date": "05/10/2025",
-      "type": "PDF",
-      "data": "all",
-      "selected": false,
-      "shared": true
-    },
-    {
-      "name": "Report 2",
-      "date": "05/10/2025",
-      "type": "PDF",
-      "data": "glucose",
-      "selected": false,
-      "shared": false,
-      "id": 2
-    },
-    {
-      "name": "Test Report",
-      "date": "05/10/2025",
-      "type": "PDF",
-      "data": "test",
-      "selected": false,
-      "shared": false,
-      "id": 3
-    },
-    {
-      "name": "Report 4",
-      "date": "05/10/2025",
-      "type": "PDF",
-      "data": "glucose, blood_pressure",
-      "selected": false,
-      "shared": false,
-      "id": 4
-    }
   ],
   "sharedReports": [
-    {
-      "id": 1759723732182,
-      "reports": [
-        {
-          "id": 1,
-          "name": "Report 1",
-          "date": "05/10/2025",
-          "type": "PDF",
-          "data": "all",
-          "selected": true,
-          "shared": true,
-          "sharedAt": "2025-10-06T04:08:52.182Z"
-        }
-      ],
-      "message": "asda",
-      "sharedAt": "2025-10-06T04:08:52.184Z"
-    }
   ]
 }
