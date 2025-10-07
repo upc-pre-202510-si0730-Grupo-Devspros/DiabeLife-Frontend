@@ -1,0 +1,106 @@
+<template>
+  <div class="glucose-status-card">
+    <div class="header">
+      <span>Date: {{ formattedDate }}</span>
+      <span>Hour: {{ formattedTime }}</span>
+    </div>
+    <div class="measurement">
+      <h1>{{ measurement.value }}</h1>
+      <span>{{ measurement.unit }}</span>
+    </div>
+    <div class="status" :class="statusClass">{{ measurement.status }}</div>
+    <div class="trend">Trend: {{ measurement.trend }}</div>
+    <button class="add-button">Add Measurement</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'GlucoseStatus',
+  props: {
+    measurement: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    formattedDate() {
+      return this.measurement.date ? new Intl.DateTimeFormat('en-US').format(this.measurement.date) : '';
+    },
+    formattedTime() {
+      return this.measurement.date ? this.measurement.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+    },
+    statusClass() {
+      if (!this.measurement.status) return '';
+      return `status-${this.measurement.status.toLowerCase()}`;
+    }
+  }
+};
+</script>
+
+<style scoped>
+.glucose-status-card {
+  background-color: #f0f4f8;
+  border-radius: 15px;
+  padding: 2.5rem; /* Un poco más de espacio interno */
+  text-align: center;
+  max-width: 450px; /* Más ancho */
+  min-height: 620px; /* Altura mínima para que coincida con los 2 gráficos */
+  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  font-family: sans-serif;
+  /* Usamos Flexbox para distribuir el contenido verticalmente */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Espacia los elementos (header, medidor, botón) */
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #666;
+}
+.measurement {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  color: #333;
+}
+.measurement h1 {
+  font-size: 6rem; /* Hacemos el número más grande */
+  margin: 0;
+  color: #1a73e8;
+}
+.measurement span {
+  font-size: 1.8rem; /* Un poco más grande */
+  margin-left: 0.5rem;
+  font-weight: bold;
+}
+.status {
+  font-size: 1.8rem; /* Un poco más grande */
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+.status-high { color: #d93025; }
+.status-normal { color: #1e8e3e; }
+.status-low { color: #f9ab00; }
+
+.trend {
+  font-size: 1.4rem; /* Un poco más grande */
+  color: #555;
+  margin-bottom: 1rem;
+}
+.add-button {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 1.2rem 2.5rem; /* Botón más grande */
+  border-radius: 30px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.add-button:hover {
+  background-color: #1765c4;
+}
+</style>
