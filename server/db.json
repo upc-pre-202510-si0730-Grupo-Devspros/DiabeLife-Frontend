@@ -1,3 +1,63 @@
 {
-
+  "healthy": [
+    {
+      "heartRate": 110,
+      "glucose": 84,
+      "weight": 68,
+      "bloodPressure": "112/80",
+      "id": 1
+    }
+  ],
+  "appointments": [
+    {
+      "date": "2025-10-10",
+      "time": "10:00",
+      "doctor": "García",
+      "specialty": "General",
+      "status": "scheduled",
+      "notes": "Cita prueba",
+      "createdAt": "2025-10-07T02:43:17.207Z",
+      "updatedAt": "2025-10-07T02:43:17.207Z",
+      "id": 1
+    }
+  ],
+  "recommendations": [
+    {
+      "id": 1,
+      "text": "Eat a balanced breakfast with protein and fiber."
+    },
+    {
+      "id": 2,
+      "text": "Include leafy greens in at least one meal today."
+    },
+    {
+      "id": 3,
+      "text": "Choose whole grains over refined carbs for sustained energy."
+    },
+    {
+      "id": 4,
+      "text": "Stay hydrated: aim for 8 glasses of water."
+    },
+    {
+      "id": 5,
+      "text": "Reduce added sugars and processed snacks."
+    }
+  ],
+  "foodData": [
+    {
+      "food": "Platano",
+      "timestamp": "2025-10-05T02:09:22.652Z",
+      "id": 1
+    },
+    {
+      "food": "Manzana",
+      "timestamp": "2025-10-05T02:36:19.390Z",
+      "id": 2
+    },
+    {
+      "food": "Pizza",
+      "timestamp": "2025-10-05T09:22:20.252Z",
+      "id": 3
+    }
+  ]
 }

@@ -27,7 +27,7 @@
           <i class="pi pi-users"></i>
           <span v-if="!collapsed">Community</span>
         </RouterLink>
-        <RouterLink to="/appointment">
+        <RouterLink to="/appointments">
           <i class="pi pi-calendar"></i>
           <span v-if="!collapsed">Appointment</span>
         </RouterLink>
