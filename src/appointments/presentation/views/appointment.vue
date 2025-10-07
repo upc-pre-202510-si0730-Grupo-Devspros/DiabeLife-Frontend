@@ -625,7 +625,6 @@ onMounted(async () => {
 .appointments-page {
   padding: 1rem 2rem;
   background-color: #f5f6fa;
-  min-height: 100vh;
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
@@ -738,7 +737,7 @@ onMounted(async () => {
 }
 
 .calendar-day {
-  min-height: 90px;
+  height: 90px;
   padding: 0.75rem;
   border-right: 1px solid #e2e8f0;
   border-bottom: 1px solid #e2e8f0;
@@ -834,10 +833,6 @@ onMounted(async () => {
 /* Appointment List Styles */
 .appointments-card {
   height: fit-content;
-}
-
-.appointment-list {
-  min-height: 300px;
 }
 
 .appointment-item {
@@ -1105,7 +1100,7 @@ onMounted(async () => {
 
 @media (max-width: 768px) {
   .calendar-day {
-    min-height: 50px;
+    height: 50px;
     padding: 0.25rem;
   }
   

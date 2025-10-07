@@ -10,13 +10,13 @@
       "createdAt": "2025-10-06T19:23:59.824Z"
     },
     {
+      "id": 2,
       "authorId": 1,
       "content": "adwadwadwad",
       "imageUrl": null,
       "likes": 0,
       "comments": [],
-      "createdAt": "2025-10-07T04:08:20.416Z",
-      "id": 2
+      "createdAt": "2025-10-07T04:08:20.416Z"
     }
   ],
   "reports": [],
@@ -41,6 +41,92 @@
       "createdAt": "2025-10-07T02:43:17.207Z",
       "updatedAt": "2025-10-07T02:43:17.207Z",
       "id": 1
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "title": "Appointment Reminder",
+      "message": "Don't forget your appointment with Dr. García tomorrow at 10:00 AM for your General consultation.",
+      "type": "warning",
+      "sender": "Medical Scheduler",
+      "timestamp": "2025-10-06T18:00:00.000Z",
+      "isRead": false,
+      "isArchived": false,
+      "priority": "high",
+      "category": "appointment",
+      "actionUrl": "/appointments",
+      "actionText": "View Appointment"
+    },
+    {
+      "id": 2,
+      "title": "Blood Pressure Alert",
+      "message": "Your blood pressure reading of 112/80 is excellent! Keep maintaining your healthy lifestyle.",
+      "type": "success",
+      "sender": "Health Monitor",
+      "timestamp": "2025-10-07T08:30:00.000Z",
+      "isRead": false,
+      "isArchived": false,
+      "priority": "normal",
+      "category": "medical",
+      "actionUrl": "/healthy",
+      "actionText": "View Health Data"
+    },
+    {
+      "id": 3,
+      "title": "Glucose Level Notice",
+      "message": "Your glucose level of 84 mg/dL is within normal range. Great job managing your diabetes!",
+      "type": "success",
+      "sender": "Diabetes Care",
+      "timestamp": "2025-10-07T07:15:00.000Z",
+      "isRead": true,
+      "isArchived": false,
+      "priority": "normal",
+      "category": "medical",
+      "actionUrl": "/gluco",
+      "actionText": "View Glucose Trends"
+    },
+    {
+      "id": 5,
+      "title": "Heart Rate Update",
+      "message": "Your heart rate of 110 BPM is slightly elevated. Consider some relaxation techniques.",
+      "type": "info",
+      "sender": "Cardio Monitor",
+      "timestamp": "2025-10-06T12:45:00.000Z",
+      "isRead": true,
+      "isArchived": false,
+      "priority": "normal",
+      "category": "medical",
+      "actionUrl": "/healthy",
+      "actionText": "View Heart Data"
+    },
+    {
+      "id": 7,
+      "title": "Weight Check Reminder",
+      "message": "Your last recorded weight was 68 kg. Remember to track your weight weekly for better health monitoring.",
+      "type": "info",
+      "sender": "Health Tracker",
+      "timestamp": "2025-10-05T09:00:00.000Z",
+      "isRead": true,
+      "isArchived": false,
+      "priority": "low",
+      "category": "reminder",
+      "actionUrl": "/healthy",
+      "actionText": "Update Weight"
+    },
+    {
+      "id": 8,
+      "title": "Nutrition Tip",
+      "message": "Based on your banana and apple intake, try adding more leafy greens as recommended in your nutrition plan.",
+      "type": "info",
+      "sender": "Nutritionist",
+      "timestamp": "2025-10-05T16:30:00.000Z",
+      "isRead": true,
+      "isArchived": false,
+      "priority": "normal",
+      "category": "general",
+      "actionUrl": "/healthy",
+      "actionText": "View Recommendations"
     }
   ],
   "recommendations": [
