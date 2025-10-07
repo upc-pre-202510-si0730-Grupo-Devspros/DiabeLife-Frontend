@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 const Home = () => import("./shared/presentation/views/home.vue");
 const NotFound = () => import("./shared/presentation/views/page-not-found.vue");
 const Healthy = () => import("./healthy-life/presentation/views/healthy-life.vue");
+const Appointment = () => import("./appointments/presentation/views/appointment.vue");
 
 const routes = [
     {
@@ -16,6 +17,12 @@ const routes = [
         name: "healthy",
         component: Healthy,
         meta: { title: "Healthy Life" }
+    },
+    {
+        path: "/appointments",
+        name: "appointments",
+        component: Appointment,
+        meta: { title: "Appointments" }
     },
     {
         path: "/:pathMatch(.*)*",
