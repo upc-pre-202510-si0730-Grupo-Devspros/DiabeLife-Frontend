@@ -1,11 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import GlucometerDashboard from "./glucometer/presentation/views/glucometer-dashboard.vue";
 
-const Home = () => import("./shared/presentation/views/home.vue");
-const NotFound = () => import("./shared/presentation/views/page-not-found.vue");
-const Healthy = () => import("./healthy-life/presentation/views/healthy-life.vue");
-const Glucometer = () => import("./glucometer/presentation/views/glucometer-dashboard.vue");
-
+// Importa los componentes de las vistas
+const Home = () => import("@/shared/presentation/views/home.vue");
+const NotFound = () => import("@/shared/presentation/views/page-not-found.vue");
+const GlucometerDashboard = () => import("@/glucometer/presentation/views/glucometer-dashboard.vue");
 
 const routes = [
     {
@@ -21,13 +19,6 @@ const routes = [
         meta: { title: "Glucometer" }
     },
     {
-        path: "/healthy",
-        name: "healthy",
-        component: Healthy,
-        meta: { title: "Healthy Life" }
-    },
-  
-    {
         path: "/:pathMatch(.*)*",
         name: "not-found",
         component: NotFound,
@@ -41,7 +32,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const baseTitle = "My App";
+    const baseTitle = "Diabelife";
     document.title = `${baseTitle} - ${to.meta.title || ""}`;
     next();
 });

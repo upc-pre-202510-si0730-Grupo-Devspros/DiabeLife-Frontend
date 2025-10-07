@@ -4,13 +4,13 @@
 
     <div class="dashboard-grid">
       <div class="left-column">
-        <glucose-chart 
-          title="Charts of the week" 
-          :chartData="weeklyData" 
+        <glucose-chart
+          title="Charts of the week"
+          :chartData="weeklyData"
         />
-        <glucose-chart 
-          title="Charts of the last week" 
-          :chartData="lastWeekData" 
+        <glucose-chart
+          title="Charts of the last week"
+          :chartData="lastWeekData"
         />
       </div>
 
@@ -27,8 +27,6 @@
 <script>
 import GlucoseStatus from '@/glucometer/presentation/components/glucose-status.vue';
 import GlucoseChart from '@/glucometer/presentation/components/glucose-chart.vue';
-// Comentamos el servicio temporalmente para la prueba
-// import { GlucometerService } from '@/glucometer/application/glucometer.service.js'; 
 
 export default {
   name: 'GlucometerDashboard',
@@ -38,14 +36,14 @@ export default {
   },
   data() {
     return {
-      // PRUEBA: Poniendo los datos directamente aquí
+      // Usando datos de prueba directamente para que funcione
       latestMeasurement: {
         id: 1,
         value: 145,
         unit: 'mg/dL',
         status: 'High',
         trend: '1 Rising',
-        date: new Date() // Usamos la fecha actual para la prueba
+        date: new Date()
       },
       weeklyData: [
         { day: 'Mon', value: 110 },
@@ -56,7 +54,7 @@ export default {
         { day: 'Sat', value: 135 },
         { day: 'Sun', value: 145 },
       ],
-      lastWeekData: [ 
+      lastWeekData: [
         { day: 'Mon', value: 120 },
         { day: 'Tue', value: 135 },
         { day: 'Wed', value: 145 },
@@ -66,35 +64,26 @@ export default {
         { day: 'Sun', value: 130 },
       ]
     };
-  },
-  // La función created() ya no es necesaria para esta prueba
-  created() {
-    console.log("Usando datos de prueba directamente.");
   }
 };
 </script>
 
-
 <style scoped>
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
-  gap: 2rem; /* Espacio entre las columnas */
-  align-items: start;
-}
-
-.left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem; /* Espacio entre los gráficos */
-}
-
-
-
 .user-name {
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 0;
+  margin-bottom: 1.5rem;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 .loading-placeholder {
   display: flex;
@@ -106,7 +95,6 @@ export default {
   border-radius: 15px;
   color: #666;
 }
-/* Para pantallas más pequeñas, apilamos las columnas */
 @media (max-width: 992px) {
   .dashboard-grid {
     grid-template-columns: 1fr;

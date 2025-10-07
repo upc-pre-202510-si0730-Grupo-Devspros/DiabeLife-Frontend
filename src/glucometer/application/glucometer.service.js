@@ -1,9 +1,9 @@
-import glucometerApi from '@/glucometer/infrastructure/glucometer.api.js'; 
+import glucometerApi from '@/glucometer/infrastructure/glucometer.api.js';
 import { GlucoseMeasurement } from '@/glucometer/domain/model/glucose-measurement.entity.js';
 
 export class GlucometerService {
     constructor() {
-        this.api = glucometerApi; 
+        this.api = glucometerApi;
     }
 
     async getLatestMeasurement() {

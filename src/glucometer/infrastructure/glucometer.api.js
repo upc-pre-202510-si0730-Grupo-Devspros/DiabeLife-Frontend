@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE = 'http://localhost:3000'; 
+const BASE = 'http://localhost:3000';
 
 export default {
   getLatestMeasurement() {
@@ -33,7 +33,6 @@ export default {
   },
 
   createMeasurement(payload) {
-    
     return axios.post(`${BASE}/glucose-measurements`, payload);
   }
 };

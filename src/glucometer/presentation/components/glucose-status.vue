@@ -42,17 +42,16 @@ export default {
 .glucose-status-card {
   background-color: #f0f4f8;
   border-radius: 15px;
-  padding: 2.5rem; /* Un poco más de espacio interno */
+  padding: 2.5rem; 
   text-align: center;
-  max-width: 450px; /* Más ancho */
-  min-height: 620px; /* Altura mínima para que coincida con los 2 gráficos */
+  max-width: 450px; 
+  min-height: 620px; 
   margin: 0 auto;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   font-family: sans-serif;
-  /* Usamos Flexbox para distribuir el contenido verticalmente */
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Espacia los elementos (header, medidor, botón) */
+  justify-content: space-between; 
 }
 .header {
   display: flex;
@@ -67,17 +66,17 @@ export default {
   color: #333;
 }
 .measurement h1 {
-  font-size: 6rem; /* Hacemos el número más grande */
+  font-size: 6rem; 
   margin: 0;
   color: #1a73e8;
 }
 .measurement span {
-  font-size: 1.8rem; /* Un poco más grande */
+  font-size: 1.8rem; 
   margin-left: 0.5rem;
   font-weight: bold;
 }
 .status {
-  font-size: 1.8rem; /* Un poco más grande */
+  font-size: 1.8rem; 
   font-weight: bold;
   margin: 0.5rem 0;
 }
@@ -86,7 +85,7 @@ export default {
 .status-low { color: #f9ab00; }
 
 .trend {
-  font-size: 1.4rem; /* Un poco más grande */
+  font-size: 1.4rem; 
   color: #555;
   margin-bottom: 1rem;
 }
@@ -94,7 +93,7 @@ export default {
   background-color: #1a73e8;
   color: white;
   border: none;
-  padding: 1.2rem 2.5rem; /* Botón más grande */
+  padding: 1.2rem 2.5rem; 
   border-radius: 30px;
   font-size: 1.1rem;
   cursor: pointer;
