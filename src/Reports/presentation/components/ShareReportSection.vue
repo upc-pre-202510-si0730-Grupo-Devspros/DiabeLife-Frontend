@@ -43,7 +43,7 @@
     <button
         class="share-btn"
         @click="handleShare"
-        :disabled="!hasSelectedReports || !message.trim() || loading"
+        :disabled="loading || (reports.length === 0 || reports.every(r => r.shared))"
     >
       Share
     </button>
@@ -70,15 +70,25 @@ const toggleSelection = async (reportId) => {
 };
 
 const handleShare = async () => {
-  if (!hasSelectedReports.value) return;
-  if (!message.value.trim()) {
-    alert('Please add a message before sharing');
-    return;
+  // Si no hay reportes seleccionados, seleccionar todos los reportes no compartidos
+  if (!hasSelectedReports.value) {
+    const availableReports = reports.value.filter(r => !r.shared);
+    if (availableReports.length === 0) {
+      alert('No reports available to share');
+      return;
+    }
+    
+    // Seleccionar automáticamente todos los reportes disponibles
+    for (const report of availableReports) {
+      if (!report.selected) {
+        await reportStore.toggleReportSelection(report.id);
+      }
+    }
   }
 
   loading.value = true;
   try {
-    await reportStore.shareReports(message.value);
+    await reportStore.shareReports(message.value.trim() || 'Shared report');
     message.value = '';
   } catch (error) {
     alert('Error sharing reports');
