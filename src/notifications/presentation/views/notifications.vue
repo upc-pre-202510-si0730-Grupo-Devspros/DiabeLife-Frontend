@@ -2,7 +2,7 @@
   <div class="notifications-page">
     <!-- Page Header -->
     <div class="page-header">
-      <h1 class="page-title">Messages</h1>
+      <h1 class="page-title">{{ t('notifications.title') }}</h1>
     </div>
 
     <!-- Main Content -->
@@ -11,42 +11,35 @@
       <div class="notifications-section">
         <Card class="notifications-card">
           <template #content>
-            <!-- Individual Notification Items (matching the design) -->
             <div class="notification-messages">
-              <div 
-                v-for="notification in visibleNotifications" 
-                :key="notification.id"
-                :class="[
-                  'message-item',
-                  { 'message-unread': !notification.isRead }
-                ]"
-                @click="handleNotificationClick(notification)"
+              <div
+                  v-for="notification in visibleNotifications"
+                  :key="notification.id"
+                  :class="['message-item', { 'message-unread': !notification.isRead }]"
+                  @click="handleNotificationClick(notification)"
               >
-                <!-- Message Content -->
                 <div class="message-content">
                   <div class="message-header">
                     <h4 class="message-sender">{{ notification.sender }}</h4>
                     <span class="message-time">{{ notification.getTimeAgo() }}</span>
                   </div>
-                  
                   <p class="message-text">{{ notification.message }}</p>
                 </div>
 
-                <!-- Message Actions -->
                 <div class="message-actions">
                   <Button
-                    :icon="notification.isRead ? 'pi pi-check' : 'pi pi-circle'"
-                    :title="notification.isRead ? 'Mark as unread' : 'Mark as read'"
-                    @click.stop="toggleRead(notification)"
-                    class="p-button-text p-button-sm action-read"
-                    :class="{ 'text-success': notification.isRead }"
+                      :icon="notification.isRead ? 'pi pi-check' : 'pi pi-circle'"
+                      :title="notification.isRead ? t('notifications.markUnread') : t('notifications.markRead')"
+                      @click.stop="toggleRead(notification)"
+                      class="p-button-text p-button-sm action-read"
+                      :class="{ 'text-success': notification.isRead }"
                   />
-                  
+
                   <Button
-                    icon="pi pi-trash"
-                    title="Delete message"
-                    @click.stop="deleteNotification(notification)"
-                    class="p-button-text p-button-sm action-delete"
+                      icon="pi pi-trash"
+                      :title="t('notifications.deleteTooltip')"
+                      @click.stop="deleteNotification(notification)"
+                      class="p-button-text p-button-sm action-delete"
                   />
                 </div>
               </div>
@@ -54,8 +47,8 @@
               <!-- Empty state -->
               <div v-if="visibleNotifications.length === 0" class="empty-messages">
                 <i class="pi pi-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
-                <h3>No messages</h3>
-                <p>You're all caught up! No new messages to show.</p>
+                <h3>{{ t('notifications.emptyTitle') }}</h3>
+                <p>{{ t('notifications.emptyDescription') }}</p>
               </div>
             </div>
           </template>
@@ -64,10 +57,10 @@
         <!-- See All Messages Button -->
         <div v-if="allNotifications.length > 5" class="see-all-container">
           <Button
-            :label="showAll ? 'See Less' : 'See All Messages'"
-            :icon="showAll ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-            @click="toggleShowAll"
-            class="see-all-button"
+              :label="showAll ? t('notifications.seeLess') : t('notifications.seeAll')"
+              :icon="showAll ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+              @click="toggleShowAll"
+              class="see-all-button"
           />
         </div>
       </div>
@@ -75,11 +68,11 @@
 
     <!-- Notification Detail Dialog -->
     <Dialog
-      v-model:visible="showDetailDialog"
-      :header="selectedNotification?.title || 'Message Details'"
-      modal
-      :style="{ width: '600px' }"
-      class="notification-dialog"
+        v-model:visible="showDetailDialog"
+        :header="selectedNotification?.title || t('notifications.detailHeader')"
+        modal
+        :style="{ width: '600px' }"
+        class="notification-dialog"
     >
       <div v-if="selectedNotification" class="notification-details">
         <div class="detail-header">
@@ -89,20 +82,20 @@
           </div>
           <span class="detail-time">{{ formatDateTime(selectedNotification.timestamp) }}</span>
         </div>
-        
+
         <div class="detail-content">
           <h3>{{ selectedNotification.title }}</h3>
           <p>{{ selectedNotification.message }}</p>
-          
+
           <div v-if="selectedNotification.actionUrl" class="detail-action">
             <Button
-              :label="selectedNotification.actionText || 'View Details'"
-              @click="handleAction(selectedNotification)"
-              class="p-button-primary"
+                :label="selectedNotification.actionText || t('notifications.viewDetails')"
+                @click="handleAction(selectedNotification)"
+                class="p-button-primary"
             />
           </div>
         </div>
-        
+
         <div class="detail-meta">
           <span class="detail-category">{{ selectedNotification.category }}</span>
           <span class="detail-priority" :class="`priority-${selectedNotification.priority}`">
@@ -116,53 +109,41 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useNotificationStore } from '../../application/notification.store'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 
+const { t } = useI18n()
 const notificationStore = useNotificationStore()
 
-// Local state
 const showDetailDialog = ref(false)
 const selectedNotification = ref(null)
 const showAll = ref(false)
 
-// Computed properties
 const allNotifications = computed(() => notificationStore.allNotifications)
-const visibleNotifications = computed(() => {
-  if (showAll.value) {
-    return allNotifications.value
-  }
-  // Show only first 5 notifications by default (matching the design)
-  return allNotifications.value.slice(0, 5)
-})
+const visibleNotifications = computed(() =>
+    showAll.value ? allNotifications.value : allNotifications.value.slice(0, 5)
+)
 
-// Methods
 const handleNotificationClick = (notification) => {
   selectedNotification.value = notification
   showDetailDialog.value = true
-  
-  // Mark as read when opened
-  if (!notification.isRead) {
-    toggleRead(notification)
-  }
+  if (!notification.isRead) toggleRead(notification)
 }
 
 const toggleRead = async (notification) => {
   try {
-    if (notification.isRead) {
-      await notificationStore.markAsUnread(notification.id)
-    } else {
-      await notificationStore.markAsRead(notification.id)
-    }
+    if (notification.isRead) await notificationStore.markAsUnread(notification.id)
+    else await notificationStore.markAsRead(notification.id)
   } catch (error) {
     console.error('Error toggling read status:', error)
   }
 }
 
 const deleteNotification = async (notification) => {
-  if (confirm('Are you sure you want to delete this message?')) {
+  if (confirm(t('notifications.confirmDelete'))) {
     try {
       await notificationStore.deleteNotification(notification.id)
     } catch (error) {
@@ -171,36 +152,24 @@ const deleteNotification = async (notification) => {
   }
 }
 
-const showAllMessages = () => {
-  showAll.value = true
-}
-
 const toggleShowAll = () => {
   showAll.value = !showAll.value
 }
 
-const getNotificationIcon = (notification) => {
-  return notificationStore.getNotificationIcon(notification)
-}
+const getNotificationIcon = (notification) => notificationStore.getNotificationIcon(notification)
 
-const formatDateTime = (timestamp) => {
-  const date = new Date(timestamp)
-  return date.toLocaleString()
-}
+const formatDateTime = (timestamp) => new Date(timestamp).toLocaleString()
 
 const handleAction = (notification) => {
-  if (notification.actionUrl) {
-    // Handle navigation or action
-    window.open(notification.actionUrl, '_blank')
-  }
+  if (notification.actionUrl) window.open(notification.actionUrl, '_blank')
   showDetailDialog.value = false
 }
 
-// Initialize
 onMounted(async () => {
   await notificationStore.initialize()
 })
 </script>
+
 
 <style scoped>
 .notifications-page {

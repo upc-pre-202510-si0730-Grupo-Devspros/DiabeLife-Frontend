@@ -13,31 +13,31 @@
       <nav class="menu">
         <RouterLink to="/gluco">
           <i class="pi pi-heart"></i>
-          <span v-if="!collapsed">Glucometer</span>
+          <span v-if="!collapsed">{{ t('sidebar.glucometer') }}</span>
         </RouterLink>
         <RouterLink to="/profile">
           <i class="pi pi-user"></i>
-          <span v-if="!collapsed">Profile</span>
+          <span v-if="!collapsed">{{ t('sidebar.profile') }}</span>
         </RouterLink>
         <RouterLink to="/healthy">
           <i class="pi pi-apple"></i>
-          <span v-if="!collapsed">Healthy Life</span>
+          <span v-if="!collapsed">{{ t('sidebar.healthy') }}</span>
         </RouterLink>
         <RouterLink to="/community">
           <i class="pi pi-users"></i>
-          <span v-if="!collapsed">Community</span>
+          <span v-if="!collapsed">{{ t('sidebar.community') }}</span>
         </RouterLink>
         <RouterLink to="/appointments">
           <i class="pi pi-calendar"></i>
-          <span v-if="!collapsed">Appointment</span>
+          <span v-if="!collapsed">{{ t('sidebar.appointments') }}</span>
         </RouterLink>
         <RouterLink to="/notifications">
           <i class="pi pi-bell"></i>
-          <span v-if="!collapsed">Notifications</span>
+          <span v-if="!collapsed">{{ t('sidebar.notifications') }}</span>
         </RouterLink>
         <RouterLink to="/reports">
           <i class="pi pi-chart-line"></i>
-          <span v-if="!collapsed">Reports</span>
+          <span v-if="!collapsed">{{ t('sidebar.reports') }}</span>
         </RouterLink>
       </nav>
     </aside>
@@ -57,13 +57,15 @@
 
 <script setup>
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import LanguageSwitcher from "./language-switcher.vue";
+
+const { t } = useI18n();
 const collapsed = ref(false);
 const toggleSidebar = () => {
   collapsed.value = !collapsed.value;
 };
 </script>
-
 <style scoped>
 .layout {
   display: flex;

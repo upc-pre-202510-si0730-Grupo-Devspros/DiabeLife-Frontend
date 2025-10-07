@@ -1,15 +1,168 @@
 {
 
-
-
-
   "page-not-found": {
     "title": "Página no encontrada",
     "content": "La ruta {unavailable-route} no se encuentra disponible.",
     "go-home": "Ir a Inicio"
   },
+  "sidebar": {
+    "glucometer": "Glucómetro",
+    "profile": "Perfil",
+    "healthy": "Vida Saludable",
+    "community": "Comunidad",
+    "appointments": "Citas",
+    "notifications": "Notificaciones",
+    "reports": "Reportes"
+  },
 
+  "post": {
+    "user": "Usuario",
+    "imageAlt": "Imagen del post",
+    "likes": "Me gusta",
+    "comments": "Comentarios",
+    "viewRecent": "Ver más recientes",
+    "viewAll": "Ver todos los comentarios",
+    "showMore": "Ver más comentarios",
+    "showLess": "Ver menos comentarios",
+    "writeComment": "Escribe un comentario...",
+    "send": "Enviar"
+  },
+  "summary": {
+    "heartRate": "Frecuencia cardíaca",
+    "glucose": "Glucosa",
+    "weight": "Peso",
+    "bloodPressure": "Presión arterial"
+  },
   "errors": {
     "occurred": "Se produjeron errores"
+  },
+  "report": {
+    "title": "Nuevo Informe",
+    "pdf": "PDF",
+    "word": "WORD",
+    "allData": "Todos los datos",
+    "generateFull": "Generar informe completo de salud",
+    "specificData": "Datos específicos",
+    "generate": "Generar",
+    "selectData": "Seleccionar tipos de datos...",
+    "glucose": "Niveles de glucosa",
+    "weight": "Peso",
+    "bloodPressure": "Presión arterial",
+    "heartRate": "Frecuencia cardíaca"
+  },
+  "share": {
+    "title": "Compartir Informe",
+    "noReports": "No hay informes disponibles",
+    "addMessage": "Agregar mensaje",
+    "placeholder": "Escribe algo...",
+    "button": "Compartir",
+    "alertNoReports": "No hay informes disponibles para compartir",
+    "alertError": "Error al compartir los informes",
+    "defaultMessage": "Informe compartido"
+  },
+  "notifications": {
+    "title": "Mensajes",
+    "markRead": "Marcar como leído",
+    "markUnread": "Marcar como no leído",
+    "deleteTooltip": "Eliminar mensaje",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar este mensaje?",
+    "emptyTitle": "No hay mensajes",
+    "emptyDescription": "¡Estás al día! No tienes nuevos mensajes por mostrar.",
+    "seeAll": "Ver todos los mensajes",
+    "seeLess": "Ver menos",
+    "detailHeader": "Detalles del mensaje",
+    "viewDetails": "Ver detalles"
+  },
+  "community": {
+    "placeholder": "¿Qué estás pensando?",
+    "addImage": "Agregar imagen",
+    "publish": "Publicar",
+    "noPosts": "No hay publicaciones aún"
+  },
+  "calendar": {
+    "today": "Hoy",
+    "months": {
+      "january": "Enero",
+      "february": "Febrero",
+      "march": "Marzo",
+      "april": "Abril",
+      "may": "Mayo",
+      "june": "Junio",
+      "july": "Julio",
+      "august": "Agosto",
+      "september": "Septiembre",
+      "october": "Octubre",
+      "november": "Noviembre",
+      "december": "Diciembre"
+    },
+    "weekdays": {
+      "s": "D",
+      "m": "L",
+      "t": "M",
+      "w": "X",
+      "th": "J",
+      "f": "V",
+      "sa": "S"
+    }
+  },
+  "appointment": {
+    "dr": "Dr.",
+    "fields": {
+      "date": "Fecha",
+      "time": "Hora",
+      "doctor": "Doctor",
+      "specialty": "Especialidad",
+      "status": "Estado",
+      "notes": "Notas"
+    },
+    "placeholders": {
+      "date": "Selecciona una fecha",
+      "time": "Selecciona una hora",
+      "doctor": "Selecciona un doctor",
+      "specialty": "La especialidad se llenará automáticamente",
+      "status": "Selecciona un estado",
+      "notes": "Notas adicionales (opcional)"
+    },
+    "status": {
+      "scheduled": "Programada",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "update": "Actualizar"
+    },
+    "errors": {
+      "date": "La fecha es obligatoria",
+      "time": "La hora es obligatoria",
+      "doctor": "El doctor es obligatorio",
+      "saveFailed": "Error al guardar la cita. Inténtalo nuevamente."
+    }
+  },
+  "healthyLife": {
+    "healthMetrics": "Métricas de salud",
+    "heartRate": "Frecuencia cardíaca",
+    "glucose": "Glucosa",
+    "weight": "Peso",
+    "bloodPressure": "Presión arterial",
+    "saveData": "Guardar datos",
+    "healthSummary": "Resumen de salud",
+    "foodRecommendations": "Recomendaciones alimenticias",
+    "addFood": "Agregar alimento consumido",
+    "foodPlaceholder": "Ingrese el alimento que consumió...",
+    "addFoodBtn": "Agregar alimento",
+    "noRecommendations": "No hay recomendaciones disponibles",
+    "recentFoods": "Alimentos recientes",
+    "healthSaved": "Datos de salud guardados correctamente",
+    "healthSaveError": "Error al guardar los datos de salud",
+    "foodSaved": "Datos de alimentos guardados correctamente",
+    "foodSaveError": "Error al guardar los datos de alimentos",
+    "foodRequired": "Por favor, ingrese la información del alimento",
+    "unknownTime": "Hora desconocida",
+    "invalidDate": "Fecha inválida"
+  },
+  "healthy": {
+    "noFoodData": "Aún no hay datos de alimentos registrados"
   }
 }

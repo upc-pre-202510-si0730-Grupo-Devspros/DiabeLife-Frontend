@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '../../infrastructure/healthy-life.api'
 import { toHealthyRequest, toHealthyResource, toFoodResource } from '../../infrastructure/healthy-life.assembler'
 import Card from 'primevue/card'
@@ -10,7 +11,7 @@ import Message from 'primevue/message'
 import HealthSummary from '../components/HealthSummary.vue'
 import FoodList from '../components/FoodList.vue'
 
-// endpoints handled by api module
+const { t } = useI18n()
 
 type HealthyRecord = { id?: number; heartRate?: number; glucose?: number; weight?: number; bloodPressure?: string }
 type FoodRecord = { id?: number; food?: string; timestamp?: string }
@@ -24,238 +25,189 @@ const savedFoods = reactive<Array<FoodRecord>>([])
 const isLoading = reactive<{ health: boolean; food: boolean }>({ health: false, food: false })
 
 const load = async () => {
-	try {
-		const res = await api.getHealthy()
-		const record = Array.isArray(res.data) ? res.data[0] || {} : res.data
+  try {
+    const res = await api.getHealthy()
+    const record = Array.isArray(res.data) ? res.data[0] || {} : res.data
+    const resource = toHealthyResource(record)
+    summary.heartRate = resource.heartRate || 0
+    summary.glucose = resource.glucose || 0
+    summary.weight = resource.weight || 0
+    summary.bloodPressure = resource.bloodPressure || '0/0'
 
-		// Don't load data into input fields - keep them empty for new entries
-		// Only load summary for display using assembler
-		const resource = toHealthyResource(record)
-		summary.heartRate = resource.heartRate || 0
-		summary.glucose = resource.glucose || 0
-		summary.weight = resource.weight || 0
-		summary.bloodPressure = resource.bloodPressure || '0/0'
+    try {
+      const rres = await api.getRecommendations()
+      recommendations.splice(0, recommendations.length, ...(Array.isArray(rres.data) ? rres.data : []))
+      pickRandomReco()
+    } catch (re) {
+      console.warn('Cannot load recommendations', re)
+    }
 
-		// load recommendations too
-		try {
-			const rres = await api.getRecommendations()
-			recommendations.splice(0, recommendations.length, ...(Array.isArray(rres.data) ? rres.data : []))
-			pickRandomReco()
-		} catch (re) {
-			console.warn('Cannot load recommendations', re)
-		}
-
-		// load food data
-		try {
-			const fres = await api.getFoodData()
-			const foods = Array.isArray(fres.data) ? fres.data.map(toFoodResource) : []
-			savedFoods.splice(0, savedFoods.length, ...foods)
-		} catch (fe) {
-			console.warn('Cannot load food data', fe)
-		}
-	} catch (e) {
-		console.warn('Cannot load healthy data', e)
-	}
+    try {
+      const fres = await api.getFoodData()
+      const foods = Array.isArray(fres.data) ? fres.data.map(toFoodResource) : []
+      savedFoods.splice(0, savedFoods.length, ...foods)
+    } catch (fe) {
+      console.warn('Cannot load food data', fe)
+    }
+  } catch (e) {
+    console.warn('Cannot load healthy data', e)
+  }
 }
 
 const pickRandomReco = () => {
- 	if (!recommendations || recommendations.length === 0) {
- 		currentReco.text = '—'
- 		return
- 	}
- 	const idx = Math.floor(Math.random() * recommendations.length)
- 	currentReco.text = recommendations[idx].text || '—'
+  if (!recommendations || recommendations.length === 0) {
+    currentReco.text = '—'
+    return
+  }
+  const idx = Math.floor(Math.random() * recommendations.length)
+  currentReco.text = recommendations[idx].text || '—'
 }
 
 const saveHealthData = async () => {
-	isLoading.health = true
-	try {
-		const res = await api.getHealthy()
-		const exists = Array.isArray(res.data) ? res.data.length > 0 : !!res.data.id
-		const healthPayload = toHealthyRequest(data)
+  isLoading.health = true
+  try {
+    const res = await api.getHealthy()
+    const exists = Array.isArray(res.data) ? res.data.length > 0 : !!res.data.id
+    const healthPayload = toHealthyRequest(data)
 
-		if (exists) {
-			if (Array.isArray(res.data)) {
-				const id = res.data[0].id
-				await api.updateHealthy(id, healthPayload)
-			} else if (res.data.id) {
-				await api.updateHealthy(res.data.id, healthPayload)
-			} else {
-				// fallback: update first item
-				const id = Array.isArray(res.data) && res.data[0] ? res.data[0].id : undefined
-				if (id) await api.updateHealthy(id, healthPayload)
-			}
-		} else {
-			await api.createHealthy(healthPayload)
-		}
+    if (exists) {
+      const id = Array.isArray(res.data) ? res.data[0]?.id : res.data.id
+      if (id) await api.updateHealthy(id, healthPayload)
+    } else {
+      await api.createHealthy(healthPayload)
+    }
 
-		// Update summary immediately with the saved data
-		summary.heartRate = data.heartRate || 0
-		summary.glucose = data.glucose || 0
-		summary.weight = data.weight || 0
-		summary.bloodPressure = data.bloodPressure || '0/0'
+    summary.heartRate = data.heartRate || 0
+    summary.glucose = data.glucose || 0
+    summary.weight = data.weight || 0
+    summary.bloodPressure = data.bloodPressure || '0/0'
 
-		// Clear the input fields after saving
-		data.heartRate = undefined
-		data.glucose = undefined
-		data.weight = undefined
-		data.bloodPressure = ''
+    data.heartRate = undefined
+    data.glucose = undefined
+    data.weight = undefined
+    data.bloodPressure = ''
 
-		window.alert('Health data saved successfully')
-	} catch (e) {
-		console.error('Save health data failed', e)
-		window.alert('Save health data failed')
-	} finally {
-		isLoading.health = false
-	}
+    window.alert(t('healthyLife.healthSaved'))
+  } catch (e) {
+    console.error('Save health data failed', e)
+    window.alert(t('healthyLife.healthSaveError'))
+  } finally {
+    isLoading.health = false
+  }
 }
 
 const saveFoodData = async () => {
-	if (!foodData.food.trim()) {
-		window.alert('Please enter food information')
-		return
-	}
+  if (!foodData.food.trim()) {
+    window.alert(t('healthyLife.foodRequired'))
+    return
+  }
 
-	isLoading.food = true
-	try {
-		const foodPayload = {
-			food: foodData.food,
-			timestamp: new Date().toISOString()
-		}
-		await api.createFoodData(foodPayload)
-		foodData.food = '' // Clear the field after saving
-		await load() // Reload to show the new food
-		pickRandomReco() // Show recommendation after adding food
-		window.alert('Food data saved successfully')
-	} catch (e) {
-		console.error('Save food data failed', e)
-		window.alert('Save food data failed')
-	} finally {
-		isLoading.food = false
-	}
+  isLoading.food = true
+  try {
+    const foodPayload = { food: foodData.food, timestamp: new Date().toISOString() }
+    await api.createFoodData(foodPayload)
+    foodData.food = ''
+    await load()
+    pickRandomReco()
+    window.alert(t('healthyLife.foodSaved'))
+  } catch (e) {
+    console.error('Save food data failed', e)
+    window.alert(t('healthyLife.foodSaveError'))
+  } finally {
+    isLoading.food = false
+  }
 }
 
 const formatTimestamp = (timestamp: string | undefined) => {
-	if (!timestamp) return 'Unknown time'
-	try {
-		const date = new Date(timestamp)
-		return date.toLocaleString()
-	} catch {
-		return 'Invalid date'
-	}
+  if (!timestamp) return t('healthyLife.unknownTime')
+  try {
+    const date = new Date(timestamp)
+    return date.toLocaleString()
+  } catch {
+    return t('healthyLife.invalidDate')
+  }
 }
 
 onMounted(load)
 </script>
 
 <template>
-	<div class="healthy-page p-4">
-		<div class="grid">
-			<div class="col-12 md:col-4">
-				<Card class="mb-3">
-					<template #title>Health Metrics</template>
-					<template #content>
-						<div class="field mb-3">
-							<label for="heartRate" class="block mb-2 font-semibold">Heart Rate</label>
-							<InputNumber 
-								id="heartRate"
-								v-model="data.heartRate" 
-								placeholder="bpm"
-								class="w-full"
-								:useGrouping="false"
-							/>
-						</div>
-						<div class="field mb-3">
-							<label for="glucose" class="block mb-2 font-semibold">Glucose</label>
-							<InputNumber 
-								id="glucose"
-								v-model="data.glucose" 
-								placeholder="mg/dL"
-								class="w-full"
-								:useGrouping="false"
-							/>
-						</div>
-						<div class="field mb-3">
-							<label for="weight" class="block mb-2 font-semibold">Weight</label>
-							<InputNumber 
-								id="weight"
-								v-model="data.weight" 
-								placeholder="kg"
-								class="w-full"
-								:useGrouping="false"
-								:minFractionDigits="1"
-								:maxFractionDigits="2"
-							/>
-						</div>
-						<div class="field mb-3">
-							<label for="bloodPressure" class="block mb-2 font-semibold">Blood Pressure</label>
-							<InputText 
-								id="bloodPressure"
-								v-model="data.bloodPressure" 
-								placeholder="mmHg (e.g., 120/80)"
-								class="w-full"
-							/>
-						</div>
-					</template>
-				</Card>
+  <div class="healthy-page p-4">
+    <div class="grid">
+      <div class="col-12 md:col-4">
+        <Card class="mb-3">
+          <template #title>{{ t('healthyLife.healthMetrics') }}</template>
+          <template #content>
+            <div class="field mb-3">
+              <label for="heartRate">{{ t('healthyLife.heartRate') }}</label>
+              <InputNumber v-model="data.heartRate" placeholder="bpm" class="w-full" :useGrouping="false" />
+            </div>
+            <div class="field mb-3">
+              <label for="glucose">{{ t('healthyLife.glucose') }}</label>
+              <InputNumber v-model="data.glucose" placeholder="mg/dL" class="w-full" :useGrouping="false" />
+            </div>
+            <div class="field mb-3">
+              <label for="weight">{{ t('healthyLife.weight') }}</label>
+              <InputNumber v-model="data.weight" placeholder="kg" class="w-full" :useGrouping="false" />
+            </div>
+            <div class="field mb-3">
+              <label for="bloodPressure">{{ t('healthyLife.bloodPressure') }}</label>
+              <InputText v-model="data.bloodPressure" placeholder="mmHg (e.g., 120/80)" class="w-full" />
+            </div>
+          </template>
+        </Card>
 
-				<div class="mb-3">
-					<Button 
-						@click="saveHealthData" 
-						label="Save Data" 
-						severity="success"
-						:loading="isLoading.health"
-						class="w-full"
-					/>
-				</div>
-			</div>
+        <Button
+            @click="saveHealthData"
+            :label="t('healthyLife.saveData')"
+            severity="success"
+            :loading="isLoading.health"
+            class="w-full mb-3"
+        />
+      </div>
 
-			<div class="col-12 md:col-8">
-				<Card class="mb-3">
-					<template #title>Health Summary</template>
-					<template #content>
-						<HealthSummary :summary="summary" />
-					</template>
-				</Card>
+      <div class="col-12 md:col-8">
+        <Card class="mb-3">
+          <template #title>{{ t('healthyLife.healthSummary') }}</template>
+          <template #content>
+            <HealthSummary :summary="summary" />
+          </template>
+        </Card>
 
-				<Card class="mb-3">
-					<template #title>Food Recommendations</template>
-					<template #content>
-						<div class="field mb-3">
-							<label for="food" class="block mb-2 font-semibold">Add Food Consumed</label>
-							<InputText 
-								id="food"
-								v-model="foodData.food" 
-								placeholder="Enter food you consumed..."
-								class="w-full"
-							/>
-							<Button 
-								@click="saveFoodData" 
-								label="Add Food" 
-								severity="primary"
-								:loading="isLoading.food"
-								class="w-full mt-2"
-							/>
-						</div>
-						<Message v-if="currentReco.text !== '—'" severity="info" :closable="false">
-							{{ currentReco.text }}
-						</Message>
-						<div v-else class="text-center text-muted">
-							No recommendations available
-						</div>
-					</template>
-				</Card>
+        <Card class="mb-3">
+          <template #title>{{ t('healthyLife.foodRecommendations') }}</template>
+          <template #content>
+            <div class="field mb-3">
+              <label for="food">{{ t('healthyLife.addFood') }}</label>
+              <InputText v-model="foodData.food" :placeholder="t('healthyLife.foodPlaceholder')" class="w-full" />
+              <Button
+                  @click="saveFoodData"
+                  :label="t('healthyLife.addFoodBtn')"
+                  severity="primary"
+                  :loading="isLoading.food"
+                  class="w-full mt-2"
+              />
+            </div>
+            <Message v-if="currentReco.text !== '—'" severity="info" :closable="false">
+              {{ currentReco.text }}
+            </Message>
+            <div v-else class="text-center text-muted">
+              {{ t('healthyLife.noRecommendations') }}
+            </div>
+          </template>
+        </Card>
 
-				<Card class="mb-3">
-					<template #title>Recent Foods</template>
-					<template #content>
-						<FoodList :foods="savedFoods" :formatTimestamp="formatTimestamp" />
-					</template>
-				</Card>
-			</div>
-		</div>
-	</div>
+        <Card class="mb-3">
+          <template #title>{{ t('healthyLife.recentFoods') }}</template>
+          <template #content>
+            <FoodList :foods="savedFoods" :formatTimestamp="formatTimestamp" />
+          </template>
+        </Card>
+      </div>
+    </div>
+  </div>
 </template>
+
 
 <style scoped>
 .healthy-page {

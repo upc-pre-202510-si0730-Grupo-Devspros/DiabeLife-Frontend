@@ -17,16 +17,126 @@
       "likes": 0,
       "comments": [],
       "createdAt": "2025-10-07T04:08:20.416Z"
+    },
+    {
+      "id": 3,
+      "authorId": 1,
+      "content": "jbijkbjn",
+      "imageUrl": null,
+      "likes": 1,
+      "comments": [],
+      "createdAt": "2025-10-07T15:12:55.493Z"
     }
   ],
-  "reports": [],
-  "sharedReports": [],
+  "reports": [
+    {
+      "id": 1,
+      "name": "Full Health Report 1",
+      "date": "07/10/2025",
+      "type": "PDF",
+      "data": [
+        "glucose",
+        "weight",
+        "blood_pressure",
+        "heart_rate"
+      ],
+      "selected": false,
+      "shared": true
+    },
+    {
+      "id": 2,
+      "name": "Full Health Report 2",
+      "date": "07/10/2025",
+      "type": "WORD",
+      "data": [
+        "glucose",
+        "weight",
+        "blood_pressure",
+        "heart_rate"
+      ],
+      "selected": false,
+      "shared": true
+    },
+    {
+      "id": 3,
+      "name": "Glucose, Blood Pressure, Weight Report 3",
+      "date": "07/10/2025",
+      "type": "WORD",
+      "data": [
+        "glucose",
+        "blood_pressure",
+        "weight"
+      ],
+      "selected": false,
+      "shared": true
+    }
+  ],
+  "sharedReports": [
+    {
+      "id": 1759850114426,
+      "reports": [
+        {
+          "id": 1,
+          "name": "Full Health Report 1",
+          "date": "07/10/2025",
+          "type": "PDF",
+          "data": [
+            "glucose",
+            "weight",
+            "blood_pressure",
+            "heart_rate"
+          ],
+          "selected": true,
+          "shared": true,
+          "sharedAt": "2025-10-07T15:15:14.426Z"
+        }
+      ],
+      "message": "wdadwadd",
+      "sharedAt": "2025-10-07T15:15:14.426Z"
+    },
+    {
+      "id": 1759850130735,
+      "reports": [
+        {
+          "id": 2,
+          "name": "Full Health Report 2",
+          "date": "07/10/2025",
+          "type": "WORD",
+          "data": [
+            "glucose",
+            "weight",
+            "blood_pressure",
+            "heart_rate"
+          ],
+          "selected": true,
+          "shared": true,
+          "sharedAt": "2025-10-07T15:15:30.735Z"
+        },
+        {
+          "id": 3,
+          "name": "Glucose, Blood Pressure, Weight Report 3",
+          "date": "07/10/2025",
+          "type": "WORD",
+          "data": [
+            "glucose",
+            "blood_pressure",
+            "weight"
+          ],
+          "selected": true,
+          "shared": true,
+          "sharedAt": "2025-10-07T15:15:30.735Z"
+        }
+      ],
+      "message": "Shared report",
+      "sharedAt": "2025-10-07T15:15:30.735Z"
+    }
+  ],
   "healthy": [
     {
-      "heartRate": 110,
-      "glucose": 84,
-      "weight": 68,
-      "bloodPressure": "112/80",
+      "heartRate": 122,
+      "glucose": 232,
+      "weight": 22,
+      "bloodPressure": "222",
       "id": 1
     }
   ],
@@ -74,6 +184,17 @@
       "createdAt": "2025-10-07T08:41:49.129Z",
       "updatedAt": "2025-10-07T08:41:49.129Z",
       "id": 4
+    },
+    {
+      "date": "3333-03-22",
+      "time": "08:30",
+      "doctor": "Torres",
+      "specialty": "General",
+      "status": "scheduled",
+      "notes": "dfadawdwadwad",
+      "createdAt": "2025-10-07T15:14:41.298Z",
+      "updatedAt": "2025-10-07T15:14:41.298Z",
+      "id": 5
     }
   ],
   "notifications": [
@@ -199,6 +320,11 @@
       "food": "Pizza",
       "timestamp": "2025-10-05T09:22:20.252Z",
       "id": 3
+    },
+    {
+      "food": "dadwad",
+      "timestamp": "2025-10-07T15:13:46.431Z",
+      "id": 4
     }
   ]
 }

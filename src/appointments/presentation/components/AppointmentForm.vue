@@ -2,11 +2,13 @@
 import { defineProps, defineEmits, reactive, onMounted } from 'vue'
 import { useAppointmentStore } from '../../application/appointment.store'
 import InputText from 'primevue/inputtext'
-import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 type Appointment = {
   id?: number
@@ -37,20 +39,11 @@ const emit = defineEmits<{
 
 const appointmentStore = useAppointmentStore()
 
-const formData = reactive<{
-  date: Date | null
-  dateString: string
-  time: string
-  doctorId: number | null
-  doctor: string
-  specialty: string
-  status: string
-  notes: string
-}>({
-  date: null,
+const formData = reactive({
+  date: null as Date | null,
   dateString: '',
   time: '',
-  doctorId: null,
+  doctorId: null as number | null,
   doctor: '',
   specialty: '',
   status: 'scheduled',
@@ -64,9 +57,9 @@ const state = reactive({
 })
 
 const statusOptions = [
-  { label: 'Scheduled', value: 'scheduled' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' }
+  { label: t('appointment.status.scheduled'), value: 'scheduled' },
+  { label: t('appointment.status.completed'), value: 'completed' },
+  { label: t('appointment.status.cancelled'), value: 'cancelled' }
 ]
 
 const timeSlots = [
@@ -77,7 +70,7 @@ const timeSlots = [
 ]
 
 const doctorOptions = props.doctors.map(doctor => ({
-  label: `Dr. ${doctor.name} (${doctor.specialty})`,
+  label: `${t('appointment.dr')} ${doctor.name} (${doctor.specialty})`,
   value: doctor.id,
   doctor: doctor
 }))
@@ -87,17 +80,7 @@ const onDoctorChange = (doctorId: number) => {
   if (selectedDoctor) {
     formData.doctor = selectedDoctor.name
     formData.specialty = selectedDoctor.specialty
-    
-    // Load available slots if date is selected
-    if (formData.date) {
-      loadAvailableSlots(doctorId, formatDate(formData.date))
-    }
-  }
-}
-
-const onDateChange = (date: Date) => {
-  if (formData.doctorId && date) {
-    loadAvailableSlots(formData.doctorId, formatDate(date))
+    if (formData.date) loadAvailableSlots(doctorId, formatDate(formData.date))
   }
 }
 
@@ -120,38 +103,28 @@ const loadAvailableSlots = async (doctorId: number, date: string) => {
     state.availableSlots = appointmentStore.state.availableSlots
   } catch (error) {
     console.error('Failed to load available slots:', error)
-    state.availableSlots = timeSlots // Fallback to all slots
+    state.availableSlots = timeSlots
   }
 }
 
-const formatDate = (date: Date): string => {
-  return date.toISOString().split('T')[0]
-}
+const formatDate = (date: Date): string => date.toISOString().split('T')[0]
 
 const validateForm = (): boolean => {
   state.errors = []
-  
-  if (!formData.dateString) {
-    state.errors.push('Date is required')
-  }
-  
-  if (!formData.time) {
-    state.errors.push('Time is required')
-  }
-  
-  if (!formData.doctorId) {
-    state.errors.push('Doctor is required')
-  }
-  
+
+  if (!formData.dateString) state.errors.push(t('appointment.errors.date'))
+  if (!formData.time) state.errors.push(t('appointment.errors.time'))
+  if (!formData.doctorId) state.errors.push(t('appointment.errors.doctor'))
+
   return state.errors.length === 0
 }
 
 const saveAppointment = async () => {
   if (!validateForm()) return
-  
+
   state.isLoading = true
   state.errors = []
-  
+
   try {
     const appointmentData = {
       date: formData.dateString,
@@ -161,29 +134,24 @@ const saveAppointment = async () => {
       status: formData.status,
       notes: formData.notes
     }
-    
+
     if (props.appointment?.id) {
-      // Update existing appointment
       await appointmentStore.updateAppointment(props.appointment.id, appointmentData)
     } else {
-      // Create new appointment
       await appointmentStore.createAppointment(appointmentData)
     }
-    
+
     emit('saved')
   } catch (error) {
     console.error('Failed to save appointment:', error)
-    state.errors.push('Failed to save appointment. Please try again.')
+    state.errors.push(t('appointment.errors.saveFailed'))
   } finally {
     state.isLoading = false
   }
 }
 
-const cancel = () => {
-  emit('cancelled')
-}
+const cancel = () => emit('cancelled')
 
-// Initialize form with appointment data if editing
 onMounted(() => {
   if (props.appointment) {
     formData.dateString = props.appointment.date
@@ -193,128 +161,118 @@ onMounted(() => {
     formData.specialty = props.appointment.specialty
     formData.status = props.appointment.status
     formData.notes = props.appointment.notes
-    
-    // Find doctor ID
+
     const doctor = props.doctors.find(d => d.name === props.appointment?.doctor)
-    if (doctor) {
-      formData.doctorId = doctor.id
-    }
+    if (doctor) formData.doctorId = doctor.id
   }
 })
 </script>
 
 <template>
   <div class="appointment-form">
-    <!-- Error Messages -->
     <div v-if="state.errors.length > 0" class="mb-3">
-      <Message 
-        v-for="error in state.errors" 
-        :key="error"
-        severity="error" 
-        :closable="false"
+      <Message
+          v-for="error in state.errors"
+          :key="error"
+          severity="error"
+          :closable="false"
       >
         {{ error }}
       </Message>
     </div>
 
     <div class="form-grid">
-      <!-- Date Field -->
       <div class="field mb-3">
-        <label for="appointmentDate" class="block mb-2 font-semibold">Date *</label>
+        <label for="appointmentDate">{{ t('appointment.fields.date') }} *</label>
         <InputText
-          id="appointmentDate"
-          v-model="formData.dateString"
-          type="date"
-          :min="new Date().toISOString().split('T')[0]"
-          placeholder="Select date"
-          class="w-full"
-          @input="onDateStringChange"
+            id="appointmentDate"
+            v-model="formData.dateString"
+            type="date"
+            :min="new Date().toISOString().split('T')[0]"
+            :placeholder="t('appointment.placeholders.date')"
+            class="w-full"
+            @input="onDateStringChange"
         />
       </div>
 
-      <!-- Time Field -->
       <div class="field mb-3">
-        <label for="appointmentTime" class="block mb-2 font-semibold">Time *</label>
+        <label for="appointmentTime">{{ t('appointment.fields.time') }} *</label>
         <Dropdown
-          id="appointmentTime"
-          v-model="formData.time"
-          :options="state.availableSlots.length > 0 ? state.availableSlots : timeSlots"
-          placeholder="Select time"
-          class="w-full"
+            id="appointmentTime"
+            v-model="formData.time"
+            :options="state.availableSlots.length > 0 ? state.availableSlots : timeSlots"
+            :placeholder="t('appointment.placeholders.time')"
+            class="w-full"
         />
       </div>
 
-      <!-- Doctor Field -->
       <div class="field mb-3">
-        <label for="appointmentDoctor" class="block mb-2 font-semibold">Doctor *</label>
+        <label for="appointmentDoctor">{{ t('appointment.fields.doctor') }} *</label>
         <Dropdown
-          id="appointmentDoctor"
-          v-model="formData.doctorId"
-          :options="doctorOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select doctor"
-          class="w-full"
-          @change="onDoctorChange"
+            id="appointmentDoctor"
+            v-model="formData.doctorId"
+            :options="doctorOptions"
+            optionLabel="label"
+            optionValue="value"
+            :placeholder="t('appointment.placeholders.doctor')"
+            class="w-full"
+            @change="onDoctorChange"
         />
       </div>
 
-      <!-- Specialty Field (Read-only) -->
       <div class="field mb-3">
-        <label for="appointmentSpecialty" class="block mb-2 font-semibold">Specialty</label>
+        <label for="appointmentSpecialty">{{ t('appointment.fields.specialty') }}</label>
         <InputText
-          id="appointmentSpecialty"
-          v-model="formData.specialty"
-          placeholder="Specialty will be auto-filled"
-          readonly
-          class="w-full"
+            id="appointmentSpecialty"
+            v-model="formData.specialty"
+            :placeholder="t('appointment.placeholders.specialty')"
+            readonly
+            class="w-full"
         />
       </div>
 
-      <!-- Status Field -->
       <div class="field mb-3">
-        <label for="appointmentStatus" class="block mb-2 font-semibold">Status</label>
+        <label for="appointmentStatus">{{ t('appointment.fields.status') }}</label>
         <Dropdown
-          id="appointmentStatus"
-          v-model="formData.status"
-          :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select status"
-          class="w-full"
+            id="appointmentStatus"
+            v-model="formData.status"
+            :options="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            :placeholder="t('appointment.placeholders.status')"
+            class="w-full"
         />
       </div>
 
-      <!-- Notes Field -->
       <div class="field mb-3">
-        <label for="appointmentNotes" class="block mb-2 font-semibold">Notes</label>
+        <label for="appointmentNotes">{{ t('appointment.fields.notes') }}</label>
         <Textarea
-          id="appointmentNotes"
-          v-model="formData.notes"
-          placeholder="Additional notes (optional)"
-          :rows="3"
-          class="w-full"
+            id="appointmentNotes"
+            v-model="formData.notes"
+            :placeholder="t('appointment.placeholders.notes')"
+            :rows="3"
+            class="w-full"
         />
       </div>
     </div>
 
-    <!-- Action Buttons -->
     <div class="form-actions flex justify-content-end gap-2 mt-4">
       <Button
-        label="Cancel"
-        severity="secondary"
-        @click="cancel"
-        :disabled="state.isLoading"
+          :label="t('appointment.actions.cancel')"
+          severity="secondary"
+          @click="cancel"
+          :disabled="state.isLoading"
       />
       <Button
-        :label="props.appointment ? 'Update' : 'Create'"
-        severity="primary"
-        @click="saveAppointment"
-        :loading="state.isLoading"
+          :label="props.appointment ? t('appointment.actions.update') : t('appointment.actions.create')"
+          severity="primary"
+          @click="saveAppointment"
+          :loading="state.isLoading"
       />
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .appointment-form {

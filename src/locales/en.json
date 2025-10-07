@@ -5,8 +5,164 @@
     "content": "The path {unavailable-route} is not available.",
     "go-home": "Go home"
   },
-
+  "sidebar": {
+    "glucometer": "Glucometer",
+    "profile": "Profile",
+    "healthy": "Healthy Life",
+    "community": "Community",
+    "appointments": "Appointment",
+    "notifications": "Notifications",
+    "reports": "Reports"
+  },
+  "post": {
+    "user": "User",
+    "imageAlt": "Post image",
+    "likes": "Likes",
+    "comments": "Comments",
+    "viewRecent": "View recent",
+    "viewAll": "View all comments",
+    "showMore": "Show more comments",
+    "showLess": "Show fewer comments",
+    "writeComment": "Write a comment...",
+    "send": "Send"
+  },
+  "summary": {
+    "heartRate": "Heart Rate",
+    "glucose": "Glucose",
+    "weight": "Weight",
+    "bloodPressure": "Blood Pressure"
+  },
   "errors": {
     "occurred": "Errors occurred"
+  },
+  "report": {
+    "title": "New Report",
+    "pdf": "PDF",
+    "word": "WORD",
+    "allData": "All the data",
+    "generateFull": "Generate full health report",
+    "specificData": "Specific data",
+    "generate": "Generate",
+    "selectData": "Select data types...",
+    "glucose": "Glucose levels",
+    "weight": "Weight",
+    "bloodPressure": "Blood pressure",
+    "heartRate": "Heart rate"
+  },
+  "share": {
+    "title": "Share Report",
+    "noReports": "No reports available",
+    "addMessage": "Add message",
+    "placeholder": "Write something...",
+    "button": "Share",
+    "alertNoReports": "No reports available to share",
+    "alertError": "Error sharing reports",
+    "defaultMessage": "Shared report"
+  },
+  "notifications": {
+    "title": "Messages",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "deleteTooltip": "Delete message",
+    "confirmDelete": "Are you sure you want to delete this message?",
+    "emptyTitle": "No messages",
+    "emptyDescription": "You're all caught up! No new messages to show.",
+    "seeAll": "See all messages",
+    "seeLess": "See less",
+    "detailHeader": "Message Details",
+    "viewDetails": "View details"
+  },
+  "community": {
+    "placeholder": "What are you thinking?",
+    "addImage": "Add image",
+    "publish": "Post",
+    "noPosts": "No posts yet"
+
+  },
+  "calendar": {
+    "today": "Today",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "weekdays": {
+      "s": "S",
+      "m": "M",
+      "t": "T",
+      "w": "W",
+      "th": "T",
+      "f": "F",
+      "sa": "S"
+    }
+  },
+  "appointment": {
+    "dr": "Dr.",
+    "fields": {
+      "date": "Date",
+      "time": "Time",
+      "doctor": "Doctor",
+      "specialty": "Specialty",
+      "status": "Status",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "date": "Select date",
+      "time": "Select time",
+      "doctor": "Select doctor",
+      "specialty": "Specialty will be auto-filled",
+      "status": "Select status",
+      "notes": "Additional notes (optional)"
+    },
+    "status": {
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "update": "Update"
+    },
+    "errors": {
+      "date": "Date is required",
+      "time": "Time is required",
+      "doctor": "Doctor is required",
+      "saveFailed": "Failed to save appointment. Please try again."
+    }
+  },
+  "healthyLife": {
+    "healthMetrics": "Health Metrics",
+    "heartRate": "Heart Rate",
+    "glucose": "Glucose",
+    "weight": "Weight",
+    "bloodPressure": "Blood Pressure",
+    "saveData": "Save Data",
+    "healthSummary": "Health Summary",
+    "foodRecommendations": "Food Recommendations",
+    "addFood": "Add Food Consumed",
+    "foodPlaceholder": "Enter food you consumed...",
+    "addFoodBtn": "Add Food",
+    "noRecommendations": "No recommendations available",
+    "recentFoods": "Recent Foods",
+    "healthSaved": "Health data saved successfully",
+    "healthSaveError": "Failed to save health data",
+    "foodSaved": "Food data saved successfully",
+    "foodSaveError": "Failed to save food data",
+    "foodRequired": "Please enter food information",
+    "unknownTime": "Unknown time",
+    "invalidDate": "Invalid date"
+  },
+  "healthy": {
+    "noFoodData": "No food data recorded yet"
   }
 }

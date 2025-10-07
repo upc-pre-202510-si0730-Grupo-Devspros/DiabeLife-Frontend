@@ -1,7 +1,9 @@
 <script setup>
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import useCommunityStore from "../../application/useCommunityStore.js";
 
+const { t } = useI18n(); // Hook para traducir textos
 const props = defineProps({ post: Object });
 const store = useCommunityStore();
 
@@ -20,11 +22,10 @@ const userHasLiked = computed(() => {
 const toggleLike = async () => {
   if (isLiking.value) return;
   isLiking.value = true;
-
   try {
     await store.toggleLike(props.post.id, currentUser.value);
   } catch (error) {
-    console.error("Error al alternar like:", error);
+    console.error("Error toggling like:", error);
   } finally {
     isLiking.value = false;
   }
@@ -44,17 +45,14 @@ const showMore = () => (commentsToShow.value += 5);
 const showLess = () => (commentsToShow.value = 5);
 
 const toggleCommentMode = () => {
-  commentMode.value =
-      commentMode.value === "todos" ? "recientes" : "todos";
+  commentMode.value = commentMode.value === "todos" ? "recientes" : "todos";
 };
 
 const visibleComments = computed(() => {
   if (!props.post.comments) return [];
   let sorted = [...props.post.comments];
   if (commentMode.value === "recientes") {
-    sorted = sorted.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-    );
+    sorted = sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
   }
   return sorted.slice(0, commentsToShow.value);
 });
@@ -62,25 +60,29 @@ const visibleComments = computed(() => {
 
 <template>
   <div class="p-card p-3 mb-4 shadow-1 border-round">
+    <!-- Cabecera del post -->
     <div class="flex align-items-center gap-3 mb-3">
       <pv-avatar icon="pi pi-user" shape="circle" />
       <div>
-        <strong>User {{ post.authorId }}</strong>
+        <strong>{{ t('post.user') }} {{ post.authorId }}</strong>
         <div class="text-500 text-sm">
           {{ new Date(post.createdAt).toLocaleString() }}
         </div>
       </div>
     </div>
 
+    <!-- Contenido del post -->
     <p class="mb-3">{{ post.content }}</p>
 
+    <!-- Imagen -->
     <img
         v-if="post.imageUrl"
         :src="post.imageUrl"
-        alt="Imagen del post"
+        :alt="t('post.imageAlt')"
         class="post-image mb-3"
     />
 
+    <!-- Likes y comentarios -->
     <div class="flex align-items-center justify-content-between mb-3">
       <div class="flex align-items-center gap-3">
         <pv-button
@@ -91,8 +93,8 @@ const visibleComments = computed(() => {
             @click="toggleLike"
             :disabled="isLiking"
         />
-        <span>{{ post.likes }} Me gusta</span>
-        <span class="ml-3">{{ post.comments.length }} Comentarios</span>
+        <span>{{ post.likes }} {{ t('post.likes') }}</span>
+        <span class="ml-3">{{ post.comments.length }} {{ t('post.comments') }}</span>
       </div>
 
       <pv-button
@@ -102,11 +104,12 @@ const visibleComments = computed(() => {
           @click="toggleCommentMode"
       >
         {{ commentMode === 'todos'
-          ? 'Ver más recientes'
-          : 'Ver todos los comentarios' }}
+          ? t('post.viewRecent')
+          : t('post.viewAll') }}
       </pv-button>
     </div>
 
+    <!-- Lista de comentarios -->
     <div
         v-if="post.comments && post.comments.length > 0"
         class="mb-3 p-2 comments-container"
@@ -120,7 +123,7 @@ const visibleComments = computed(() => {
         <span class="ml-2">{{ comment.text }}</span>
       </div>
 
-
+      <!-- Ver más / menos -->
       <div class="text-center mt-2">
         <pv-button
             v-if="commentsToShow < post.comments.length"
@@ -128,7 +131,7 @@ const visibleComments = computed(() => {
             size="small"
             @click="showMore"
         >
-          Ver más comentarios
+          {{ t('post.showMore') }}
         </pv-button>
 
         <pv-button
@@ -137,15 +140,16 @@ const visibleComments = computed(() => {
             size="small"
             @click="showLess"
         >
-          Ver menos comentarios
+          {{ t('post.showLess') }}
         </pv-button>
       </div>
     </div>
 
+    <!-- Campo de nuevo comentario -->
     <div class="flex gap-2">
       <pv-input-text
           v-model="newComment"
-          placeholder="Escribe un comentario..."
+          :placeholder="t('post.writeComment')"
           class="flex-1"
           @keydown.enter.prevent="submitComment"
       />
@@ -154,6 +158,7 @@ const visibleComments = computed(() => {
           rounded
           @click="submitComment"
           :disabled="!newComment.trim()"
+          :aria-label="t('post.send')"
       />
     </div>
   </div>

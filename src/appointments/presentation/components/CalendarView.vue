@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, reactive, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
+
+const { t } = useI18n()
 
 type AppointmentsByDate = Record<string, Array<{
   id?: number
@@ -26,15 +29,33 @@ const state = reactive({
   currentYear: new Date().getFullYear()
 })
 
-const monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-]
+const monthNames = computed(() => [
+  t('calendar.months.january'),
+  t('calendar.months.february'),
+  t('calendar.months.march'),
+  t('calendar.months.april'),
+  t('calendar.months.may'),
+  t('calendar.months.june'),
+  t('calendar.months.july'),
+  t('calendar.months.august'),
+  t('calendar.months.september'),
+  t('calendar.months.october'),
+  t('calendar.months.november'),
+  t('calendar.months.december')
+])
 
-const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+const weekDays = computed(() => [
+  t('calendar.weekdays.s'),
+  t('calendar.weekdays.m'),
+  t('calendar.weekdays.t'),
+  t('calendar.weekdays.w'),
+  t('calendar.weekdays.th'),
+  t('calendar.weekdays.f'),
+  t('calendar.weekdays.sa')
+])
 
 const currentMonthName = computed(() => {
-  return `${monthNames[state.currentMonth]} ${state.currentYear}`
+  return `${monthNames.value[state.currentMonth]} ${state.currentYear}`
 })
 
 const calendarDays = computed(() => {
@@ -42,10 +63,9 @@ const calendarDays = computed(() => {
   const lastDay = new Date(state.currentYear, state.currentMonth + 1, 0)
   const firstDayOfWeek = firstDay.getDay()
   const daysInMonth = lastDay.getDate()
-  
+
   const days = []
-  
-  // Add empty days for previous month
+
   for (let i = 0; i < firstDayOfWeek; i++) {
     const prevDate = new Date(state.currentYear, state.currentMonth, -(firstDayOfWeek - 1 - i))
     days.push({
@@ -56,13 +76,12 @@ const calendarDays = computed(() => {
       appointmentCount: 0
     })
   }
-  
-  // Add days of current month
+
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(state.currentYear, state.currentMonth, day)
     const dateStr = formatDate(date)
     const appointments = props.appointments[dateStr] || []
-    
+
     days.push({
       day,
       date: dateStr,
@@ -73,9 +92,8 @@ const calendarDays = computed(() => {
       isToday: isToday(date)
     })
   }
-  
-  // Add empty days for next month to complete the grid
-  const remainingDays = 42 - days.length // 6 rows * 7 days
+
+  const remainingDays = 42 - days.length
   for (let i = 1; i <= remainingDays; i++) {
     const nextDate = new Date(state.currentYear, state.currentMonth + 1, i)
     days.push({
@@ -86,7 +104,7 @@ const calendarDays = computed(() => {
       appointmentCount: 0
     })
   }
-  
+
   return days
 })
 
@@ -133,60 +151,44 @@ const goToToday = () => {
 
 <template>
   <div class="calendar-view">
-    <!-- Calendar Header -->
+    <!-- Header -->
     <div class="calendar-header flex justify-content-between align-items-center mb-3">
-      <Button 
-        icon="pi pi-chevron-left" 
-        severity="secondary" 
-        text 
-        @click="previousMonth"
-      />
+      <Button icon="pi pi-chevron-left" severity="secondary" text @click="previousMonth" />
       <h3 class="calendar-title">{{ currentMonthName }}</h3>
-      <Button 
-        icon="pi pi-chevron-right" 
-        severity="secondary" 
-        text 
-        @click="nextMonth"
-      />
+      <Button icon="pi pi-chevron-right" severity="secondary" text @click="nextMonth" />
     </div>
 
     <!-- Today Button -->
     <div class="text-center mb-3">
-      <Button 
-        label="Today" 
-        severity="info" 
-        size="small" 
-        @click="goToToday"
+      <Button
+          :label="t('calendar.today')"
+          severity="info"
+          size="small"
+          @click="goToToday"
       />
     </div>
 
     <!-- Calendar Grid -->
     <div class="calendar-grid">
-      <!-- Week Days Header -->
       <div class="calendar-weekdays">
-        <div 
-          v-for="day in weekDays" 
-          :key="day" 
-          class="calendar-weekday"
-        >
+        <div v-for="day in weekDays" :key="day" class="calendar-weekday">
           {{ day }}
         </div>
       </div>
 
-      <!-- Calendar Days -->
       <div class="calendar-days">
-        <div 
-          v-for="day in calendarDays" 
-          :key="`${day.date}-${day.day}`"
-          class="calendar-day"
-          :class="{
+        <div
+            v-for="day in calendarDays"
+            :key="`${day.date}-${day.day}`"
+            class="calendar-day"
+            :class="{
             'calendar-day-current': day.isCurrentMonth,
             'calendar-day-other': !day.isCurrentMonth,
             'calendar-day-today': day.isToday,
             'calendar-day-selected': day.isSelected,
             'calendar-day-has-appointment': day.hasAppointment
           }"
-          @click="onDateClick(day)"
+            @click="onDateClick(day)"
         >
           <div class="calendar-day-number">{{ day.day }}</div>
           <div v-if="day.hasAppointment && day.isCurrentMonth" class="calendar-appointment-indicator">
@@ -200,6 +202,7 @@ const goToToday = () => {
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .calendar-view {

@@ -1,7 +1,9 @@
 <script setup>
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import useCommunityStore from "../../application/useCommunityStore.js";
 
+const { t } = useI18n();
 const store = useCommunityStore();
 
 const content = ref("");
@@ -19,7 +21,6 @@ const handleImageUpload = (event) => {
   };
   reader.readAsDataURL(file);
 };
-
 
 const submitPost = async () => {
   if (!content.value.trim() && !imageUrl.value) return;
@@ -46,7 +47,7 @@ const submitPost = async () => {
       <div class="flex-1">
         <pv-textarea
             v-model="content"
-            placeholder="¿Qué estás pensando?"
+            :placeholder="t('community.placeholder')"
             auto-resize
             rows="3"
             class="w-full mb-3"
@@ -58,8 +59,6 @@ const submitPost = async () => {
               alt="preview"
               class="post-image-preview"
           />
-
-
         </div>
 
         <div class="flex justify-content-between align-items-center">
@@ -70,6 +69,7 @@ const submitPost = async () => {
                 rounded
                 class="p-button-sm"
                 @click="$refs.fileInput.click()"
+                :aria-label="t('community.addImage')"
             />
 
             <input
@@ -82,7 +82,7 @@ const submitPost = async () => {
           </div>
 
           <pv-button
-              label="Publicar"
+              :label="t('community.publish')"
               icon="pi pi-send"
               @click="submitPost"
               :disabled="!content.trim() && !imageUrl"
@@ -97,7 +97,7 @@ const submitPost = async () => {
 .hidden {
   display: none;
 }
-.post-image {
+.post-image-preview {
   width: 100%;
   height: auto;
   max-height: 400px;

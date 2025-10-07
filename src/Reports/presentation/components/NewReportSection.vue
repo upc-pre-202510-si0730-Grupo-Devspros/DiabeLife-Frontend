@@ -1,6 +1,6 @@
 <template>
   <div class="report-section">
-    <h2 class="section-title">New Report</h2>
+    <h2 class="section-title">{{ t('report.title') }}</h2>
 
     <div class="format-selector">
       <button
@@ -8,33 +8,33 @@
           @click="selectedFormat = 'PDF'"
       >
         <i class="pi pi-circle-fill"></i>
-        PDF
+        {{ t('report.pdf') }}
       </button>
       <button
           :class="['format-btn', { active: selectedFormat === 'WORD' }]"
           @click="selectedFormat = 'WORD'"
       >
         <i class="pi pi-circle-fill"></i>
-        WORD
+        {{ t('report.word') }}
       </button>
     </div>
 
     <div class="report-options">
       <div class="option-row">
-        <span class="option-label">All the data</span>
+        <span class="option-label">{{ t('report.allData') }}</span>
         <button
             class="generate-full-btn"
             @click="handleGenerateFullReport"
             :disabled="reportStore.loading"
         >
-          Generate full health report
+          {{ t('report.generateFull') }}
         </button>
       </div>
 
       <div class="option-row">
-        <span class="option-label">Specific data</span>
+        <span class="option-label">{{ t('report.specificData') }}</span>
         <div class="dropdown-container">
-          <button 
+          <button
               class="dropdown-toggle"
               @click="toggleDataOptions"
               :class="{ active: showDataOptions }"
@@ -42,11 +42,8 @@
             {{ selectedDataText }}
             <i class="pi pi-chevron-down" :class="{ rotated: showDataOptions }"></i>
           </button>
-          
-          <div 
-              v-if="showDataOptions" 
-              class="dropdown-options"
-          >
+
+          <div v-if="showDataOptions" class="dropdown-options">
             <label
                 v-for="option in dataOptions"
                 :key="option.value"
@@ -58,7 +55,7 @@
                   v-model="selectedDataTypes"
                   class="checkbox-input"
               />
-              <span class="checkbox-text">{{ option.label }}</span>
+              <span class="checkbox-text">{{ t(option.label) }}</span>
             </label>
           </div>
         </div>
@@ -69,64 +66,69 @@
           @click="handleGenerateSpecificReport"
           :disabled="reportStore.loading || selectedDataTypes.length === 0"
       >
-        Generate
+        {{ t('report.generate') }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
-import { useReportStore } from '@/Reports/application/stores/reportStore.js';
+import { ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useReportStore } from '@/Reports/application/stores/reportStore.js'
 
-const reportStore = useReportStore();
-const selectedFormat = ref('PDF');
-const selectedDataTypes = ref([]);
-const showDataOptions = ref(false);
+const { t } = useI18n()
+const reportStore = useReportStore()
+
+const selectedFormat = ref('PDF')
+const selectedDataTypes = ref([])
+const showDataOptions = ref(false)
 
 const dataOptions = [
-  { label: 'Glucose levels', value: 'glucose' },
-  { label: 'Weight', value: 'weight' },
-  { label: 'Blood pressure', value: 'blood_pressure' },
-  { label: 'Heart rate', value: 'heart_rate' }
-];
+  { label: 'report.glucose', value: 'glucose' },
+  { label: 'report.weight', value: 'weight' },
+  { label: 'report.bloodPressure', value: 'blood_pressure' },
+  { label: 'report.heartRate', value: 'heart_rate' }
+]
 
 const selectedDataText = computed(() => {
   if (selectedDataTypes.value.length === 0) {
-    return 'Select data types...';
+    return t('report.selectData')
   }
-  return selectedDataTypes.value.map(type => 
-    dataOptions.find(option => option.value === type)?.label
-  ).join(', ');
-});
+  return selectedDataTypes.value
+      .map(type => t(dataOptions.find(option => option.value === type)?.label))
+      .join(', ')
+})
 
 const toggleDataOptions = () => {
-  showDataOptions.value = !showDataOptions.value;
-};
+  showDataOptions.value = !showDataOptions.value
+}
 
 watch(selectedFormat, (newFormat) => {
-  reportStore.setSelectedFormat(newFormat);
-});
+  reportStore.setSelectedFormat(newFormat)
+})
 
 const handleGenerateFullReport = async () => {
   try {
-    await reportStore.generateFullHealthReport();
+    await reportStore.generateFullHealthReport()
   } catch (error) {
-    console.error('Error generating full report:', error);
+    console.error('Error generating full report:', error)
   }
-};
+}
 
 const handleGenerateSpecificReport = async () => {
-  if (selectedDataTypes.value.length === 0) return;
-
+  if (selectedDataTypes.value.length === 0) return
   try {
-    await reportStore.generateSpecificReport(selectedDataTypes.value);
-    selectedDataTypes.value = [];
+    await reportStore.generateSpecificReport(selectedDataTypes.value)
+    selectedDataTypes.value = []
   } catch (error) {
-    console.error('Error generating specific report:', error);
+    console.error('Error generating specific report:', error)
   }
-};
+}
 </script>
+
+
+
 
 <style scoped>
 .report-section {

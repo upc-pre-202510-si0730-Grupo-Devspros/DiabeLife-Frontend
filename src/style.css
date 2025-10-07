@@ -33,3 +33,6 @@ html, body, #app {
   padding: 0;
   overflow: hidden;
 }
+#vue-devtools, .vue-devtools {
+  display: none ;
+}

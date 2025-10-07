@@ -1,8 +1,10 @@
 <script setup>
 import { onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import useCommunityStore from "../../application/useCommunityStore.js";
 import PostItem from "./PostItem.vue";
 
+const { t } = useI18n();
 const store = useCommunityStore();
 
 onMounted(() => {
@@ -24,7 +26,7 @@ onMounted(() => {
           :post="post"
       />
       <p v-if="store.posts.length === 0" class="text-center p-3">
-        No hay publicaciones aún
+        {{ t("community.noPosts") }}
       </p>
     </template>
   </div>

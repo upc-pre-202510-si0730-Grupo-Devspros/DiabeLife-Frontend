@@ -1,6 +1,6 @@
 <template>
   <div class="report-section">
-    <h2 class="section-title">Share Report</h2>
+    <h2 class="section-title">{{ t('share.title') }}</h2>
 
     <div class="reports-list">
       <div
@@ -13,6 +13,7 @@
           <div class="report-name">{{ report.name }}</div>
           <div class="report-date">{{ report.date }}</div>
         </div>
+
         <button
             v-if="!report.shared"
             :class="['check-btn', { checked: report.selected }]"
@@ -20,22 +21,23 @@
         >
           <i class="pi pi-check"></i>
         </button>
+
         <div v-else class="shared-badge">
           <i class="pi pi-check"></i>
         </div>
       </div>
 
       <div v-if="!reports.length" class="no-reports">
-        No reports available
+        {{ t('share.noReports') }}
       </div>
     </div>
 
     <div class="message-section">
-      <label class="message-label">Add message</label>
+      <label class="message-label">{{ t('share.addMessage') }}</label>
       <textarea
           v-model="message"
           class="message-input"
-          placeholder="Write something..."
+          :placeholder="t('share.placeholder')"
           rows="4"
       ></textarea>
     </div>
@@ -45,58 +47,60 @@
         @click="handleShare"
         :disabled="loading || (reports.length === 0 || reports.every(r => r.shared))"
     >
-      Share
+      {{ t('share.button') }}
     </button>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useReportStore } from '@/Reports/application/stores/reportStore.js';
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useReportStore } from '@/Reports/application/stores/reportStore.js'
 
-const reportStore = useReportStore();
-const message = ref('');
-const loading = ref(false);
+const { t } = useI18n()
+const reportStore = useReportStore()
+const message = ref('')
+const loading = ref(false)
 
-const reports = computed(() => reportStore.reports);
-const hasSelectedReports = computed(() => reportStore.selectedReportIds.length > 0);
+const reports = computed(() => reportStore.reports)
+const hasSelectedReports = computed(() => reportStore.selectedReportIds.length > 0)
 
 onMounted(async () => {
-  await reportStore.fetchReports();
-});
+  await reportStore.fetchReports()
+})
 
 const toggleSelection = async (reportId) => {
-  await reportStore.toggleReportSelection(reportId);
-};
+  await reportStore.toggleReportSelection(reportId)
+}
 
 const handleShare = async () => {
-  // Si no hay reportes seleccionados, seleccionar todos los reportes no compartidos
   if (!hasSelectedReports.value) {
-    const availableReports = reports.value.filter(r => !r.shared);
+    const availableReports = reports.value.filter(r => !r.shared)
     if (availableReports.length === 0) {
-      alert('No reports available to share');
-      return;
+      alert(t('share.alertNoReports'))
+      return
     }
-    
-    // Seleccionar automáticamente todos los reportes disponibles
     for (const report of availableReports) {
       if (!report.selected) {
-        await reportStore.toggleReportSelection(report.id);
+        await reportStore.toggleReportSelection(report.id)
       }
     }
   }
 
-  loading.value = true;
+  loading.value = true
   try {
-    await reportStore.shareReports(message.value.trim() || 'Shared report');
-    message.value = '';
+    await reportStore.shareReports(message.value.trim() || t('share.defaultMessage'))
+    message.value = ''
   } catch (error) {
-    alert('Error sharing reports');
+    alert(t('share.alertError'))
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
+
+
+
 
 <style scoped>
 .report-section {
