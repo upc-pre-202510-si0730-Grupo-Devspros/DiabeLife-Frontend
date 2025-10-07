@@ -33,20 +33,34 @@
 
       <div class="option-row">
         <span class="option-label">Specific data</span>
-        <div class="checkboxes-container">
-          <label
-              v-for="option in dataOptions"
-              :key="option.value"
-              class="checkbox-label"
+        <div class="dropdown-container">
+          <button 
+              class="dropdown-toggle"
+              @click="toggleDataOptions"
+              :class="{ active: showDataOptions }"
           >
-            <input
-                type="checkbox"
-                :value="option.value"
-                v-model="selectedDataTypes"
-                class="checkbox-input"
-            />
-            <span class="checkbox-text">{{ option.label }}</span>
-          </label>
+            {{ selectedDataText }}
+            <i class="pi pi-chevron-down" :class="{ rotated: showDataOptions }"></i>
+          </button>
+          
+          <div 
+              v-if="showDataOptions" 
+              class="dropdown-options"
+          >
+            <label
+                v-for="option in dataOptions"
+                :key="option.value"
+                class="dropdown-option"
+            >
+              <input
+                  type="checkbox"
+                  :value="option.value"
+                  v-model="selectedDataTypes"
+                  class="checkbox-input"
+              />
+              <span class="checkbox-text">{{ option.label }}</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -62,12 +76,13 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useReportStore } from '@/Reports/application/stores/reportStore.js';
 
 const reportStore = useReportStore();
 const selectedFormat = ref('PDF');
 const selectedDataTypes = ref([]);
+const showDataOptions = ref(false);
 
 const dataOptions = [
   { label: 'Glucose levels', value: 'glucose' },
@@ -75,6 +90,19 @@ const dataOptions = [
   { label: 'Blood pressure', value: 'blood_pressure' },
   { label: 'Heart rate', value: 'heart_rate' }
 ];
+
+const selectedDataText = computed(() => {
+  if (selectedDataTypes.value.length === 0) {
+    return 'Select data types...';
+  }
+  return selectedDataTypes.value.map(type => 
+    dataOptions.find(option => option.value === type)?.label
+  ).join(', ');
+});
+
+const toggleDataOptions = () => {
+  showDataOptions.value = !showDataOptions.value;
+};
 
 watch(selectedFormat, (newFormat) => {
   reportStore.setSelectedFormat(newFormat);
@@ -195,20 +223,77 @@ const handleGenerateSpecificReport = async () => {
   cursor: not-allowed;
 }
 
-.checkboxes-container {
+.dropdown-container {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 0.5rem 0;
+  position: relative;
 }
 
-.checkbox-label {
+.dropdown-toggle {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.dropdown-toggle:hover {
+  border-color: #d1d5db;
+  background: #f3f4f6;
+}
+
+.dropdown-toggle.active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dropdown-toggle i {
+  transition: transform 0.2s;
+  font-size: 0.875rem;
+}
+
+.dropdown-toggle i.rotated {
+  transform: rotate(180deg);
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dropdown-option {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
   user-select: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.dropdown-option:hover {
+  background: #f3f4f6;
 }
 
 .checkbox-input {
