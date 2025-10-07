@@ -1,7 +1,25 @@
 {
-
-  "reports": [
+  "community": [
+    {
+      "id": 1,
+      "authorId": 1,
+      "content": "awdwadwada",
+      "imageUrl": null,
+      "likes": 1,
+      "comments": [],
+      "createdAt": "2025-10-06T19:23:59.824Z"
+    },
+    {
+      "authorId": 1,
+      "content": "adwadwadwad",
+      "imageUrl": null,
+      "likes": 0,
+      "comments": [],
+      "createdAt": "2025-10-07T04:08:20.416Z",
+      "id": 2
+    }
   ],
+  "reports": [],
   "sharedReports": [],
   "healthy": [
     {
