@@ -32,15 +32,48 @@
   ],
   "appointments": [
     {
-      "date": "2025-10-10",
+      "date": "2025-10-11",
       "time": "10:00",
       "doctor": "García",
       "specialty": "General",
       "status": "scheduled",
       "notes": "Cita prueba",
-      "createdAt": "2025-10-07T02:43:17.207Z",
-      "updatedAt": "2025-10-07T02:43:17.207Z",
+      "createdAt": "2025-10-07T08:00:17.483Z",
+      "updatedAt": "2025-10-07T08:00:17.483Z",
       "id": 1
+    },
+    {
+      "date": "2025-10-11",
+      "time": "16:00",
+      "doctor": "Ramos",
+      "specialty": "General",
+      "status": "scheduled",
+      "notes": "Segunda prueba",
+      "createdAt": "2025-10-07T08:35:09.323Z",
+      "updatedAt": "2025-10-07T08:35:09.323Z",
+      "id": 2
+    },
+    {
+      "date": "2025-10-13",
+      "time": "12:00",
+      "doctor": "García",
+      "specialty": "General",
+      "status": "scheduled",
+      "notes": "Cita nueva",
+      "createdAt": "2025-10-07T08:35:50.412Z",
+      "updatedAt": "2025-10-07T08:35:50.412Z",
+      "id": 3
+    },
+    {
+      "date": "2025-10-16",
+      "time": "11:30",
+      "doctor": "Martínez",
+      "specialty": "General",
+      "status": "scheduled",
+      "notes": "Cita de nutrición",
+      "createdAt": "2025-10-07T08:41:49.129Z",
+      "updatedAt": "2025-10-07T08:41:49.129Z",
+      "id": 4
     }
   ],
   "notifications": [
