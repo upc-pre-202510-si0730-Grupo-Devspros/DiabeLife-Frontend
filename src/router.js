@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-
+const Community = () => import ("./community/presentation/views/CommunityPage.vue");
 
 const Reports = () => import("@/Reports/presentation/views/ReportView.vue");
 const Home = () => import("./shared/presentation/views/home.vue");
@@ -28,6 +28,12 @@ const routes = [
         name: "healthy",
         component: Healthy,
         meta: { title: "Healthy Life" }
+    },
+    {
+        path: "/community",
+        name: "community",
+        component: Community,
+        meta: { title: "Community" }
     },
     {
         path: "/appointments",
