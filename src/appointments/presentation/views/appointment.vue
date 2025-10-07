@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, onMounted, computed } from 'vue'
+import { reactive, onMounted, onUnmounted, computed, ref } from 'vue'
 import { useAppointmentStore } from '../../application/appointment.store'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
@@ -10,6 +10,9 @@ import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
 
 const appointmentStore = useAppointmentStore()
+
+// Reference to the calendar container
+const calendarRef = ref<HTMLElement | null>(null)
 
 type Appointment = {
   id?: number
@@ -173,7 +176,9 @@ const isToday = (date: Date): boolean => {
 
 const formatAppointmentDate = (dateStr: string): string => {
   try {
-    const date = new Date(dateStr)
+    // Parse the date components directly to avoid timezone issues
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const date = new Date(year, month - 1, day) // month is 0-based in Date constructor
     return date.toLocaleDateString('en-US', {
       month: 'long',
       day: '2-digit'
@@ -207,6 +212,14 @@ const onDateClick = (day: any) => {
     const clickedDate = new Date(day.date)
     state.currentMonth = clickedDate.getMonth()
     state.currentYear = clickedDate.getFullYear()
+  }
+}
+
+// Function to handle clicks outside the calendar
+const handleClickOutside = (event: MouseEvent) => {
+  if (calendarRef.value && !calendarRef.value.contains(event.target as Node)) {
+    // Clear the selected date when clicking outside the calendar
+    state.selectedDate = null
   }
 }
 
@@ -247,6 +260,19 @@ const onAddAppointment = () => {
   state.showAddDialog = true
 }
 
+// Function to check for appointment conflicts
+const hasTimeConflict = (date: string, time: string, excludeId?: number): boolean => {
+  return appointmentStore.state.appointments.some(appointment => {
+    // Skip the appointment being edited (for edit mode)
+    if (excludeId && appointment.id === excludeId) {
+      return false
+    }
+    
+    // Check if same date and time
+    return appointment.date === date && appointment.time === time && appointment.status === 'scheduled'
+  })
+}
+
 const onEditAppointment = (appointment: Appointment) => {
   state.selectedAppointment = appointment
   state.newAppointment = {
@@ -261,6 +287,13 @@ const onEditAppointment = (appointment: Appointment) => {
 const saveAppointment = async () => {
   if (!state.newAppointment.date || !state.newAppointment.time || !state.newAppointment.doctor) {
     alert('Please fill all required fields')
+    return
+  }
+
+  // Check for time conflicts
+  const excludeId = state.showEditDialog && state.selectedAppointment ? state.selectedAppointment.id : undefined
+  if (hasTimeConflict(state.newAppointment.date, state.newAppointment.time, excludeId)) {
+    alert(`There is already an appointment scheduled for ${formatAppointmentDate(state.newAppointment.date)} at ${formatAppointmentTime(state.newAppointment.time)}. Please choose a different time.`)
     return
   }
 
@@ -318,6 +351,14 @@ const deleteAppointment = async (appointment: Appointment) => {
 onMounted(async () => {
   // Initialize store when component mounts
   await appointmentStore.initialize()
+  
+  // Add event listener for clicks outside the calendar
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  // Remove event listener when component is unmounted
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -332,7 +373,7 @@ onMounted(async () => {
           </template>
           <template #content>
             <!-- Dynamic Calendar -->
-            <div class="calendar-container">
+            <div class="calendar-container" ref="calendarRef">
               <!-- Calendar Header -->
               <div class="calendar-header">
                 <Button 
@@ -384,7 +425,22 @@ onMounted(async () => {
                   >
                     <div class="calendar-day-number">{{ day.day }}</div>
                     <div v-if="day.hasAppointment" class="calendar-appointment-indicator">
-                      <div class="appointment-dot"></div>
+                      <!-- Show up to 4 dots, or 3 dots + "..." if more than 4 appointments -->
+                      <template v-if="day.appointments.length <= 4">
+                        <div 
+                          v-for="(appointment, index) in day.appointments" 
+                          :key="`${day.date}-${index}`"
+                          class="appointment-dot"
+                        ></div>
+                      </template>
+                      <template v-else>
+                        <div 
+                          v-for="index in 3" 
+                          :key="`${day.date}-${index}`"
+                          class="appointment-dot"
+                        ></div>
+                        <div class="appointment-more">...</div>
+                      </template>
                     </div>
                   </div>
                 </div>
@@ -413,12 +469,10 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
-              
-              <!-- Empty state -->
-              <div v-if="upcomingAppointments.length < 4" class="appointment-item empty-appointment">
-                <div class="empty-text">Empty</div>
-              </div>
             </div>
+
+            <!-- Divider line between general appointments and selected date appointments -->
+            <div v-if="state.selectedDate && selectedDateAppointments.length > 0" class="appointment-divider"></div>
 
             <!-- Selected Date Appointments -->
             <div v-if="state.selectedDate && selectedDateAppointments.length > 0" class="mt-3">
@@ -625,7 +679,6 @@ onMounted(async () => {
 .appointments-page {
   padding: 1rem 2rem;
   background-color: #f5f6fa;
-  min-height: 100vh;
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
@@ -738,7 +791,7 @@ onMounted(async () => {
 }
 
 .calendar-day {
-  min-height: 90px;
+  height: 90px;
   padding: 0.75rem;
   border-right: 1px solid #e2e8f0;
   border-bottom: 1px solid #e2e8f0;
@@ -818,26 +871,37 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   margin-top: auto;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-height: 12px;
 }
 
 .appointment-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   background-color: #3b82f6;
   border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.appointment-more {
+  font-size: 10px;
+  color: #3b82f6;
+  font-weight: bold;
+  margin-left: 1px;
 }
 
 .calendar-day-selected .appointment-dot {
   background-color: #ffffff;
 }
 
+.calendar-day-selected .appointment-more {
+  color: #ffffff;
+}
+
 /* Appointment List Styles */
 .appointments-card {
   height: fit-content;
-}
-
-.appointment-list {
-  min-height: 300px;
 }
 
 .appointment-item {
@@ -861,29 +925,20 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-.empty-appointment {
-  background-color: #f8fafc;
-  border: 2px dashed #d1d5db;
-  text-align: center;
-  cursor: default;
-}
-
-.empty-appointment:hover {
-  border-color: #d1d5db;
-  box-shadow: none;
-}
-
-.empty-text {
-  color: #9ca3af;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
 .selected-appointment-item {
-  background-color: #f8fafc;
+  background-color: #ffffff;
   border-radius: 6px;
   padding: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+/* Divider line between general appointments and selected date appointments */
+.appointment-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 1rem 0;
+  border: none;
 }
 
 .appointment-time {
@@ -906,6 +961,141 @@ onMounted(async () => {
 
 .action-button {
   width: 100%;
+  color: #ffffff !important;
+  transition: background-color 0.3s ease !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+}
+
+/* Force exact dimensions and prevent any size changes */
+:deep(.action-button) {
+  width: 100% !important;
+  height: 48px !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+  transition: background-color 0.3s ease !important;
+  transform: none !important;
+  animation: none !important;
+  will-change: auto !important;
+  border: 1px solid transparent !important;
+  margin: 0 !important;
+  outline: none !important;
+  position: relative !important;
+}
+
+:deep(.action-button),
+:deep(.action-button:hover),
+:deep(.action-button:focus),
+:deep(.action-button:active) {
+  width: 100% !important;
+  height: 48px !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+  transform: none !important;
+  scale: 1 !important;
+  padding: 0.75rem 1.5rem !important;
+  border: 1px solid transparent !important;
+  margin: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.2 !important;
+  animation: none !important;
+  will-change: auto !important;
+  outline: none !important;
+  position: relative !important;
+}
+
+/* Completely disable size-changing transitions and effects, but allow color transitions */
+:deep(.action-button) {
+  transition: background-color 0.3s ease, border-color 0.3s ease !important;
+  animation: none !important;
+}
+
+:deep(.action-button *) {
+  transition: color 0.3s ease !important;
+  animation: none !important;
+}
+
+/* Ensure action buttons have white text */
+.action-button.p-button-primary,
+.action-button.p-button-success {
+  color: #ffffff !important;
+}
+
+/* More specific selectors for PrimeVue button text */
+:deep(.action-button.p-button-primary .p-button-label),
+:deep(.action-button.p-button-success .p-button-label) {
+  color: #ffffff !important;
+}
+
+:deep(.action-button) {
+  color: #ffffff !important;
+}
+
+:deep(.action-button span) {
+  color: #ffffff !important;
+}
+
+/* Prevent hover/focus effects on action buttons - except color changes */
+:deep(.action-button:hover),
+:deep(.action-button:focus),
+:deep(.action-button:active) {
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+  scale: 1 !important;
+  width: 100% !important;
+  height: 48px !important;
+  padding: 0.75rem 1.5rem !important;
+  border-width: 1px !important;
+  outline: none !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  font-size: inherit !important;
+  line-height: normal !important;
+}
+
+:deep(.action-button.p-button-primary:hover),
+:deep(.action-button.p-button-primary:focus),
+:deep(.action-button.p-button-primary:active) {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+:deep(.action-button.p-button-success:hover),
+:deep(.action-button.p-button-success:focus),
+:deep(.action-button.p-button-success:active) {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+}
+
+:deep(.action-button:hover .p-button-label),
+:deep(.action-button:focus .p-button-label),
+:deep(.action-button:active .p-button-label) {
+  color: #ffffff !important;
+}
+
+:deep(.action-button:hover span),
+:deep(.action-button:focus span),
+:deep(.action-button:active span) {
+  color: #ffffff !important;
 }
 
 /* Cards */
@@ -937,34 +1127,48 @@ onMounted(async () => {
   font-weight: 600;
   border: none;
   padding: 0.75rem 1.5rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease !important;
+  animation: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+:deep(.p-button:hover),
+:deep(.p-button:focus),
+:deep(.p-button:active) {
+  transform: none !important;
+  scale: none !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease !important;
+  animation: none !important;
+  will-change: auto !important;
 }
 
 :deep(.p-button-primary) {
-  background-color: #3b82f6;
-  color: #ffffff;
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
 }
 
 :deep(.p-button-success) {
-  background-color: #10b981;
-  color: #ffffff;
+  background-color: #10b981 !important;
+  color: #ffffff !important;
 }
 
 :deep(.p-button-danger) {
-  background-color: #ef4444;
-  color: #ffffff;
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
 }
 
 :deep(.p-button-secondary) {
-  background-color: #6b7280;
-  color: #ffffff;
+  background-color: #6b7280 !important;
+  color: #ffffff !important;
 }
 
 :deep(.p-button-text) {
-  background-color: transparent;
-  border: none;
-  color: #6b7280;
-  padding: 0.5rem;
-  transition: none;
+  background-color: transparent !important;
+  border: none !important;
+  color: #6b7280 !important;
+  padding: 0.5rem !important;
+  transition: none !important;
 }
 
 :deep(.p-button-text:hover) {
@@ -1105,7 +1309,7 @@ onMounted(async () => {
 
 @media (max-width: 768px) {
   .calendar-day {
-    min-height: 50px;
+    height: 50px;
     padding: 0.25rem;
   }
   
