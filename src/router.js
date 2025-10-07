@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-// Importa los componentes de las vistas
+
 const Home = () => import("@/shared/presentation/views/home.vue");
 const NotFound = () => import("@/shared/presentation/views/page-not-found.vue");
 const GlucometerDashboard = () => import("@/glucometer/presentation/views/glucometer-dashboard.vue");

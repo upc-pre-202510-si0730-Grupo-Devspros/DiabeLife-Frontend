@@ -36,7 +36,7 @@ export default {
   },
   data() {
     return {
-      // Usando datos de prueba directamente para que funcione
+      
       latestMeasurement: {
         id: 1,
         value: 145,
