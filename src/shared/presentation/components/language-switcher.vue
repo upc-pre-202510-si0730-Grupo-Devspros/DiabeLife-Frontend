@@ -1,21 +1,18 @@
 <script setup>
-import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import Select from "primevue/select";
+import { ref, watch } from "vue";
 
-// 🎯 Obtenemos locale actual
+import Select from 'primevue/select';
+
 const { locale } = useI18n();
 
-// Idiomas disponibles
 const languages = ref([
   { code: "es", name: "Español" },
   { code: "en", name: "English" }
 ]);
 
-// Selección inicial
 const selected = ref(languages.value.find(l => l.code === locale.value));
 
-// Actualizamos locale al cambiar selección
 watch(selected, (newVal) => {
   if (newVal) locale.value = newVal.code;
 });
@@ -26,23 +23,30 @@ watch(selected, (newVal) => {
       v-model="selected"
       :options="languages"
       optionLabel="name"
-      optionValue="code"
       class="lang-select"
-      appendTo="body"
-      placeholder="Idioma"
-  />
+  >
+    <template #option="slotProps">
+      <div class="lang-option">
+        <span class="flag">{{ slotProps.option.flag }}</span>
+        <span>{{ slotProps.option.name }}</span>
+      </div>
+    </template>
+
+    <template #value="slotProps">
+      <div class="lang-option" v-if="slotProps.value">
+        <span class="flag">{{ slotProps.value.flag }}</span>
+        <span>{{ slotProps.value.name }}</span>
+      </div>
+      <span v-else></span>
+    </template>
+  </Select>
 </template>
 
 <style scoped>
 .lang-select {
   min-width: 140px;
+  max-width: 100%;
   font-size: 0.95rem;
-}
-
-.lang-select .p-dropdown-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .lang-option {
