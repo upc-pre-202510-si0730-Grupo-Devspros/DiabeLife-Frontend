@@ -31,7 +31,43 @@
     }
   ],
   "sharedReports": [],
-  "healthy": [],
+  "healthy": [
+    {
+      "heartRate": 2123,
+      "glucose": 11,
+      "weight": 11,
+      "bloodPressure": "1111",
+      "id": 1
+    }
+  ],
+  "recommendations": [
+    {
+      "id": 1,
+      "text": "Reduce added sugars and processed snacks."
+    }
+  ],
+  "foodData": [
+    {
+      "food": "Platano",
+      "timestamp": "2025-10-05T02:09:22.652Z",
+      "id": 1
+    },
+    {
+      "food": "Manzana",
+      "timestamp": "2025-10-05T02:36:19.390Z",
+      "id": 2
+    },
+    {
+      "food": "papa",
+      "timestamp": "2025-10-08T20:24:15.235Z",
+      "id": 3
+    },
+    {
+      "food": "arroz",
+      "timestamp": "2025-10-08T20:25:46.158Z",
+      "id": 4
+    }
+  ],
   "appointments": [
     {
       "date": "2025-10-11",

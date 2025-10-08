@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = 'http://localhost:3000'
+const BASE = 'https://fakeapi-diabelife-1.onrender.com' // <-- cambio al endpoint remoto
 
 export default {
   getHealthy() {

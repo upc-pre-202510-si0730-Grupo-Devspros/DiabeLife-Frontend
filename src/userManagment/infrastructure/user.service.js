@@ -1,29 +1,24 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/users"; // tu endpoint del json-server
+const API_URL = import.meta.env.VITE_DIABELIFE_PLATFORM_API_URL + import.meta.env.VITE_USERS_ENDPOINT_PATH;
 
 class UserService {
-    async getAll() {
-        const response = await axios.get(API_URL);
-        return response.data;
-    }
-
     async register(userData) {
         const response = await axios.post(API_URL, userData);
         return response.data;
     }
 
     async login(username, password) {
-        const response = await axios.get(`${API_URL}?username=${username}&password=${password}`);
-        if (response.data.length > 0) {
-            return response.data[0];
-        } else {
-            throw new Error("Usuario o contraseña incorrectos");
-        }
+        const response = await axios.get(API_URL); // trae todos los usuarios
+        const user = response.data.find(u => u.username === username && u.password === password);
+        if (user) return user;
+        throw new Error("Usuario o contraseña incorrectos");
     }
 
-    async logout() {
-        localStorage.removeItem("user");
+
+    async getAll() {
+        const response = await axios.get(API_URL);
+        return response.data;
     }
 }
 

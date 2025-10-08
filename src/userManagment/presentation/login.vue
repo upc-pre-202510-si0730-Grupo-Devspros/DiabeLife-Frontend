@@ -42,9 +42,13 @@ const username = ref('');
 const password = ref('');
 
 const handleLogin = async () => {
-  await auth.login(username.value, password.value);
-  if (auth.user) await router.push('/gluco');
+  const success = await auth.login(username.value, password.value);
+  console.log("Login success:", success);
+  if (success) router.push('/gluco');
 };
+
+
+
 </script>
 
 <style scoped>

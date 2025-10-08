@@ -1,3 +1,4 @@
+// src/Reports/infrastructure/JsonServerReportRepository.js
 import { ReportRepository } from '@/Reports/domain/repositories/ReportRepository.js';
 import { Report } from '@/Reports/domain/entities/Report.js';
 import { ApiClient } from '../http/ApiClient.js';
@@ -5,7 +6,8 @@ import { ApiClient } from '../http/ApiClient.js';
 export class JsonServerReportRepository extends ReportRepository {
     constructor() {
         super();
-        this.apiClient = new ApiClient('http://localhost:3000');
+        // Cambiado a tu endpoint remoto
+        this.apiClient = new ApiClient('https://fakeapi-diabelife-1.onrender.com');
     }
 
     async getAll() {
