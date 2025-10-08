@@ -26,7 +26,20 @@
     "subtitle": "Monitorea tus niveles de glucosa fácilmente",
     "weekChart": "Gráfica de esta semana",
     "lastWeekChart": "Gráfica de la semana pasada",
-    "loadingData": "Cargando datos de la medición..."
+    "loadingData": "Cargando datos de la medición...",
+    "date": "Fecha",
+    "hour": "Hora",
+    "trend": "Tendencia",
+    "addMeasurement": "Agregar Medición",
+    "status": {
+      "high": "Alto",
+      "normal": "Normal", 
+      "low": "Bajo"
+    },
+    "chart": {
+      "loadingData": "Cargando datos del gráfico...",
+      "glucoseLabel": "Glucosa"
+    }
   },
 
   "post": {
@@ -120,6 +133,22 @@
     }
   },
   "appointment": {
+    "title": "Citas",
+    "calendar": "Calendario",
+    "appointments": "Citas",
+    "add": "Agregar",
+    "edit": "Editar", 
+    "empty": "Vacío",
+    "addNew": "Agregar Nueva Cita",
+    "editAppointment": "Editar Cita",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar esta cita?",
+    "fillRequiredFields": "Por favor, completa todos los campos obligatorios",
+    "timeConflict": "Ya hay una cita programada para {date} a las {time}. Por favor, elige una hora diferente.",
+    "errorSaving": "Error al guardar la cita. Por favor, inténtalo de nuevo.",
+    "errorDeleting": "Error al eliminar la cita. Por favor, inténtalo de nuevo.",
     "dr": "Dr.",
     "fields": {
       "date": "Fecha",
@@ -131,11 +160,11 @@
     },
     "placeholders": {
       "date": "Selecciona una fecha",
-      "time": "Selecciona una hora",
+      "time": "Selecciona una hora de la cita",
       "doctor": "Selecciona un doctor",
       "specialty": "La especialidad se llenará automáticamente",
       "status": "Selecciona un estado",
-      "notes": "Notas adicionales (opcional)"
+      "notes": "Notas adicionales (opcional)..."
     },
     "status": {
       "scheduled": "Programada",
@@ -152,6 +181,35 @@
       "time": "La hora es obligatoria",
       "doctor": "El doctor es obligatorio",
       "saveFailed": "Error al guardar la cita. Inténtalo nuevamente."
+    },
+    "doctors": {
+      "ramos": "Dr. Ramos - Endocrinología",
+      "garcia": "Dr. García - Cardiología", 
+      "lopez": "Dr. López - Medicina Interna",
+      "martinez": "Dr. Martínez - Nutrición",
+      "torres": "Dr. Torres - Podiatría"
+    },
+    "times": {
+      "08:00": "08:00 AM",
+      "08:30": "08:30 AM",
+      "09:00": "09:00 AM",
+      "09:30": "09:30 AM",
+      "10:00": "10:00 AM",
+      "10:30": "10:30 AM",
+      "11:00": "11:00 AM",
+      "11:30": "11:30 AM",
+      "12:00": "12:00 PM",
+      "12:30": "12:30 PM",
+      "13:00": "01:00 PM",
+      "13:30": "01:30 PM",
+      "14:00": "02:00 PM",
+      "14:30": "02:30 PM",
+      "15:00": "03:00 PM",
+      "15:30": "03:30 PM",
+      "16:00": "04:00 PM",
+      "16:30": "04:30 PM",
+      "17:00": "05:00 PM",
+      "17:30": "05:30 PM"
     }
   },
   "healthyLife": {
@@ -178,32 +236,5 @@
   },
   "healthy": {
     "noFoodData": "Aún no hay datos de alimentos registrados"
-  },
-
-  "calendar": {
-    "today": "Hoy",
-    "months": {
-      "january": "Enero",
-      "february": "Febrero",
-      "march": "Marzo",
-      "april": "Abril",
-      "may": "Mayo",
-      "june": "Junio",
-      "july": "Julio",
-      "august": "Agosto",
-      "september": "Septiembre",
-      "october": "Octubre",
-      "november": "Noviembre",
-      "december": "Diciembre"
-    },
-    "weekdays": {
-      "s": "D",
-      "m": "L",
-      "t": "M",
-      "w": "X",
-      "th": "J",
-      "f": "V",
-      "sa": "S"
-    }
   }
 }
