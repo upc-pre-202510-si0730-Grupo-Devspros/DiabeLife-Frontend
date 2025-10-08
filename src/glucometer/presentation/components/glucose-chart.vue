@@ -3,7 +3,7 @@
     <h3>{{ title }}</h3>
     <Line v-if="chartDataObject" :data="chartDataObject" :options="chartOptions" />
     <div v-else class="placeholder-chart">
-      <p>Cargando datos del gráfico...</p>
+      <p>{{ t('glucometer.chart.loadingData') }}</p>
     </div>
   </div>
 </template>
@@ -11,6 +11,7 @@
 <script>
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { useI18n } from 'vue-i18n'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -28,6 +29,10 @@ export default {
       type: Array,
       required: true
     }
+  },
+  setup() {
+    const { t } = useI18n()
+    return { t }
   },
   data() {
     return {
@@ -58,7 +63,7 @@ export default {
         labels: this.chartData.map(d => d.day),
         datasets: [
           {
-            label: 'Glucosa',
+            label: this.t('glucometer.chart.glucoseLabel'),
             backgroundColor: '#1a73e8',
             borderColor: '#1a73e8',
             data: this.chartData.map(d => d.value),

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, onMounted, onUnmounted, computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAppointmentStore } from '../../application/appointment.store'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
@@ -10,6 +11,7 @@ import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
 
 const appointmentStore = useAppointmentStore()
+const { t } = useI18n()
 
 // Reference to the calendar container
 const calendarRef = ref<HTMLElement | null>(null)
@@ -41,47 +43,65 @@ const state = reactive({
 })
 
 // Available time slots for appointments
-const availableTimeSlots = [
-  { label: '08:00 AM', value: '08:00' },
-  { label: '08:30 AM', value: '08:30' },
-  { label: '09:00 AM', value: '09:00' },
-  { label: '09:30 AM', value: '09:30' },
-  { label: '10:00 AM', value: '10:00' },
-  { label: '10:30 AM', value: '10:30' },
-  { label: '11:00 AM', value: '11:00' },
-  { label: '11:30 AM', value: '11:30' },
-  { label: '12:00 PM', value: '12:00' },
-  { label: '12:30 PM', value: '12:30' },
-  { label: '01:00 PM', value: '13:00' },
-  { label: '01:30 PM', value: '13:30' },
-  { label: '02:00 PM', value: '14:00' },
-  { label: '02:30 PM', value: '14:30' },
-  { label: '03:00 PM', value: '15:00' },
-  { label: '03:30 PM', value: '15:30' },
-  { label: '04:00 PM', value: '16:00' },
-  { label: '04:30 PM', value: '16:30' },
-  { label: '05:00 PM', value: '17:00' },
-  { label: '05:30 PM', value: '17:30' }
-]
+const availableTimeSlots = computed(() => [
+  { label: t('appointment.times.08:00'), value: '08:00' },
+  { label: t('appointment.times.08:30'), value: '08:30' },
+  { label: t('appointment.times.09:00'), value: '09:00' },
+  { label: t('appointment.times.09:30'), value: '09:30' },
+  { label: t('appointment.times.10:00'), value: '10:00' },
+  { label: t('appointment.times.10:30'), value: '10:30' },
+  { label: t('appointment.times.11:00'), value: '11:00' },
+  { label: t('appointment.times.11:30'), value: '11:30' },
+  { label: t('appointment.times.12:00'), value: '12:00' },
+  { label: t('appointment.times.12:30'), value: '12:30' },
+  { label: t('appointment.times.13:00'), value: '13:00' },
+  { label: t('appointment.times.13:30'), value: '13:30' },
+  { label: t('appointment.times.14:00'), value: '14:00' },
+  { label: t('appointment.times.14:30'), value: '14:30' },
+  { label: t('appointment.times.15:00'), value: '15:00' },
+  { label: t('appointment.times.15:30'), value: '15:30' },
+  { label: t('appointment.times.16:00'), value: '16:00' },
+  { label: t('appointment.times.16:30'), value: '16:30' },
+  { label: t('appointment.times.17:00'), value: '17:00' },
+  { label: t('appointment.times.17:30'), value: '17:30' }
+])
 
 // Available doctors
-const availableDoctors = [
-  { label: 'Dr. Ramos - Endocrinology', value: 'Ramos' },
-  { label: 'Dr. García - Cardiology', value: 'García' },
-  { label: 'Dr. López - Internal Medicine', value: 'López' },
-  { label: 'Dr. Martínez - Nutrition', value: 'Martínez' },
-  { label: 'Dr. Torres - Podiatry', value: 'Torres' }
-]
+const availableDoctors = computed(() => [
+  { label: t('appointment.doctors.ramos'), value: 'Ramos' },
+  { label: t('appointment.doctors.garcia'), value: 'García' },
+  { label: t('appointment.doctors.lopez'), value: 'López' },
+  { label: t('appointment.doctors.martinez'), value: 'Martínez' },
+  { label: t('appointment.doctors.torres'), value: 'Torres' }
+])
 
-const monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-]
+const monthNames = computed(() => [
+  t('calendar.months.january'),
+  t('calendar.months.february'),
+  t('calendar.months.march'),
+  t('calendar.months.april'),
+  t('calendar.months.may'),
+  t('calendar.months.june'),
+  t('calendar.months.july'),
+  t('calendar.months.august'),
+  t('calendar.months.september'),
+  t('calendar.months.october'),
+  t('calendar.months.november'),
+  t('calendar.months.december')
+])
 
-const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+const weekDays = computed(() => [
+  t('calendar.weekdays.s'),
+  t('calendar.weekdays.m'),
+  t('calendar.weekdays.t'),
+  t('calendar.weekdays.w'),
+  t('calendar.weekdays.th'),
+  t('calendar.weekdays.f'),
+  t('calendar.weekdays.sa')
+])
 
 const currentMonthName = computed(() => {
-  return `${monthNames[state.currentMonth]} ${state.currentYear}`
+  return `${monthNames.value[state.currentMonth]} ${state.currentYear}`
 })
 
 const calendarDays = computed(() => {
@@ -286,14 +306,17 @@ const onEditAppointment = (appointment: Appointment) => {
 
 const saveAppointment = async () => {
   if (!state.newAppointment.date || !state.newAppointment.time || !state.newAppointment.doctor) {
-    alert('Please fill all required fields')
+    alert(t('appointment.fillRequiredFields'))
     return
   }
 
   // Check for time conflicts
   const excludeId = state.showEditDialog && state.selectedAppointment ? state.selectedAppointment.id : undefined
   if (hasTimeConflict(state.newAppointment.date, state.newAppointment.time, excludeId)) {
-    alert(`There is already an appointment scheduled for ${formatAppointmentDate(state.newAppointment.date)} at ${formatAppointmentTime(state.newAppointment.time)}. Please choose a different time.`)
+    alert(t('appointment.timeConflict', {
+      date: formatAppointmentDate(state.newAppointment.date),
+      time: formatAppointmentTime(state.newAppointment.time)
+    }))
     return
   }
 
@@ -327,7 +350,7 @@ const saveAppointment = async () => {
     state.selectedAppointment = null
   } catch (error) {
     console.error('Error saving appointment:', error)
-    alert('Error saving appointment. Please try again.')
+    alert(t('appointment.errorSaving'))
   }
 }
 
@@ -338,12 +361,12 @@ const cancelDialog = () => {
 }
 
 const deleteAppointment = async (appointment: Appointment) => {
-  if (appointment.id && confirm('Are you sure you want to delete this appointment?')) {
+  if (appointment.id && confirm(t('appointment.confirmDelete'))) {
     try {
       await appointmentStore.deleteAppointment(appointment.id)
     } catch (error) {
       console.error('Error deleting appointment:', error)
-      alert('Error deleting appointment. Please try again.')
+      alert(t('appointment.errorDeleting'))
     }
   }
 }
@@ -369,7 +392,7 @@ onUnmounted(() => {
       <div class="calendar-section">
         <Card class="calendar-card">
           <template #title>
-            <span>Calendar</span>
+            <span>{{ t('appointment.calendar') }}</span>
           </template>
           <template #content>
             <!-- Dynamic Calendar -->
@@ -453,7 +476,7 @@ onUnmounted(() => {
       <!-- Appointments List Section -->
       <div class="appointments-section">
         <Card class="appointments-card">
-          <template #title>Appointments</template>
+          <template #title>{{ t('appointment.appointments') }}</template>
           <template #content>
             <div class="appointment-list">
               <!-- Sample appointments -->
@@ -492,13 +515,13 @@ onUnmounted(() => {
         <!-- Action Buttons -->
         <div class="action-buttons">
           <Button 
-            label="Add" 
+            :label="t('appointment.add')" 
             severity="primary" 
             @click="onAddAppointment"
             class="action-button"
           />
           <Button 
-            label="Edit" 
+            :label="t('appointment.edit')" 
             severity="success" 
             @click="onEditAppointment(upcomingAppointments[0])"
             :disabled="upcomingAppointments.length === 0"
@@ -511,13 +534,13 @@ onUnmounted(() => {
     <!-- Add Appointment Dialog -->
     <Dialog 
       v-model:visible="state.showAddDialog" 
-      header="Add New Appointment" 
+      :header="t('appointment.addNew')" 
       modal
       :style="{ width: '500px' }"
     >
       <div class="p-4">
         <div class="field mb-3">
-          <label for="newDate" class="block mb-2 font-semibold">Date *</label>
+          <label for="newDate" class="block mb-2 font-semibold">{{ t('appointment.fields.date') }} *</label>
           <InputText 
             id="newDate" 
             v-model="state.newAppointment.date"
@@ -527,45 +550,45 @@ onUnmounted(() => {
         </div>
         
         <div class="field mb-3">
-          <label for="newTime" class="block mb-2 font-semibold">Time *</label>
+          <label for="newTime" class="block mb-2 font-semibold">{{ t('appointment.fields.time') }} *</label>
           <Dropdown
             id="newTime"
             v-model="state.newAppointment.time"
             :options="availableTimeSlots"
             optionLabel="label"
             optionValue="value"
-            placeholder="Select appointment time"
+            :placeholder="t('appointment.placeholders.time')"
             class="w-full"
           />
         </div>
         
         <div class="field mb-3">
-          <label for="newDoctor" class="block mb-2 font-semibold">Doctor *</label>
+          <label for="newDoctor" class="block mb-2 font-semibold">{{ t('appointment.fields.doctor') }} *</label>
           <Dropdown
             id="newDoctor"
             v-model="state.newAppointment.doctor"
             :options="availableDoctors"
             optionLabel="label"
             optionValue="value"
-            placeholder="Select doctor"
+            :placeholder="t('appointment.placeholders.doctor')"
             class="w-full"
           />
         </div>
         
         <div class="field mb-3">
-          <label for="newNotes" class="block mb-2 font-semibold">Notes</label>
+          <label for="newNotes" class="block mb-2 font-semibold">{{ t('appointment.fields.notes') }}</label>
           <Textarea 
             id="newNotes" 
             v-model="state.newAppointment.notes"
-            placeholder="Additional notes (optional)..." 
+            :placeholder="t('appointment.placeholders.notes')" 
             class="w-full" 
             :rows="3" 
           />
         </div>
         
         <div class="flex justify-content-end gap-2 mt-4">
-          <Button label="Cancel" severity="secondary" @click="cancelDialog" />
-          <Button label="Save" severity="primary" @click="saveAppointment" />
+          <Button :label="t('appointment.cancel')" severity="secondary" @click="cancelDialog" />
+          <Button :label="t('appointment.save')" severity="primary" @click="saveAppointment" />
         </div>
       </div>
     </Dialog>
@@ -573,13 +596,13 @@ onUnmounted(() => {
     <!-- Edit Appointment Dialog -->
     <Dialog 
       v-model:visible="state.showEditDialog" 
-      header="Edit Appointment" 
+      :header="t('appointment.editAppointment')" 
       modal
       :style="{ width: '500px' }"
     >
       <div class="p-4">
         <div class="field mb-3">
-          <label for="editDate" class="block mb-2 font-semibold">Date *</label>
+          <label for="editDate" class="block mb-2 font-semibold">{{ t('appointment.fields.date') }} *</label>
           <InputText 
             id="editDate" 
             v-model="state.newAppointment.date"
@@ -589,37 +612,37 @@ onUnmounted(() => {
         </div>
         
         <div class="field mb-3">
-          <label for="editTime" class="block mb-2 font-semibold">Time *</label>
+          <label for="editTime" class="block mb-2 font-semibold">{{ t('appointment.fields.time') }} *</label>
           <Dropdown
             id="editTime"
             v-model="state.newAppointment.time"
             :options="availableTimeSlots"
             optionLabel="label"
             optionValue="value"
-            placeholder="Select appointment time"
+            :placeholder="t('appointment.placeholders.time')"
             class="w-full"
           />
         </div>
         
         <div class="field mb-3">
-          <label for="editDoctor" class="block mb-2 font-semibold">Doctor *</label>
+          <label for="editDoctor" class="block mb-2 font-semibold">{{ t('appointment.fields.doctor') }} *</label>
           <Dropdown
             id="editDoctor"
             v-model="state.newAppointment.doctor"
             :options="availableDoctors"
             optionLabel="label"
             optionValue="value"
-            placeholder="Select doctor"
+            :placeholder="t('appointment.placeholders.doctor')"
             class="w-full"
           />
         </div>
         
         <div class="field mb-3">
-          <label for="editNotes" class="block mb-2 font-semibold">Notes</label>
+          <label for="editNotes" class="block mb-2 font-semibold">{{ t('appointment.fields.notes') }}</label>
           <Textarea 
             id="editNotes" 
             v-model="state.newAppointment.notes"
-            placeholder="Additional notes (optional)..." 
+            :placeholder="t('appointment.placeholders.notes')" 
             class="w-full" 
             :rows="3" 
           />
@@ -627,13 +650,13 @@ onUnmounted(() => {
         
         <div class="flex justify-content-end gap-2 mt-4">
           <Button 
-            label="Delete" 
+            :label="t('appointment.delete')" 
             severity="danger" 
             @click="deleteAppointment(state.selectedAppointment!); state.showEditDialog = false" 
             class="mr-auto"
           />
-          <Button label="Cancel" severity="secondary" @click="cancelDialog" />
-          <Button label="Save" severity="primary" @click="saveAppointment" />
+          <Button :label="t('appointment.cancel')" severity="secondary" @click="cancelDialog" />
+          <Button :label="t('appointment.save')" severity="primary" @click="saveAppointment" />
         </div>
       </div>
     </Dialog>

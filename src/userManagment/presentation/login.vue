@@ -12,21 +12,6 @@
       <h2>¡Bienvenido a Diabelife!</h2>
       <p class="welcome-text">Controla tu diabetes y gestiona tu salud fácilmente.</p>
 
-      <div class="segment-selector">
-        <button
-            :class="{ active: segment === 'diabetic' }"
-            @click.prevent="segment = 'diabetic'"
-        >
-          👩‍⚕️ Persona Diabética
-        </button>
-        <button
-            :class="{ active: segment === 'doctor' }"
-            @click.prevent="segment = 'doctor'"
-        >
-          🩺 Doctor
-        </button>
-      </div>
-
       <form @submit.prevent="handleLogin">
         <input v-model="username" type="text" placeholder="Username" required />
         <input v-model="password" type="password" placeholder="Password" required />
@@ -55,7 +40,6 @@ const router = useRouter();
 
 const username = ref('');
 const password = ref('');
-const segment = ref('diabetic');
 
 const handleLogin = async () => {
   await auth.login(username.value, password.value);
@@ -106,39 +90,6 @@ h2 {
   font-size: 0.9rem;
   color: #333;
   margin-bottom: 20px;
-}
-
-.segment-selector {
-  display: flex;
-  justify-content: center;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 6px;
-  gap: 6px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.segment-selector button {
-  flex: 1;
-  padding: 10px 0;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #325875;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease-in-out;
-}
-
-.segment-selector button.active {
-  background: #325875;
-  color: white;
-  box-shadow: 0 2px 8px rgba(50, 88, 117, 0.3);
-}
-
-.segment-selector button:hover {
-  background: rgba(50, 88, 117, 0.1);
 }
 
 /* Inputs */
