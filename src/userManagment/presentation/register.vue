@@ -43,20 +43,31 @@ const email = ref('');
 const password = ref('');
 
 const handleRegister = async () => {
-  await auth.register(username.value, email.value, password.value);
-  if (!auth.error) router.push('/auth/login');
+  await auth.register({
+    username: username.value,
+    email: email.value,
+    password: password.value,
+  });  if (!auth.error) router.push('/auth/login');
 };
 </script>
 
 <style scoped>
 .auth-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(to bottom right, #e9f5fe, #e9f5fe);
+
+  background-color: #E9F5FE;
   font-family: 'Arial', sans-serif;
+  z-index: 9999;
 }
+
 
 .auth-card {
   background-color: white;
