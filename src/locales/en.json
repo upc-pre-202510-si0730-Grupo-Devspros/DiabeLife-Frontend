@@ -5,6 +5,18 @@
     "content": "The path {unavailable-route} is not available.",
     "go-home": "Go home"
   },
+  "profile": {
+    "userProfile": "User Profile",
+    "email": "Email",
+    "password": "Password",
+    "logout": "Logout"
+  },
+  "glucometer": {
+    "subtitle": "Monitor your glucose levels easily",
+    "weekChart": "Charts of the week",
+    "lastWeekChart": "Charts of the last week",
+    "loadingData": "Loading measurement data..."
+  },
   "sidebar": {
     "glucometer": "Glucometer",
     "profile": "Profile",
@@ -166,5 +178,32 @@
   },
   "healthy": {
     "noFoodData": "No food data recorded yet"
+  },
+  "calendar": {
+    "today": "Today",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "weekdays": {
+      "s": "S",
+      "m": "M",
+      "t": "T",
+      "w": "W",
+      "th": "T",
+      "f": "F",
+      "sa": "S"
+    }
   }
+
 }

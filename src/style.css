@@ -20,16 +20,16 @@ html, body, #app {
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: #E9F5FE !important; /* 🔹 Color uniforme */
+  background-color: #E9F5FE !important;
   overflow: hidden;
 }
 
-/* === Centrado general de vistas === */
+/* === Estructura principal === */
 #app {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  align-items: stretch; /* 🔹 Hace que ocupe toda la altura */
+  justify-content: stretch; /* 🔹 Sin centrado ni márgenes */
+  padding: 0; /* 🔹 Quitamos el padding que causaba el borde */
 }
 
 /* === Ocultar devtools === */

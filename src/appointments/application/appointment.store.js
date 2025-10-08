@@ -1,3 +1,4 @@
+
 import { defineStore } from 'pinia'
 import { reactive, computed } from 'vue'
 import api from '../infrastructure/appointment.api'

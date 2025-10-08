@@ -1,18 +1,17 @@
 <template>
   <div class="auth-page">
+
+
     <div class="auth-card">
-      <!-- Logo -->
       <img
           src="https://i.postimg.cc/c4Cdqjtg/Whats-App-Image-2025-10-01-at-13-53-49-removebg-preview.png"
           class="logo"
           alt="Diabelife logo"
       />
 
-      <!-- Bienvenida -->
       <h2>¡Bienvenido a Diabelife!</h2>
       <p class="welcome-text">Controla tu diabetes y gestiona tu salud fácilmente.</p>
 
-      <!-- Segmento decorativo -->
       <div class="segment-selector">
         <button
             :class="{ active: segment === 'diabetic' }"
@@ -28,7 +27,6 @@
         </button>
       </div>
 
-      <!-- Formulario -->
       <form @submit.prevent="handleLogin">
         <input v-model="username" type="text" placeholder="Username" required />
         <input v-model="password" type="password" placeholder="Password" required />
@@ -47,7 +45,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/userManagment/application/user.store.js';
@@ -62,19 +59,27 @@ const segment = ref('diabetic');
 
 const handleLogin = async () => {
   await auth.login(username.value, password.value);
-  if (auth.user) router.push('/profile');
+  if (auth.user) await router.push('/gluco');
 };
 </script>
 
 <style scoped>
 .auth-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+
   background-color: #E9F5FE;
   font-family: 'Arial', sans-serif;
+  z-index: 9999;
 }
+
 
 .auth-card {
   background-color: #ffffff;
@@ -103,7 +108,6 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* 🔹 Segmento decorativo mejorado */
 .segment-selector {
   display: flex;
   justify-content: center;
@@ -204,5 +208,39 @@ button[type="submit"]:hover {
   to {
     transform: rotate(360deg);
   }
+}
+.auth-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: #E9F5FE;
+  font-family: 'Arial', sans-serif;
+}
+.language-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+.auth-card {
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: none;
+  border: none;
+}
+.logo {
+  width: 80px;
+  margin-bottom: 10px;
 }
 </style>

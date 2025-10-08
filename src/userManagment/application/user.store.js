@@ -26,7 +26,6 @@ export const useAuthStore = defineStore("auth", {
             this.loading = true;
             this.error = null;
             try {
-                // 👉 Buscar usuario en db.json
                 const res = await axios.get(`http://localhost:3000/users?username=${username}&password=${password}`);
 
                 if (res.data.length > 0) {

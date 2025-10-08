@@ -5,7 +5,7 @@ import AuthLayout from "@/shared/presentation/components/auth.layout.vue";
 
 const Login = () => import("@/userManagment/presentation/login.vue");
 const Register = () => import("@/userManagment/presentation/register.vue");
-
+const Profile = () => import('@/userManagment/presentation/profile.vue')
 const Community = () => import("@/community/presentation/views/CommunityPage.vue");
 const Reports = () => import("@/Reports/presentation/views/ReportView.vue");
 const Home = () => import("@/shared/presentation/views/home.vue");
@@ -34,6 +34,8 @@ const routes = [
         children: [
             { path: "", name: "home", component: Home, meta: { title: "Home" } },
             { path: "gluco", name: "glucometer", component: GlucometerDashboard, meta: { title: "Glucometer" } },
+            { path: "profile", name: "profile", component: Profile, meta: { title: "Profile" } },
+
             { path: "healthy", name: "healthy", component: Healthy, meta: { title: "Healthy Life" } },
             { path: "community", name: "community", component: Community, meta: { title: "Community" } },
             { path: "appointments", name: "appointments", component: Appointment, meta: { title: "Appointments" } },

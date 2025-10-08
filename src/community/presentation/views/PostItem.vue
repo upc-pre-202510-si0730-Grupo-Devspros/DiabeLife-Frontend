@@ -60,21 +60,18 @@ const visibleComments = computed(() => {
 
 <template>
   <div class="p-card p-3 mb-4 shadow-1 border-round">
-    <!-- Cabecera del post -->
     <div class="flex align-items-center gap-3 mb-3">
       <pv-avatar icon="pi pi-user" shape="circle" />
       <div>
-        <strong>{{ t('post.user') }} {{ post.authorId }}</strong>
+        <strong>{{ post.username || ('user' + post.authorId) }}</strong>
         <div class="text-500 text-sm">
           {{ new Date(post.createdAt).toLocaleString() }}
         </div>
       </div>
     </div>
 
-    <!-- Contenido del post -->
     <p class="mb-3">{{ post.content }}</p>
 
-    <!-- Imagen -->
     <img
         v-if="post.imageUrl"
         :src="post.imageUrl"
@@ -82,7 +79,6 @@ const visibleComments = computed(() => {
         class="post-image mb-3"
     />
 
-    <!-- Likes y comentarios -->
     <div class="flex align-items-center justify-content-between mb-3">
       <div class="flex align-items-center gap-3">
         <pv-button
@@ -109,7 +105,6 @@ const visibleComments = computed(() => {
       </pv-button>
     </div>
 
-    <!-- Lista de comentarios -->
     <div
         v-if="post.comments && post.comments.length > 0"
         class="mb-3 p-2 comments-container"
@@ -123,7 +118,6 @@ const visibleComments = computed(() => {
         <span class="ml-2">{{ comment.text }}</span>
       </div>
 
-      <!-- Ver más / menos -->
       <div class="text-center mt-2">
         <pv-button
             v-if="commentsToShow < post.comments.length"
@@ -145,7 +139,6 @@ const visibleComments = computed(() => {
       </div>
     </div>
 
-    <!-- Campo de nuevo comentario -->
     <div class="flex gap-2">
       <pv-input-text
           v-model="newComment"

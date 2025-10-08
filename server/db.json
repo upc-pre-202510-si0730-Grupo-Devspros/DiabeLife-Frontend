@@ -1,159 +1,16 @@
 {
-  "community": [
-    {
-      "id": 1,
-      "authorId": 1,
-      "content": "awdwadwada",
-      "imageUrl": null,
-      "likes": 1,
-      "comments": [],
-      "createdAt": "2025-10-06T19:23:59.824Z"
-    },
-    {
-      "id": 2,
-      "authorId": 1,
-      "content": "adwadwadwad",
-      "imageUrl": null,
-      "likes": 0,
-      "comments": [],
-      "createdAt": "2025-10-07T04:08:20.416Z"
-    },
-    {
-      "id": 3,
-      "authorId": 1,
-      "content": "jbijkbjn",
-      "imageUrl": null,
-      "likes": 1,
-      "comments": [],
-      "createdAt": "2025-10-07T15:12:55.493Z"
-    }
-  ],
-  "reports": [
-    {
-      "id": 1,
-      "name": "Full Health Report 1",
-      "date": "07/10/2025",
-      "type": "PDF",
-      "data": [
-        "glucose",
-        "weight",
-        "blood_pressure",
-        "heart_rate"
-      ],
-      "selected": false,
-      "shared": true
-    },
-    {
-      "id": 2,
-      "name": "Full Health Report 2",
-      "date": "07/10/2025",
-      "type": "WORD",
-      "data": [
-        "glucose",
-        "weight",
-        "blood_pressure",
-        "heart_rate"
-      ],
-      "selected": false,
-      "shared": true
-    },
-    {
-      "id": 3,
-      "name": "Glucose, Blood Pressure, Weight Report 3",
-      "date": "07/10/2025",
-      "type": "WORD",
-      "data": [
-        "glucose",
-        "blood_pressure",
-        "weight"
-      ],
-      "selected": false,
-      "shared": true
-    }
-  ],
+  "community": [],
+  "reports": [],
   "users": [
     {
-      "id": 1,
-      "username": "gabriel",
-      "email": "gabriel@example.com",
-      "password": "123"
-    },
-    {
-      "username": "2131312",
-      "email": "adwadwad@gmail.com",
-      "password": "123123",
-      "id": 2
-    }
-  ],
-  "sharedReports": [
-    {
-      "id": 1759850114426,
-      "reports": [
-        {
-          "id": 1,
-          "name": "Full Health Report 1",
-          "date": "07/10/2025",
-          "type": "PDF",
-          "data": [
-            "glucose",
-            "weight",
-            "blood_pressure",
-            "heart_rate"
-          ],
-          "selected": true,
-          "shared": true,
-          "sharedAt": "2025-10-07T15:15:14.426Z"
-        }
-      ],
-      "message": "wdadwadd",
-      "sharedAt": "2025-10-07T15:15:14.426Z"
-    },
-    {
-      "id": 1759850130735,
-      "reports": [
-        {
-          "id": 2,
-          "name": "Full Health Report 2",
-          "date": "07/10/2025",
-          "type": "WORD",
-          "data": [
-            "glucose",
-            "weight",
-            "blood_pressure",
-            "heart_rate"
-          ],
-          "selected": true,
-          "shared": true,
-          "sharedAt": "2025-10-07T15:15:30.735Z"
-        },
-        {
-          "id": 3,
-          "name": "Glucose, Blood Pressure, Weight Report 3",
-          "date": "07/10/2025",
-          "type": "WORD",
-          "data": [
-            "glucose",
-            "blood_pressure",
-            "weight"
-          ],
-          "selected": true,
-          "shared": true,
-          "sharedAt": "2025-10-07T15:15:30.735Z"
-        }
-      ],
-      "message": "Shared report",
-      "sharedAt": "2025-10-07T15:15:30.735Z"
-    }
-  ],
-  "healthy": [
-    {
-      "heartRate": 122,
-      "glucose": 232,
-      "weight": 22,
-      "bloodPressure": "222",
+      "username": "gab",
+      "email": "123@gmail.com",
+      "password": "123",
       "id": 1
     }
   ],
+  "sharedReports": [],
+  "healthy": [],
   "appointments": [
     {
       "date": "2025-10-11",
@@ -209,6 +66,17 @@
       "createdAt": "2025-10-07T15:14:41.298Z",
       "updatedAt": "2025-10-07T15:14:41.298Z",
       "id": 5
+    },
+    {
+      "date": "2025-10-17",
+      "time": "08:00",
+      "doctor": "García",
+      "specialty": "General",
+      "status": "scheduled",
+      "notes": "jk",
+      "createdAt": "2025-10-08T14:52:45.803Z",
+      "updatedAt": "2025-10-08T14:52:45.803Z",
+      "id": 6
     }
   ],
   "notifications": [
@@ -295,50 +163,6 @@
       "category": "general",
       "actionUrl": "/healthy",
       "actionText": "View Recommendations"
-    }
-  ],
-  "recommendations": [
-    {
-      "id": 1,
-      "text": "Eat a balanced breakfast with protein and fiber."
-    },
-    {
-      "id": 2,
-      "text": "Include leafy greens in at least one meal today."
-    },
-    {
-      "id": 3,
-      "text": "Choose whole grains over refined carbs for sustained energy."
-    },
-    {
-      "id": 4,
-      "text": "Stay hydrated: aim for 8 glasses of water."
-    },
-    {
-      "id": 5,
-      "text": "Reduce added sugars and processed snacks."
-    }
-  ],
-  "foodData": [
-    {
-      "food": "Platano",
-      "timestamp": "2025-10-05T02:09:22.652Z",
-      "id": 1
-    },
-    {
-      "food": "Manzana",
-      "timestamp": "2025-10-05T02:36:19.390Z",
-      "id": 2
-    },
-    {
-      "food": "Pizza",
-      "timestamp": "2025-10-05T09:22:20.252Z",
-      "id": 3
-    },
-    {
-      "food": "dadwad",
-      "timestamp": "2025-10-07T15:13:46.431Z",
-      "id": 4
     }
   ]
 }

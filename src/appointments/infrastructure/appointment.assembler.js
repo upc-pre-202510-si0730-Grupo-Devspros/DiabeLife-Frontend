@@ -1,3 +1,30 @@
+/**
+ * Converts an appointment entity from the database into a standardized resource object.
+ * @function toAppointmentResource
+ * @param {Object} entity - The appointment entity from the database.
+ * @returns {Object} The formatted appointment resource.
+ * @property {number|null} id - The unique identifier of the appointment.
+ * @property {string} date - The appointment date (YYYY-MM-DD).
+ * @property {string} time - The appointment time (HH:mm).
+ * @property {string} doctor - The name or ID of the assigned doctor.
+ * @property {string} specialty - The related medical specialty.
+ * @property {string} status - The current appointment status ('scheduled', 'completed', 'cancelled').
+ * @property {string} notes - Additional notes about the appointment.
+ * @property {Date|null} createdAt - The creation timestamp.
+ * @property {Date|null} updatedAt - The last update timestamp.
+ *
+ * @example
+ * const resource = toAppointmentResource({
+ *   id: 1,
+ *   date: '2025-10-08',
+ *   time: '15:00',
+ *   doctor: 'Dr. Ruiz',
+ *   specialty: 'Dermatology',
+ *   status: 'scheduled'
+ * });
+ * console.log(resource.date); // '2025-10-08'
+ */
+
 export function toAppointmentResource(entity) {
   if (!entity) return { 
     id: null, 

@@ -15,10 +15,7 @@
           <i class="pi pi-heart"></i>
           <span v-if="!collapsed">{{ t('sidebar.glucometer') }}</span>
         </RouterLink>
-        <RouterLink to="/profile">
-          <i class="pi pi-user"></i>
-          <span v-if="!collapsed">{{ t('sidebar.profile') }}</span>
-        </RouterLink>
+
         <RouterLink to="/healthy">
           <i class="pi pi-apple"></i>
           <span v-if="!collapsed">{{ t('sidebar.healthy') }}</span>
@@ -39,8 +36,10 @@
           <i class="pi pi-chart-line"></i>
           <span v-if="!collapsed">{{ t('sidebar.reports') }}</span>
         </RouterLink>
-
-        <!-- 🔹 Logout -->
+        <RouterLink to="/profile">
+          <i class="pi pi-user"></i>
+          <span v-if="!collapsed">{{ t('sidebar.profile') }}</span>
+        </RouterLink>
         <button class="logout-btn" @click="handleLogout">
           <i class="pi pi-sign-out"></i>
           <span v-if="!collapsed">{{ t('sidebar.logout') }}</span>
@@ -87,26 +86,44 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* evita que aparezca barra lateral o borde fantasma */
+  background: #f5f6fa; /* color base del fondo */
+}
 .layout {
-  display: flex;
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
+  display: flex;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
 }
 
+/* SIDENAV */
 .sidenav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
   width: 220px;
   background-color: #1f2a36;
   color: white;
   display: flex;
   flex-direction: column;
+  border: none;
+  outline: none;
+  box-shadow: none;
   transition: width 0.3s ease;
+  z-index: 10;
 }
 
 .sidenav.collapsed {
   width: 70px;
 }
 
+/* LOGO */
 .logo-container {
   width: 100%;
   display: flex;
@@ -132,6 +149,7 @@ const handleLogout = () => {
   color: #f8f9fa;
 }
 
+/* MENU */
 .menu {
   display: flex;
   flex-direction: column;
@@ -150,26 +168,53 @@ const handleLogout = () => {
   transition: background 0.2s;
 }
 
-.menu a.router-link-active {
-  background: #2d3c4f;
-}
-
+.menu a.router-link-active,
 .menu a:hover {
   background: #2d3c4f;
   color: #fff;
 }
 
-.menu i {
-  font-size: 1.2rem;
+/* LOGOUT BUTTON */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #ff6b6b;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-top: auto;
+  font-size: 1rem;
+  border-radius: 6px;
+  width: 100%;
+  transition: background 0.2s, color 0.2s;
+}
+
+.logout-btn:hover {
+  background: #2d3c4f;
+  color: #fff;
 }
 
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  margin-left: 220px;
+  height: 100vh;
   background: #f5f6fa;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  overflow: hidden; /* evita bordes por scroll */
 }
 
+.sidenav.collapsed ~ .main {
+  margin-left: 70px;
+}
+
+/* HEADER */
 .header {
   height: 60px;
   background: #fff;
@@ -177,7 +222,8 @@ const handleLogout = () => {
   align-items: center;
   justify-content: flex-end;
   padding: 0 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none; /* 🔹 sin sombra */
+  border: none; /* 🔹 sin borde */
   gap: 1rem;
 }
 
@@ -196,30 +242,12 @@ const handleLogout = () => {
   color: #007ad9;
 }
 
+/* CONTENIDO PRINCIPAL */
 .content {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
-}
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  color: #ff6b6b;
-  background: none;
   border: none;
-  text-align: left;
-  cursor: pointer;
-  padding: 0.5rem;
-  margin-top: auto;
-  font-size: 1rem;
-  transition: background 0.2s, color 0.2s;
-  border-radius: 6px;
-  width: 100%;
 }
 
-.logout-btn:hover {
-  background: #2d3c4f;
-  color: #fff;
-}
 </style>

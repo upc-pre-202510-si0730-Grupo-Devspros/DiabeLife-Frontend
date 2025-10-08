@@ -1,3 +1,53 @@
+/**
+ * Community Store
+ * Manages the state and logic for community posts within the application.
+ * Utilizes Pinia for state management and interacts with the API layer for CRUD operations.
+ * @module useCommunityStore
+ *
+ * @property {Ref<Array>} posts - Reactive list of posts fetched from the API.
+ * @property {Ref<Array>} errors - Reactive list of errors that occur during API calls.
+ * @property {Ref<boolean>} postsLoaded - Indicates whether posts have been successfully loaded.
+ * @property {ComputedRef<number>} postsCount - Computed total number of posts loaded.
+ * @property {Ref<Object>} likedPostsByUser - Tracks posts liked by each user (not persisted in the database).
+ *
+ * @function fetchPosts
+ * @description Fetches all posts from the backend API and stores them in state.
+ *
+ * @function getPostById
+ * @description Retrieves a single post by its unique identifier.
+ * @param {number|string} id - The unique ID of the post.
+ * @returns {Object|undefined} The post entity, if found.
+ *
+ * @function addPost
+ * @description Creates a new post and adds it to the state.
+ * @param {Object} post - The post entity to add.
+ *
+ * @function updatePost
+ * @description Updates an existing post both in the backend and in the local state.
+ * @param {Object} post - The post entity with updated fields.
+ *
+ * @function deletePost
+ * @description Deletes a post by its ID from both the backend and local state.
+ * @param {Object} post - The post entity to delete.
+ *
+ * @function toggleLike
+ * @description Toggles a like or unlike on a post for a specific user.
+ * @param {number} postId - The ID of the post to like/unlike.
+ * @param {number} userId - The ID of the user performing the action.
+ *
+ * @function commentPost
+ * @description Adds a new comment to a specific post and updates it in the backend.
+ * @param {number} id - The ID of the post to comment on.
+ * @param {Object} comment - The comment object to add.
+ *
+ * @example
+ * import useCommunityStore from '@/stores/communityStore';
+ *
+ * const communityStore = useCommunityStore();
+ * await communityStore.fetchPosts();
+ * console.log(communityStore.postsCount); // e.g., 10
+ */
+
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { CommunityApi } from "../infrastructure/community.api.js";
@@ -12,7 +62,6 @@ const useCommunityStore = defineStore("community", () => {
 
     const postsCount = computed(() => (postsLoaded.value ? posts.value.length : 0));
 
-    // Mapa temporal de likes por usuario (no se guarda en db.json)
     const likedPostsByUser = ref({});
 
     async function fetchPosts() {
@@ -63,7 +112,6 @@ const useCommunityStore = defineStore("community", () => {
         }
     }
 
-    // ❤️ LIKE / UNLIKE
     async function toggleLike(postId, userId) {
         try {
             const post = getPostById(postId);

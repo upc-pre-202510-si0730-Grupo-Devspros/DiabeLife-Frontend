@@ -16,7 +16,6 @@ class UserService {
     async login(username, password) {
         const response = await axios.get(`${API_URL}?username=${username}&password=${password}`);
         if (response.data.length > 0) {
-            // usuario encontrado
             return response.data[0];
         } else {
             throw new Error("Usuario o contraseña incorrectos");
@@ -24,10 +23,8 @@ class UserService {
     }
 
     async logout() {
-        // sólo limpia el localStorage
         localStorage.removeItem("user");
     }
 }
 
-// ✅ exporta una instancia
 export default new UserService();

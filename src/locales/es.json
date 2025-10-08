@@ -16,6 +16,18 @@
     "logout": "Cerrar sesión"
 
   },
+  "profile": {
+    "userProfile": "Perfil de usuario",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "logout": "Cerrar sesión"
+  },
+  "glucometer": {
+    "subtitle": "Monitorea tus niveles de glucosa fácilmente",
+    "weekChart": "Gráfica de esta semana",
+    "lastWeekChart": "Gráfica de la semana pasada",
+    "loadingData": "Cargando datos de la medición..."
+  },
 
   "post": {
     "user": "Usuario",
@@ -166,5 +178,32 @@
   },
   "healthy": {
     "noFoodData": "Aún no hay datos de alimentos registrados"
+  },
+
+  "calendar": {
+    "today": "Hoy",
+    "months": {
+      "january": "Enero",
+      "february": "Febrero",
+      "march": "Marzo",
+      "april": "Abril",
+      "may": "Mayo",
+      "june": "Junio",
+      "july": "Julio",
+      "august": "Agosto",
+      "september": "Septiembre",
+      "october": "Octubre",
+      "november": "Noviembre",
+      "december": "Diciembre"
+    },
+    "weekdays": {
+      "s": "D",
+      "m": "L",
+      "t": "M",
+      "w": "X",
+      "th": "J",
+      "f": "V",
+      "sa": "S"
+    }
   }
 }
