@@ -12,7 +12,9 @@
     "community": "Community",
     "appointments": "Appointment",
     "notifications": "Notifications",
-    "reports": "Reports"
+    "reports": "Reports",
+    "logout": "Log out"
+
   },
   "post": {
     "user": "User",

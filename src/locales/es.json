@@ -12,7 +12,9 @@
     "community": "Comunidad",
     "appointments": "Citas",
     "notifications": "Notificaciones",
-    "reports": "Reportes"
+    "reports": "Reportes",
+    "logout": "Cerrar sesión"
+
   },
 
   "post": {

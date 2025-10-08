@@ -19,11 +19,12 @@ import {
 } from "primevue";
 import router from "./router.js";
 import pinia from "./pinia.js";
+import { useAuthStore } from "@/userManagment/application/user.store.js"; // 👈 importa tu store
 
-// noinspection JSCheckFunctionSignatures
-createApp(App)
-    .use(i18n)
-    .use(PrimeVue, { theme: { preset: Material }, ripple: true})
+const app = createApp(App);
+
+app.use(i18n)
+    .use(PrimeVue, { theme: { preset: Material }, ripple: true })
     .use(ConfirmationService)
     .use(DialogService)
     .use(ToastService)
@@ -51,6 +52,11 @@ createApp(App)
     .component('pv-toolbar', Toolbar)
     .component('pv-toast', Toast)
     .directive('tooltip', Tooltip)
-    .use(router)
     .use(pinia)
-    .mount('#app')
+    .use(router);
+
+// ✅ Cargar usuario guardado antes de montar la app
+const auth = useAuthStore();
+auth.loadUser();
+
+app.mount('#app');

@@ -39,6 +39,12 @@
           <i class="pi pi-chart-line"></i>
           <span v-if="!collapsed">{{ t('sidebar.reports') }}</span>
         </RouterLink>
+
+        <!-- 🔹 Logout -->
+        <button class="logout-btn" @click="handleLogout">
+          <i class="pi pi-sign-out"></i>
+          <span v-if="!collapsed">{{ t('sidebar.logout') }}</span>
+        </button>
       </nav>
     </aside>
 
@@ -62,13 +68,21 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import LanguageSwitcher from "./language-switcher.vue";
 
+const router = useRouter();
 const { t } = useI18n();
 const collapsed = ref(false);
+
 const toggleSidebar = () => {
   collapsed.value = !collapsed.value;
+};
+
+const handleLogout = () => {
+  localStorage.removeItem("token");
+  router.push("/auth/login");
 };
 </script>
 
@@ -186,5 +200,26 @@ const toggleSidebar = () => {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+}
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #ff6b6b;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-top: auto;
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.logout-btn:hover {
+  background: #2d3c4f;
+  color: #fff;
 }
 </style>

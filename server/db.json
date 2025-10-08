@@ -71,6 +71,20 @@
       "shared": true
     }
   ],
+  "users": [
+    {
+      "id": 1,
+      "username": "gabriel",
+      "email": "gabriel@example.com",
+      "password": "123"
+    },
+    {
+      "username": "2131312",
+      "email": "adwadwad@gmail.com",
+      "password": "123123",
+      "id": 2
+    }
+  ],
   "sharedReports": [
     {
       "id": 1759850114426,
