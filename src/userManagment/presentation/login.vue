@@ -14,8 +14,18 @@
 
       <!-- Segmento decorativo -->
       <div class="segment-selector">
-        <button :class="{ active: segment === 'diabetic' }" @click.prevent="segment='diabetic'">Persona Diabética</button>
-        <button :class="{ active: segment === 'doctor' }" @click.prevent="segment='doctor'">Doctor</button>
+        <button
+            :class="{ active: segment === 'diabetic' }"
+            @click.prevent="segment = 'diabetic'"
+        >
+          👩‍⚕️ Persona Diabética
+        </button>
+        <button
+            :class="{ active: segment === 'doctor' }"
+            @click.prevent="segment = 'doctor'"
+        >
+          🩺 Doctor
+        </button>
       </div>
 
       <!-- Formulario -->
@@ -31,7 +41,7 @@
         <div v-if="auth.error" class="error-msg">{{ auth.error }}</div>
 
         <div class="first-time">
-          <router-link to="/auth/register">Primera vez? Regístrate</router-link>
+          <router-link to="/auth/register">¿Primera vez? Regístrate</router-link>
         </div>
       </form>
     </div>
@@ -55,137 +65,144 @@ const handleLogin = async () => {
   if (auth.user) router.push('/profile');
 };
 </script>
+
 <style scoped>
 .auth-page {
-display: flex;
-justify-content: center;
-align-items: center;
-height: 100vh;
-background-color: #E9F5FE; /* 🔹 Color uniforme para todo el fondo */
-font-family: 'Arial', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #E9F5FE;
+  font-family: 'Arial', sans-serif;
 }
 
-/* Tarjeta sin otro color: misma tonalidad que el fondo */
 .auth-card {
-background-color: #E9F5FE; /* 🔹 igual que el fondo */
-padding: 30px 40px;
-border-radius: 16px;
-width: 400px;
-max-width: 90%;
-text-align: center;
-box-shadow: none; /* 🔹 sin sombra */
-border: none; /* 🔹 sin borde */
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: none;
+  border: none;
 }
 
-/* Logo */
 .logo {
-width: 80px;
-margin-bottom: 10px;
+  width: 80px;
+  margin-bottom: 10px;
 }
 
-/* Título y texto */
 h2 {
-margin-bottom: 5px;
-color: #1f2a36; /* 🔹 texto oscuro */
+  margin-bottom: 5px;
+  color: #1f2a36;
 }
 
 .welcome-text {
-font-size: 0.9rem;
-color: #333;
-margin-bottom: 15px;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 20px;
 }
 
-/* Segmento decorativo */
+/* 🔹 Segmento decorativo mejorado */
 .segment-selector {
-display: flex;
-justify-content: center;
-gap: 10px;
-margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 6px;
+  gap: 6px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .segment-selector button {
-flex: 1;
-padding: 8px 0;
-border-radius: 8px;
-border: 1px solid #007ad9;
-background: white;
-color: #007ad9;
-cursor: pointer;
-transition: all 0.2s;
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #325875;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
 }
 
-.segment-selector button.active,
+.segment-selector button.active {
+  background: #325875;
+  color: white;
+  box-shadow: 0 2px 8px rgba(50, 88, 117, 0.3);
+}
+
 .segment-selector button:hover {
-background: #007ad9;
-color: white;
+  background: rgba(50, 88, 117, 0.1);
 }
 
 /* Inputs */
 input {
-width: 100%;
-padding: 10px;
-margin-bottom: 15px;
-border-radius: 8px;
-border: none;
-outline: none;
-background: white; /* 🔹 blanco para que destaque del celeste */
-color: #1f2a36;
-transition: box-shadow 0.3s ease;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: white;
+  color: #1f2a36;
+  transition: box-shadow 0.3s ease;
 }
 
 input:focus {
-box-shadow: 0 0 0 2px #007ad9; /* 🔹 borde suave al hacer focus */
+  box-shadow: 0 0 0 2px #007ad9;
 }
 
 /* Botón Login */
 button[type="submit"] {
-width: 100%;
-padding: 10px;
-border-radius: 8px;
-border: none;
-background: #325875;
-color: white;
-cursor: pointer;
-transition: background 0.2s;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #325875;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 button[type="submit"]:hover {
-background: #005fa3;
+  background: #005fa3;
 }
 
-/* Enlace de registro */
+/* Enlace */
 .first-time {
-margin-top: 15px;
+  margin-top: 15px;
 }
 
 .first-time a {
-color: #007ad9;
-text-decoration: none;
+  color: #007ad9;
+  text-decoration: none;
 }
 
 .first-time a:hover {
-text-decoration: underline;
+  text-decoration: underline;
 }
 
-/* Mensaje de error */
 .error-msg {
-color: #d9534f; /* 🔹 rojo suave para error */
-margin-top: 10px;
-font-size: 0.85rem;
+  color: #d9534f;
+  margin-top: 10px;
+  font-size: 0.85rem;
 }
 
-/* Spinner */
 .spinner {
-width: 14px;
-height: 14px;
-border: 2px solid white;
-border-top: 2px solid #e9f5fe;
-border-radius: 50%;
-display: inline-block;
-animation: spin 0.8s linear infinite;
+  width: 14px;
+  height: 14px;
+  border: 2px solid white;
+  border-top: 2px solid #e9f5fe;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
