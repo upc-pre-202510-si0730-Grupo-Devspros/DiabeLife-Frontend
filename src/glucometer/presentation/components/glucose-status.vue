@@ -1,20 +1,22 @@
 <template>
   <div class="glucose-status-card">
     <div class="header">
-      <span>Date: {{ formattedDate }}</span>
-      <span>Hour: {{ formattedTime }}</span>
+      <span>{{ t('glucometer.date') }}: {{ formattedDate }}</span>
+      <span>{{ t('glucometer.hour') }}: {{ formattedTime }}</span>
     </div>
     <div class="measurement">
       <h1>{{ measurement.value }}</h1>
       <span>{{ measurement.unit }}</span>
     </div>
-    <div class="status" :class="statusClass">{{ measurement.status }}</div>
-    <div class="trend">Trend: {{ measurement.trend }}</div>
-    <button class="add-button">Add Measurement</button>
+    <div class="status" :class="statusClass">{{ translatedStatus }}</div>
+    <div class="trend">{{ t('glucometer.trend') }}: {{ measurement.trend }}</div>
+    <button class="add-button">{{ t('glucometer.addMeasurement') }}</button>
   </div>
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n'
+
 export default {
   name: 'GlucoseStatus',
   props: {
@@ -22,6 +24,10 @@ export default {
       type: Object,
       required: true
     }
+  },
+  setup() {
+    const { t } = useI18n()
+    return { t }
   },
   computed: {
     formattedDate() {
@@ -33,6 +39,11 @@ export default {
     statusClass() {
       if (!this.measurement.status) return '';
       return `status-${this.measurement.status.toLowerCase()}`;
+    },
+    translatedStatus() {
+      if (!this.measurement.status) return '';
+      const statusKey = this.measurement.status.toLowerCase();
+      return this.t(`glucometer.status.${statusKey}`);
     }
   }
 };
