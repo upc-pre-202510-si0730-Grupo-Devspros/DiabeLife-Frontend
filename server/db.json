@@ -1,6 +1,21 @@
 {
   "community": [],
-  "reports": [],
+  "reports": [
+    {
+      "id": 1,
+      "name": "Full Health Report 1",
+      "date": "08/10/2025",
+      "type": "PDF",
+      "data": [
+        "glucose",
+        "weight",
+        "blood_pressure",
+        "heart_rate"
+      ],
+      "selected": false,
+      "shared": false
+    }
+  ],
   "users": [
     {
       "username": "gab",
@@ -93,7 +108,7 @@
       "type": "warning",
       "sender": "Medical Scheduler",
       "timestamp": "2025-10-06T18:00:00.000Z",
-      "isRead": false,
+      "isRead": true,
       "isArchived": false,
       "priority": "high",
       "category": "appointment",
@@ -107,7 +122,7 @@
       "type": "success",
       "sender": "Health Monitor",
       "timestamp": "2025-10-07T08:30:00.000Z",
-      "isRead": false,
+      "isRead": true,
       "isArchived": false,
       "priority": "normal",
       "category": "medical",
