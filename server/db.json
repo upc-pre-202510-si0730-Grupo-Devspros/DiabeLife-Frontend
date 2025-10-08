@@ -7,6 +7,12 @@
       "email": "123@gmail.com",
       "password": "123",
       "id": 1
+    },
+    {
+      "username": "prueb",
+      "email": "a@gmail.comm",
+      "password": "123",
+      "id": 2
     }
   ],
   "sharedReports": [],

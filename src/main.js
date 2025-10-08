@@ -55,7 +55,6 @@ app.use(i18n)
     .use(pinia)
     .use(router);
 
-// ✅ Cargar usuario guardado antes de montar la app
 const auth = useAuthStore();
 auth.loadUser();
 

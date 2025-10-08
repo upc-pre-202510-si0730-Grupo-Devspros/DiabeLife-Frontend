@@ -16,7 +16,6 @@ const Notifications = () => import("@/notifications/presentation/views/notificat
 const GlucometerDashboard = () => import("@/glucometer/presentation/views/glucometer-dashboard.vue");
 
 const routes = [
-    // 🔹 Layout de autenticación
     {
         path: "/auth",
         component: AuthLayout,
@@ -27,7 +26,6 @@ const routes = [
         ],
     },
 
-    // 🔹 Layout principal (con sidebar)
     {
         path: "/",
         component: Layout,
@@ -44,7 +42,6 @@ const routes = [
         ],
     },
 
-    // 🔹 Página no encontrada
     {
         path: "/:pathMatch(.*)*",
         name: "not-found",
@@ -58,7 +55,6 @@ const router = createRouter({
     routes,
 });
 
-// 🔐 Cambiar título dinámicamente y proteger rutas
 router.beforeEach((to, from, next) => {
     const baseTitle = "Diabelife";
     document.title = `${baseTitle} - ${to.meta.title || ""}`;
