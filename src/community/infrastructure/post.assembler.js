@@ -7,6 +7,7 @@ export class PostAssembler {
             id: resource.id ?? null,
             authorId: resource.authorId ?? null,
             content: resource.content ?? "",
+            username: resource.username ??"",
             imageUrl: resource.imageUrl ?? null,
             likes: resource.likes ?? 0,
             comments: resource.comments ?? [],
@@ -32,6 +33,8 @@ export class PostAssembler {
             authorId: entity.authorId,
             content: entity.content,
             imageUrl: entity.imageUrl,
+            username: entity.username,
+
             likes: entity.likes,
             comments: entity.comments,
             createdAt: entity.createdAt,
