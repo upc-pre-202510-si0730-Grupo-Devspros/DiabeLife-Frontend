@@ -2,17 +2,19 @@
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import useCommunityStore from "../../application/useCommunityStore.js";
+import {useAuthStore} from "@/userManagment/application/user.store.js";
 
 const { t } = useI18n(); // Hook para traducir textos
 const props = defineProps({ post: Object });
 const store = useCommunityStore();
 
-const currentUser = ref("usuario1");
+const currentUser = computed(() => auth.user?.username || `user${auth.user?.id || 1}`);
 
 const newComment = ref("");
 const commentsToShow = ref(5);
 const isLiking = ref(false);
 const commentMode = ref("todos");
+const auth = useAuthStore();
 
 const userHasLiked = computed(() => {
   const userLikes = store.likedPostsByUser[currentUser.value];
