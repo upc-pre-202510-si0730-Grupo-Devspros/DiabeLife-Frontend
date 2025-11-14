@@ -2,41 +2,73 @@ import { Notification } from '../domain/model/notification.entity'
 
 // Convert API response to Notification entity
 export const toNotificationResource = (data) => {
-  if (!data) return null
+  if (!data) {
+    return null
+  }
   
-  return new Notification({
+  // Handle different timestamp field names from backend
+  let timestamp = data.created_at || data.createdAt || data.timestamp || data.dateTime || new Date().toISOString()
+  
+  // Create a plain object instead of using the Notification class for better reactivity
+  const result = {
     id: data.id,
     title: data.title || '',
     message: data.message || '',
     type: data.type || 'info',
-    sender: data.sender || '',
-    timestamp: data.timestamp || new Date().toISOString(),
-    isRead: Boolean(data.isRead),
-    isArchived: Boolean(data.isArchived),
+    sender: data.sender || data.user_id || '',
+    timestamp: timestamp,
+    isRead: Boolean(data.is_read || data.isRead || false),
+    isArchived: Boolean(data.is_archived || data.isArchived || false),
     priority: data.priority || 'normal',
     category: data.category || 'general',
-    actionUrl: data.actionUrl || null,
-    actionText: data.actionText || null
-  })
+    actionUrl: data.action_url || data.actionUrl || null,
+    actionText: data.action_text || data.actionText || null,
+    
+    // Add methods for compatibility
+    getTimeAgo() {
+      const now = new Date()
+      const notificationTime = new Date(this.timestamp)
+      const diffMs = now - notificationTime
+      const diffMins = Math.floor(diffMs / (1000 * 60))
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+      
+      if (diffMins < 1) return 'Just now'
+      if (diffMins < 60) return `${diffMins}m ago`
+      if (diffHours < 24) return `${diffHours}h ago`
+      return `${diffDays}d ago`
+    }
+  }
+  
+  // Debug log to see what we're getting
+  console.log('Notification mapping - Input:', data)
+  console.log('Notification mapping - Output:', result)
+  
+  return result
 }
 
 // Convert Notification entity to API request payload
 export const toNotificationRequest = (notification) => {
-  if (!notification) return null
-  
-  return {
-    title: notification.title,
-    message: notification.message,
-    type: notification.type,
-    sender: notification.sender,
-    timestamp: notification.timestamp,
-    isRead: notification.isRead,
-    isArchived: notification.isArchived,
-    priority: notification.priority,
-    category: notification.category,
-    actionUrl: notification.actionUrl,
-    actionText: notification.actionText
+  if (!notification) {
+    return null
   }
+  
+  // Create request with required fields for backend
+  const request = {
+    title: notification.title || 'Notification',
+    message: notification.message || '',
+    type: notification.type || 'info',
+    userId: notification.sender || 1, // Default user ID
+    category: notification.category || 'general',
+    priority: notification.priority || 'normal'
+  }
+  
+  // Add optional fields if they exist
+  if (notification.actionUrl) request.actionUrl = notification.actionUrl
+  if (notification.actionText) request.actionText = notification.actionText
+  if (notification.timestamp) request.timestamp = notification.timestamp
+  
+  return request
 }
 
 // Format notification data for display

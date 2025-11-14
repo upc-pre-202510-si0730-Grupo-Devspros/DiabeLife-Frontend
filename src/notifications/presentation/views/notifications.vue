@@ -20,7 +20,7 @@
               >
                 <div class="message-content">
                   <div class="message-header">
-                    <h4 class="message-sender">{{ notification.sender }}</h4>
+                    <h4 class="message-title">{{ notification.title }}</h4>
                     <span class="message-time">{{ notification.getTimeAgo() }}</span>
                   </div>
                   <p class="message-text">{{ notification.message }}</p>
@@ -78,7 +78,7 @@
         <div class="detail-header">
           <div class="detail-sender">
             <i :class="getNotificationIcon(selectedNotification)"></i>
-            <span>{{ selectedNotification.sender }}</span>
+            <span class="notification-type">{{ selectedNotification.type }}</span>
           </div>
           <span class="detail-time">{{ formatDateTime(selectedNotification.timestamp) }}</span>
         </div>
@@ -135,10 +135,18 @@ const handleNotificationClick = (notification) => {
 
 const toggleRead = async (notification) => {
   try {
-    if (notification.isRead) await notificationStore.markAsUnread(notification.id)
-    else await notificationStore.markAsRead(notification.id)
+    console.log('Toggling read status for notification:', notification.id, 'current isRead:', notification.isRead)
+    
+    if (notification.isRead) {
+      await notificationStore.markAsUnread(notification.id)
+      console.log('Marked as unread')
+    } else {
+      await notificationStore.markAsRead(notification.id)
+      console.log('Marked as read')
+    }
   } catch (error) {
     console.error('Error toggling read status:', error)
+    alert('Error updating notification status. Please try again.')
   }
 }
 
@@ -253,7 +261,7 @@ onMounted(async () => {
   margin-bottom: 0.5rem;
 }
 
-.message-sender {
+.message-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: #3b82f6;
@@ -368,6 +376,16 @@ onMounted(async () => {
   gap: 0.5rem;
   font-weight: 600;
   color: #3b82f6;
+}
+
+.notification-type {
+  font-size: 0.875rem;
+  text-transform: capitalize;
+  color: #374151;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .detail-time {
