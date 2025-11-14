@@ -26,42 +26,89 @@
  */
 
 export function toAppointmentResource(entity) {
-  if (!entity) return { 
-    id: null, 
-    date: '', 
-    time: '', 
-    doctor: '', 
-    specialty: '', 
-    status: 'scheduled', 
-    notes: '',
-    createdAt: null,
-    updatedAt: null
+  console.log('toAppointmentResource - Input entity:', entity)
+  
+  if (!entity) {
+    console.warn('toAppointmentResource - Entity is null or undefined, returning default')
+    return { 
+      id: null, 
+      date: '', 
+      time: '', 
+      doctor: '', 
+      specialty: '', 
+      status: 'scheduled', 
+      notes: '',
+      patient: '',
+      location: '',
+      appointmentType: '',
+      createdAt: null,
+      updatedAt: null
+    }
   }
   
-  return {
+  // Extract date and time from appointmentDate if it exists
+  let date = entity.date ?? ''
+  let time = entity.time ?? ''
+  
+  if (entity.appointmentDate && !date && !time) {
+    try {
+      const appointmentDateTime = new Date(entity.appointmentDate)
+      if (appointmentDateTime.getFullYear() > 1900) { // Valid date check
+        date = appointmentDateTime.toISOString().split('T')[0] // YYYY-MM-DD format
+        time = appointmentDateTime.toTimeString().split(' ')[0].substring(0, 5) // HH:MM format
+      }
+    } catch (error) {
+      console.warn('Could not parse appointmentDate:', entity.appointmentDate, error)
+    }
+  }
+  
+  // If we still don't have valid date/time, try to use the sent data
+  if (!date || !time) {
+    // The backend sometimes returns "0001-01-01T00:00:00" for invalid dates
+    // In this case, we should try to reconstruct from the original request data
+    if (entity.appointmentDate === "0001-01-01T00:00:00") {
+      console.warn('Backend returned invalid date, appointment may not display correctly in calendar')
+    }
+  }
+  
+  const result = {
     id: entity.id,
-    date: entity.date ?? '',
-    time: entity.time ?? '',
+    date: date,
+    time: time,
     doctor: entity.doctor ?? '',
     specialty: entity.specialty ?? '',
-    status: entity.status ?? 'scheduled',
+    status: (entity.status ?? 'scheduled').toLowerCase(), // Backend returns "Scheduled", we want "scheduled"
     notes: entity.notes ?? '',
+    patient: entity.patient ?? '',
+    location: entity.location ?? '',
+    appointmentType: entity.appointmentType ?? '',
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt
   }
+  
+  console.log('toAppointmentResource - Output result:', result)
+  return result
 }
 
 export function toAppointmentRequest(data) {
-  return {
+  // Include all required fields based on backend validation
+  const request = {
     date: data.date,
     time: data.time,
     doctor: data.doctor,
-    specialty: data.specialty,
-    status: data.status || 'scheduled',
-    notes: data.notes || '',
-    createdAt: data.createdAt || new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    specialty: data.specialty || 'General',
+    // Required fields from backend validation error
+    notes: data.notes || 'No additional notes', // Notes is required
+    patient: data.patient || 'Default Patient', // Patient is required
+    location: data.location || 'Main Clinic', // Location is required
+    appointmentType: data.appointmentType || 'Consultation', // AppointmentType is required
+    
+    // Also send as appointmentDate in ISO format for backend compatibility
+    appointmentDate: `${data.date}T${data.time}:00.000Z`
   }
+  
+  console.log('Assembler - toAppointmentRequest (with required fields and appointmentDate):', request)
+  return request
 }
 
 export function toDoctorResource(entity) {

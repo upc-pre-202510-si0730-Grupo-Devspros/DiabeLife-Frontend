@@ -321,36 +321,74 @@ const saveAppointment = async () => {
   }
 
   try {
+    console.log('Saving appointment with data:', state.newAppointment)
+    
     if (state.showEditDialog && state.selectedAppointment) {
       // Update existing appointment
-      await appointmentStore.updateAppointment(state.selectedAppointment.id!, {
+      console.log('Updating existing appointment...')
+      const result = await appointmentStore.updateAppointment(state.selectedAppointment.id!, {
         date: state.newAppointment.date,
         time: state.newAppointment.time,
         doctor: state.newAppointment.doctor,
         specialty: 'General',
         status: 'scheduled',
-        notes: state.newAppointment.notes
+        notes: state.newAppointment.notes || 'Updated appointment',
+        // Add required fields
+        patient: 'Current Patient',
+        location: 'Main Clinic',
+        appointmentType: 'Consultation'
       })
+      console.log('Update result:', result)
     } else {
       // Create new appointment
-      await appointmentStore.createAppointment({
+      console.log('Creating new appointment...')
+      const result = await appointmentStore.createAppointment({
         date: state.newAppointment.date,
         time: state.newAppointment.time,
         doctor: state.newAppointment.doctor,
         specialty: 'General',
         status: 'scheduled',
-        notes: state.newAppointment.notes
+        notes: state.newAppointment.notes || 'Scheduled appointment',
+        // Add required fields
+        patient: 'Current Patient', // This should be dynamic based on logged user
+        location: 'Main Clinic',
+        appointmentType: 'Consultation'
       })
+      console.log('Create result:', result)
     }
+
+    console.log('Appointment saved successfully!')
+    alert('Appointment saved successfully!')
 
     // Close dialogs and reset form
     state.showAddDialog = false
     state.showEditDialog = false
     state.newAppointment = { date: '', time: '', doctor: '', notes: '' }
     state.selectedAppointment = null
+    
+    console.log('Form reset and dialogs closed')
   } catch (error) {
     console.error('Error saving appointment:', error)
-    alert(t('appointment.errorSaving'))
+    
+    let errorMessage = t('appointment.errorSaving')
+    
+    if (error.response) {
+      console.error('HTTP Error:', error.response.status, error.response.data)
+      if (error.response.status === 400) {
+        errorMessage = 'Invalid appointment data. Please check all fields.'
+      } else if (error.response.status === 401) {
+        errorMessage = 'Authentication required. Please log in again.'
+      } else if (error.response.status === 404) {
+        errorMessage = 'Appointment service not found.'
+      } else if (error.response.status >= 500) {
+        errorMessage = 'Server error. Please try again later.'
+      }
+    } else if (error.request) {
+      console.error('Network Error:', error.request)
+      errorMessage = 'Network error. Please check your connection.'
+    }
+    
+    alert(errorMessage)
   }
 }
 

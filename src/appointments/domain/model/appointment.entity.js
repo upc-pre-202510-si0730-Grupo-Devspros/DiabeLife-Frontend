@@ -9,22 +9,11 @@
  * @property {string} specialty - The medical specialty related to the appointment.
  * @property {string} status - The current status of the appointment. Possible values: 'scheduled', 'completed', 'cancelled'.
  * @property {string} notes - Additional notes or comments about the appointment.
+ * @property {string} patient - The patient name or ID (required by backend).
+ * @property {string} location - The location of the appointment (required by backend).
+ * @property {string} appointmentType - The type of appointment (required by backend).
  * @property {Date|null} createdAt - The timestamp when the appointment was created.
  * @property {Date|null} updatedAt - The timestamp when the appointment was last updated.
- *
- * @example
- * const appointment = AppointmentEntity({
- *   id: 1,
- *   date: '2025-10-08',
- *   time: '14:30',
- *   doctor: 'Dr. Smith',
- *   specialty: 'Cardiology',
- *   status: 'scheduled',
- *   notes: 'First consultation',
- *   createdAt: new Date(),
- *   updatedAt: new Date()
- * });
- * console.log(appointment.status); // 'scheduled'
  */
 
 
@@ -35,7 +24,10 @@ export function AppointmentEntity({
   doctor, 
   specialty, 
   status, 
-  notes, 
+  notes,
+  patient,
+  location,
+  appointmentType,
   createdAt,
   updatedAt 
 } = {}) {
@@ -47,6 +39,9 @@ export function AppointmentEntity({
     specialty: specialty ?? '',
     status: status ?? 'scheduled', // scheduled, completed, cancelled
     notes: notes ?? '',
+    patient: patient ?? '',
+    location: location ?? '',
+    appointmentType: appointmentType ?? '',
     createdAt: createdAt ?? null,
     updatedAt: updatedAt ?? null
   }
