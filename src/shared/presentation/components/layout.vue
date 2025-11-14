@@ -3,7 +3,7 @@
     <aside :class="['sidenav', { collapsed }]">
       <div class="logo-container" @click="toggleSidebar">
         <img
-            src="https://i.postimg.cc/c4Cdqjtg/Whats-App-Image-2025-10-01-at-13-53-49-removebg-preview.png"
+            src="https://i.postimg.cc/JzxbPmgK/logo-removebg-preview.png"
             alt="Logo"
             class="logo"
         />

@@ -4,7 +4,7 @@
 
     <div class="auth-card">
       <img
-          src="https://i.postimg.cc/c4Cdqjtg/Whats-App-Image-2025-10-01-at-13-53-49-removebg-preview.png"
+          src="https://i.postimg.cc/JzxbPmgK/logo-removebg-preview.png"
           class="logo"
           alt="Diabelife logo"
       />
