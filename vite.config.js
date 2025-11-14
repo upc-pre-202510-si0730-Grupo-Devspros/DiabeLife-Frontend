@@ -17,4 +17,13 @@ export default defineConfig({
     __VUE_PROD_DEVTOOLS__: false,
     __VUE_OPTIONS_API__: true,
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://diabelife-backend-20u1.onrender.com',
+        changeOrigin: true,
+        secure: true,
+      }
+    }
+  }
 })

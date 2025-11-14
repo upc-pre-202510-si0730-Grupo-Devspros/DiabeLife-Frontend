@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/userManagment/application/user.store.js'
 import api from '../../infrastructure/healthy-life.api'
 import { toHealthyRequest, toHealthyResource, toFoodResource } from '../../infrastructure/healthy-life.assembler'
 import Card from 'primevue/card'
@@ -12,6 +13,7 @@ import HealthSummary from '../components/HealthSummary.vue'
 import FoodList from '../components/FoodList.vue'
 
 const { t } = useI18n()
+const auth = useAuthStore()
 
 type HealthyRecord = { id?: number; heartRate?: number; glucose?: number; weight?: number; bloodPressure?: string }
 type FoodRecord = { id?: number; food?: string; timestamp?: string }
@@ -26,31 +28,89 @@ const isLoading = reactive<{ health: boolean; food: boolean }>({ health: false, 
 
 const load = async () => {
   try {
-    const res = await api.getHealthy()
-    const record = Array.isArray(res.data) ? res.data[0] || {} : res.data
-    const resource = toHealthyResource(record)
-    summary.heartRate = resource.heartRate || 0
-    summary.glucose = resource.glucose || 0
-    summary.weight = resource.weight || 0
-    summary.bloodPressure = resource.bloodPressure || '0/0'
+    console.log('=== CARGANDO DATOS DE SALUD ===')
+    
+    // Cargar la última métrica de salud
+    try {
+      const healthRes = await api.getLatestHealthMetric()
+      console.log('Latest health metrics response:', healthRes.data)
+      
+      if (healthRes.data) {
+        const resource = toHealthyResource(healthRes.data)
+        console.log('Processed health resource:', resource)
+        
+        summary.heartRate = resource.heartRate || 0
+        summary.glucose = resource.glucose || 0
+        summary.weight = resource.weight || 0
+        summary.bloodPressure = resource.bloodPressure || '0/0'
+        
+        console.log('Updated summary:', { 
+          heartRate: summary.heartRate, 
+          glucose: summary.glucose, 
+          weight: summary.weight, 
+          bloodPressure: summary.bloodPressure 
+        })
+      } else {
+        console.log('No health metrics found, keeping defaults')
+      }
+    } catch (he) {
+      console.warn('Cannot load latest health metrics:', he)
+      
+      // Intentar cargar todas las métricas y tomar la más reciente
+      try {
+        const allHealthRes = await api.getHealthMetrics()
+        console.log('All health metrics:', allHealthRes.data)
+        
+        if (allHealthRes.data && Array.isArray(allHealthRes.data) && allHealthRes.data.length > 0) {
+          // Tomar el más reciente (asumir que está ordenado o tomar el último)
+          const latestMetric = allHealthRes.data[allHealthRes.data.length - 1]
+          const resource = toHealthyResource(latestMetric)
+          
+          summary.heartRate = resource.heartRate || 0
+          summary.glucose = resource.glucose || 0
+          summary.weight = resource.weight || 0
+          summary.bloodPressure = resource.bloodPressure || '0/0'
+          
+          console.log('Used latest from all metrics:', resource)
+        }
+      } catch (allError) {
+        console.warn('Cannot load any health metrics:', allError)
+      }
+    }
 
+    // Cargar recomendaciones
     try {
       const rres = await api.getRecommendations()
+      console.log('Recommendations:', rres.data)
       recommendations.splice(0, recommendations.length, ...(Array.isArray(rres.data) ? rres.data : []))
       pickRandomReco()
     } catch (re) {
       console.warn('Cannot load recommendations', re)
     }
 
+    // Cargar comida reciente
     try {
-      const fres = await api.getFoodData()
+      const fres = await api.getRecentFoodData()
+      console.log('Recent food data:', fres.data)
       const foods = Array.isArray(fres.data) ? fres.data.map(toFoodResource) : []
       savedFoods.splice(0, savedFoods.length, ...foods)
     } catch (fe) {
       console.warn('Cannot load food data', fe)
+      
+      // Intentar cargar toda la comida si /recent no funciona
+      try {
+        const allFoodRes = await api.getFoodData()
+        console.log('All food data:', allFoodRes.data)
+        const foods = Array.isArray(allFoodRes.data) ? allFoodRes.data.map(toFoodResource) : []
+        savedFoods.splice(0, savedFoods.length, ...foods)
+      } catch (allFoodError) {
+        console.warn('Cannot load any food data:', allFoodError)
+      }
     }
+    
+    console.log('=== DATOS CARGADOS EXITOSAMENTE ===')
   } catch (e) {
-    console.warn('Cannot load healthy data', e)
+    console.error('Error general loading data:', e)
   }
 }
 
@@ -66,31 +126,54 @@ const pickRandomReco = () => {
 const saveHealthData = async () => {
   isLoading.health = true
   try {
-    const res = await api.getHealthy()
-    const exists = Array.isArray(res.data) ? res.data.length > 0 : !!res.data.id
+    console.log('=== GUARDANDO DATOS DE SALUD ===')
+    console.log('Datos a guardar:', data)
+    
     const healthPayload = toHealthyRequest(data)
+    console.log('Payload procesado:', healthPayload)
+    
+    // Crear nueva métrica de salud
+    const response = await api.createHealthMetric(healthPayload)
+    console.log('Respuesta del servidor:', response.data)
 
-    if (exists) {
-      const id = Array.isArray(res.data) ? res.data[0]?.id : res.data.id
-      if (id) await api.updateHealthy(id, healthPayload)
-    } else {
-      await api.createHealthy(healthPayload)
-    }
-
+    // Actualizar el summary inmediatamente con los datos guardados
     summary.heartRate = data.heartRate || 0
     summary.glucose = data.glucose || 0
     summary.weight = data.weight || 0
     summary.bloodPressure = data.bloodPressure || '0/0'
+    
+    console.log('Summary actualizado:', { 
+      heartRate: summary.heartRate, 
+      glucose: summary.glucose, 
+      weight: summary.weight, 
+      bloodPressure: summary.bloodPressure 
+    })
 
+    // Limpiar el formulario
     data.heartRate = undefined
     data.glucose = undefined
     data.weight = undefined
     data.bloodPressure = ''
 
+    // Recargar datos para asegurar sincronización
+    await load()
+
     window.alert(t('healthyLife.healthSaved'))
+    console.log('=== DATOS DE SALUD GUARDADOS EXITOSAMENTE ===')
   } catch (e) {
     console.error('Save health data failed', e)
-    window.alert(t('healthyLife.healthSaveError'))
+    console.error('Error details:', e.response?.data)
+    
+    let errorMessage = t('healthyLife.healthSaveError')
+    if (e.response?.data?.message) {
+      errorMessage += ': ' + e.response.data.message
+    } else if (e.response?.status === 400) {
+      errorMessage += ': Datos inválidos. Verifica que todos los campos tengan valores válidos.'
+    } else {
+      errorMessage += ': ' + e.message
+    }
+    
+    window.alert(errorMessage)
   } finally {
     isLoading.health = false
   }
@@ -104,15 +187,68 @@ const saveFoodData = async () => {
 
   isLoading.food = true
   try {
-    const foodPayload = { food: foodData.food, timestamp: new Date().toISOString() }
-    await api.createFoodData(foodPayload)
-    foodData.food = ''
-    await load()
-    pickRandomReco()
+    // Vamos a probar diferentes formatos hasta encontrar el correcto
+    const foodPayload1 = {
+      name: foodData.food.trim(),
+      calories: 0,
+      timestamp: new Date().toISOString()
+    }
+    
+    const foodPayload2 = {
+      food: foodData.food.trim(),
+      calories: 0,
+      timestamp: new Date().toISOString()
+    }
+    
+    const foodPayload3 = {
+      Name: foodData.food.trim(),
+      Calories: 0,
+      Timestamp: new Date().toISOString()
+    }
+    
+    const foodPayload4 = {
+      name: foodData.food.trim()
+    }
+    
+    console.log('Probando formato 1 (name):', foodPayload1)
+    
+    try {
+      await api.createFoodData(foodPayload1)
+      console.log('Formato 1 funcionó!')
+    } catch (err1) {
+      console.log('Formato 1 falló:', err1.response?.data)
+      
+      try {
+        console.log('Probando formato 2 (food):', foodPayload2)
+        await api.createFoodData(foodPayload2)
+        console.log('Formato 2 funcionó!')
+      } catch (err2) {
+        console.log('Formato 2 falló:', err2.response?.data)
+        
+        try {
+          console.log('Probando formato 3 (PascalCase):', foodPayload3)
+          await api.createFoodData(foodPayload3)
+          console.log('Formato 3 funcionó!')
+        } catch (err3) {
+          console.log('Formato 3 falló:', err3.response?.data)
+          
+          try {
+            console.log('Probando formato 4 (solo name):', foodPayload4)
+            await api.createFoodData(foodPayload4)
+            console.log('Formato 4 funcionó!')
+          } catch (err4) {
+            console.log('Formato 4 falló:', err4.response?.data)
+            throw err4 // Si todos fallan, lanzar el último error
+          }
+        }
+      }
+    }
+    
     window.alert(t('healthyLife.foodSaved'))
   } catch (e) {
     console.error('Save food data failed', e)
-    window.alert(t('healthyLife.foodSaveError'))
+    console.error('Error details:', e.response?.data)
+    window.alert(t('healthyLife.foodSaveError') + ': ' + (e.response?.data?.message || e.message))
   } finally {
     isLoading.food = false
   }
@@ -128,7 +264,19 @@ const formatTimestamp = (timestamp: string | undefined) => {
   }
 }
 
-onMounted(load)
+// Cargar datos cuando el componente se monta
+onMounted(async () => {
+  console.log('Componente montado, cargando datos...')
+  await load()
+})
+
+// Recargar datos cuando el usuario cambie (login/logout)
+watch(() => auth.user, async (newUser, oldUser) => {
+  console.log('Usuario cambió:', { newUser: !!newUser, oldUser: !!oldUser })
+  if (newUser !== oldUser) {
+    await load()
+  }
+}, { immediate: false })
 </script>
 
 <template>
@@ -188,6 +336,7 @@ onMounted(load)
                   class="w-full mt-2"
               />
             </div>
+            
             <Message v-if="currentReco.text !== '—'" severity="info" :closable="false">
               {{ currentReco.text }}
             </Message>

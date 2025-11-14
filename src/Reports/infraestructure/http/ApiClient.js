@@ -3,7 +3,7 @@ import axios from 'axios';
 export class ApiClient {
     constructor(baseURL) {
         this.client = axios.create({
-            baseURL: baseURL || 'http://localhost:3000',
+            baseURL: baseURL || import.meta.env.VITE_DIABELIFE_PLATFORM_API_URL,
             headers: {
                 'Content-Type': 'application/json'
             }

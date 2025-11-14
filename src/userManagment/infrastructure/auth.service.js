@@ -1,25 +1,19 @@
-// src/userManagment/infrastructure/user.service.js
+// src/userManagment/infrastructure/auth.service.js
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/users"; // json-server endpoint
+const API_URL = import.meta.env.VITE_DIABELIFE_PLATFORM_API_URL + import.meta.env.VITE_AUTH_ENDPOINT_PATH;
 
 export default {
     async login(username, password) {
-        const { data } = await axios.get(`${API_URL}?username=${username}`);
-        const user = data[0];
-        if (!user || user.password !== password) {
-            throw new Error("Invalid credentials");
-        }
-        return user;
-    },
-
-    async register(userData) {
-        const { data } = await axios.post(API_URL, userData);
+        const { data } = await axios.post(`${API_URL}/login`, {
+            username: username,
+            password: password
+        });
         return data;
     },
 
-    async getAll() {
-        const { data } = await axios.get(API_URL);
+    async register(userData) {
+        const { data } = await axios.post(`${API_URL}/register`, userData);
         return data;
     }
 };

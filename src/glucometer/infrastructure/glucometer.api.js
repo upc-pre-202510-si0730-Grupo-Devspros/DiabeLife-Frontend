@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE = 'http://localhost:3000';
+const BASE = import.meta.env.VITE_DIABELIFE_PLATFORM_API_URL;
 
 export default {
   getLatestMeasurement() {
