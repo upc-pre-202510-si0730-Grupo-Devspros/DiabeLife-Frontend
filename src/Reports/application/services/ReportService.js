@@ -17,9 +17,9 @@ export class ReportService {
 
         const reportData = {
             name: `Full Health Report ${reportNumber}`,
-            date: new Date().toLocaleDateString('en-GB'),
+            date: new Date().toISOString(),
             type: type.toUpperCase(),
-            data: ['glucose', 'weight', 'blood_pressure', 'heart_rate'], // Todos los datos
+            data: JSON.stringify(['glucose', 'weight', 'blood_pressure', 'heart_rate']), // String JSON
             selected: false,
             shared: false
         };
@@ -44,9 +44,9 @@ export class ReportService {
 
         const reportData = {
             name: reportName,
-            date: new Date().toLocaleDateString('en-GB'),
+            date: new Date().toISOString(),
             type: type.toUpperCase(),
-            data: dataTypes, // Array con los tipos de datos seleccionados
+            data: JSON.stringify(dataTypes), // String JSON como espera el backend
             selected: false,
             shared: false
         };
@@ -60,8 +60,8 @@ export class ReportService {
         return await this.reportRepository.update(reportId, report);
     }
 
-    async shareSelectedReports(reportIds, message) {
-        return await this.reportRepository.shareReports(reportIds, message);
+    async shareSelectedReports(reportIds, shared = true) {
+        return await this.reportRepository.shareReports(reportIds, shared);
     }
 
     async deleteReport(reportId) {

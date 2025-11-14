@@ -89,7 +89,7 @@ const handleShare = async () => {
 
   loading.value = true
   try {
-    await reportStore.shareReports(message.value.trim() || t('share.defaultMessage'))
+    await reportStore.shareReports()
     message.value = ''
   } catch (error) {
     alert(t('share.alertError'))

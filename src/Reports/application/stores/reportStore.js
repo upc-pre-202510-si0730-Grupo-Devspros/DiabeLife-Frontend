@@ -26,7 +26,14 @@ export const useReportStore = defineStore('report', {
                 this.reports = await reportService.getAllReports();
             } catch (error) {
                 this.error = error.message;
-                console.error('Error fetching reports:', error);
+                
+                // Si es error de autenticación, mostrar mensaje más claro
+                if (error.response?.status === 401) {
+                    this.error = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+                } else if (error.response?.status === 404) {
+                    this.error = 'El servicio de reportes no está disponible.';
+                    this.reports = []; // Mostrar lista vacía en lugar de error
+                }
             } finally {
                 this.loading = false;
             }
@@ -70,11 +77,11 @@ export const useReportStore = defineStore('report', {
             }
         },
 
-        async shareReports(message) {
+        async shareReports(message = '') {
             this.loading = true;
             this.error = null;
             try {
-                await reportService.shareSelectedReports(this.selectedReportIds, message);
+                await reportService.shareSelectedReports(this.selectedReportIds, true);
                 await this.fetchReports();
             } catch (error) {
                 this.error = error.message;

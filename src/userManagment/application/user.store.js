@@ -20,10 +20,6 @@ export const useAuthStore = defineStore("auth", {
             this.loading = true;
             this.error = null;
             
-            console.log('=== INICIO DEL REGISTRO ===');
-            console.log('Datos del usuario:', userData);
-            console.log('URL completa de registro:', `${API_URL}/register`);
-            
             try {
                 const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
@@ -33,28 +29,27 @@ export const useAuthStore = defineStore("auth", {
                     body: JSON.stringify(userData)
                 });
                 
-                console.log('Respuesta del servidor:', response);
-                console.log('Status:', response.status);
-                console.log('OK:', response.ok);
-                
                 if (!response.ok) {
                     const errorData = await response.text();
-                    console.log('Error data:', errorData);
                     throw new Error(`HTTP ${response.status}: ${errorData}`);
                 }
                 
                 const data = await response.json();
-                console.log('Datos de respuesta:', data);
                 
-                this.user = data;
-                localStorage.setItem("user", JSON.stringify(this.user));
-                localStorage.setItem("token", "fake-jwt-token");
+                // Extraer token real si existe
+                const token = data.token || data.accessToken || data.jwt;
                 
-                console.log('=== REGISTRO EXITOSO ===');
+                if (token) {
+                    this.user = data.user || data;
+                    localStorage.setItem("user", JSON.stringify(this.user));
+                    localStorage.setItem("token", token);
+                } else {
+                    this.user = data;
+                    localStorage.setItem("user", JSON.stringify(this.user));
+                    localStorage.setItem("token", "fake-jwt-token");
+                }
                 
             } catch (err) {
-                console.log('=== ERROR EN EL REGISTRO ===');
-                console.error('Error completo:', err);
                 this.error = `Error: ${err.message}`;
             } finally {
                 this.loading = false;
@@ -70,22 +65,35 @@ export const useAuthStore = defineStore("auth", {
                     username: username,
                     password: password
                 });
-                console.log("Login response:", res.data);
 
-                const user = res.data;
+                const responseData = res.data;
 
-                if (user) {
-                    this.user = user;
-                    localStorage.setItem("user", JSON.stringify(this.user));
-                    localStorage.setItem("token", "fake-jwt-token"); // importante para router
-                    return true; // login exitoso
+                if (responseData) {
+                    // Extraer el token real del response del backend
+                    const token = responseData.token || responseData.accessToken || responseData.jwt;
+                    
+                    if (token) {
+                        this.user = responseData.user || responseData;
+                        localStorage.setItem("user", JSON.stringify(this.user));
+                        localStorage.setItem("token", token); // Usar token real del backend
+                        return true; // login exitoso
+                    } else {
+                        // Fallback: usar fake token solo para desarrollo
+                        this.user = responseData;
+                        localStorage.setItem("user", JSON.stringify(this.user));
+                        localStorage.setItem("token", "fake-jwt-token");
+                        return true;
+                    }
                 } else {
                     this.error = "Usuario o contraseña incorrectos";
                     return false; // login fallido
                 }
             } catch (err) {
-                console.error(err);
-                this.error = "Error al intentar iniciar sesión";
+                if (err.response?.data?.message) {
+                    this.error = err.response.data.message;
+                } else {
+                    this.error = "Error al intentar iniciar sesión";
+                }
                 return false;
             } finally {
                 this.loading = false;

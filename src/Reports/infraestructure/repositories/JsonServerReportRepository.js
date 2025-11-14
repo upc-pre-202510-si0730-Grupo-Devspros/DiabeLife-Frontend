@@ -6,60 +6,60 @@ import { ApiClient } from '../http/ApiClient.js';
 export class JsonServerReportRepository extends ReportRepository {
     constructor() {
         super();
-        // Cambiado a tu endpoint remoto
-        this.apiClient = new ApiClient('https://fakeapi-diabelife-1.onrender.com');
+        // Conectado al backend real de Reports usando la configuración existente
+        this.apiClient = new ApiClient();
     }
 
     async getAll() {
-        const data = await this.apiClient.get('/reports');
-        return data.map(item => new Report(item));
+        try {
+            const response = await this.apiClient.get('/Reports');
+            const data = response.data || response;
+            
+            if (!Array.isArray(data)) {
+                return [];
+            }
+            
+            return data.map(item => new Report(item));
+        } catch (error) {
+            // Si es error 404, probablemente no hay reportes aún
+            if (error.response?.status === 404) {
+                return [];
+            }
+            
+            throw error;
+        }
     }
 
     async getById(id) {
-        const data = await this.apiClient.get(`/reports/${id}`);
+        const data = await this.apiClient.get(`/Reports/${id}`);
         return new Report(data);
     }
 
     async create(report) {
-        const data = await this.apiClient.post('/reports', report);
-        return new Report(data);
+        try {
+            const response = await this.apiClient.post('/Reports', report);
+            return response.data || response;
+        } catch (error) {
+            throw error;
+        }
     }
 
     async update(id, report) {
-        const data = await this.apiClient.put(`/reports/${id}`, report);
-        return new Report(data);
+        const response = await this.apiClient.put(`/Reports/${id}`, report);
+        return response;
     }
 
     async delete(id) {
-        await this.apiClient.delete(`/reports/${id}`);
+        await this.apiClient.delete(`/Reports/${id}`);
     }
 
-    async shareReports(reportIds, message) {
-        const reports = await this.getAll();
-        const selectedReports = reports.filter(r => reportIds.includes(r.id));
-
-        const sharedData = {
-            id: Date.now(),
-            reports: selectedReports.map(r => ({
-                ...r,
-                shared: true,
-                sharedAt: new Date().toISOString()
-            })),
-            message,
-            sharedAt: new Date().toISOString()
+    async shareReports(reportIds, shared = true) {
+        const shareData = {
+            reportIds: reportIds,
+            shared: shared
         };
 
-        await this.apiClient.post('/sharedReports', sharedData);
-
-        for (const reportId of reportIds) {
-            const report = await this.getById(reportId);
-            await this.update(reportId, {
-                ...report,
-                shared: true,
-                selected: false
-            });
-        }
-
-        return sharedData;
+        const response = await this.apiClient.post('/Reports/shared', shareData);
+        return response;
     }
 }
