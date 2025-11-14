@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import useCommunityStore from "../../application/useCommunityStore.js";
 import PostItem from "./PostItem.vue";
+import {useCommunityStore} from "@/community/application/useCommunityStore.js";
 
 const { t } = useI18n();
 const store = useCommunityStore();

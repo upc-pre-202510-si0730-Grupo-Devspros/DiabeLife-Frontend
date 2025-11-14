@@ -1,17 +1,17 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import useCommunityStore from "../../application/useCommunityStore.js";
-import {useAuthStore} from "@/userManagment/application/user.store.js";
+import { useAuthStore } from "@/userManagment/application/user.store.js";
+import {useCommunityStore} from "@/community/application/useCommunityStore.js";
 
 const { t } = useI18n();
 const store = useCommunityStore();
+const auth = useAuthStore();
 
 const content = ref("");
 const imageUrl = ref(null);
-const imageFile = ref(null);
 const fileInput = ref(null);
-const auth = useAuthStore();
+
 const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -26,18 +26,19 @@ const handleImageUpload = (event) => {
 const submitPost = async () => {
   if (!content.value.trim() && !imageUrl.value) return;
 
-  await store.addPost({
-    authorId: auth.user.id,
-    content: content.value,
-    username: auth.user.username,
-    imageUrl: imageUrl.value,
-    likes: 0,
-    comments: [],
-    createdAt: new Date(),
-  });
+  try {
+    await store.addPost({
+      authorId: auth.user.id,
+      content: content.value,
+      imageUrl: imageUrl.value || "",
+    });
 
-  content.value = "";
-  imageUrl.value = null;
+    content.value = "";
+    imageUrl.value = null;
+    if (fileInput.value) fileInput.value.value = "";
+  } catch (error) {
+    console.error("Error creating post:", error);
+  }
 };
 </script>
 

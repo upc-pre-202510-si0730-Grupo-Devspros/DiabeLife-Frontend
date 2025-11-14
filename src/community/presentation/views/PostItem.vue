@@ -1,31 +1,31 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import useCommunityStore from "../../application/useCommunityStore.js";
-import {useAuthStore} from "@/userManagment/application/user.store.js";
+import { useAuthStore } from "@/userManagment/application/user.store.js";
+import {useCommunityStore} from "@/community/application/useCommunityStore.js";
 
-const { t } = useI18n(); // Hook para traducir textos
+const { t } = useI18n();
 const props = defineProps({ post: Object });
 const store = useCommunityStore();
-
-const currentUser = computed(() => auth.user?.username || `user${auth.user?.id || 1}`);
+const auth = useAuthStore();
 
 const newComment = ref("");
 const commentsToShow = ref(5);
 const isLiking = ref(false);
 const commentMode = ref("todos");
-const auth = useAuthStore();
 
+// Determinar si el usuario actual ya dio like
 const userHasLiked = computed(() => {
-  const userLikes = store.likedPostsByUser[currentUser.value];
+  const userLikes = store.likedPostsByUser[auth.user.id];
   return userLikes ? userLikes.has(props.post.id) : false;
 });
 
+// Toggle like con el userId real
 const toggleLike = async () => {
   if (isLiking.value) return;
   isLiking.value = true;
   try {
-    await store.toggleLike(props.post.id, currentUser.value);
+    await store.toggleLike(props.post.id, auth.user.id);
   } catch (error) {
     console.error("Error toggling like:", error);
   } finally {
@@ -33,19 +33,18 @@ const toggleLike = async () => {
   }
 };
 
+// Enviar comentario con authorId y text
 const submitComment = async () => {
   if (!newComment.value.trim()) return;
   await store.commentPost(props.post.id, {
-    author: currentUser.value,
+    authorId: auth.user.id,
     text: newComment.value,
-    date: new Date().toISOString(),
   });
   newComment.value = "";
 };
 
 const showMore = () => (commentsToShow.value += 5);
 const showLess = () => (commentsToShow.value = 5);
-
 const toggleCommentMode = () => {
   commentMode.value = commentMode.value === "todos" ? "recientes" : "todos";
 };
@@ -54,7 +53,7 @@ const visibleComments = computed(() => {
   if (!props.post.comments) return [];
   let sorted = [...props.post.comments];
   if (commentMode.value === "recientes") {
-    sorted = sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+    sorted = sorted.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
   }
   return sorted.slice(0, commentsToShow.value);
 });
@@ -92,7 +91,7 @@ const visibleComments = computed(() => {
             :disabled="isLiking"
         />
         <span>{{ post.likes }} {{ t('post.likes') }}</span>
-        <span class="ml-3">{{ post.comments.length }} {{ t('post.comments') }}</span>
+        <span class="ml-3">{{ post.comments?.length || 0 }} {{ t('post.comments') }}</span>
       </div>
 
       <pv-button
@@ -101,22 +100,17 @@ const visibleComments = computed(() => {
           class="text-sm text-blue-500"
           @click="toggleCommentMode"
       >
-        {{ commentMode === 'todos'
-          ? t('post.viewRecent')
-          : t('post.viewAll') }}
+        {{ commentMode === 'todos' ? t('post.viewRecent') : t('post.viewAll') }}
       </pv-button>
     </div>
 
-    <div
-        v-if="post.comments && post.comments.length > 0"
-        class="mb-3 p-2 comments-container"
-    >
+    <div v-if="post.comments && post.comments.length > 0" class="mb-3 p-2 comments-container">
       <div
           v-for="(comment, index) in visibleComments"
           :key="index"
           class="mb-2 comment-item"
       >
-        <strong>{{ comment.author }}:</strong>
+        <strong>{{ comment.author || 'user' + comment.authorId }}:</strong>
         <span class="ml-2">{{ comment.text }}</span>
       </div>
 
