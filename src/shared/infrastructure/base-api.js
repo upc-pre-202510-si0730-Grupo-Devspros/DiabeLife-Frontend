@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-const platformApi = import.meta.env.VITE_DIABELIFE_PLATFORM_API_URL;
-
 export class BaseApi {
     #http;
-    constructor() {
+
+    constructor(baseUrl) {
         this.#http = axios.create({
-            baseURL: platformApi
+            baseURL: baseUrl
         });
     }
 

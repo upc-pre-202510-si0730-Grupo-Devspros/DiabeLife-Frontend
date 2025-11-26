@@ -20,7 +20,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://diabelife-backend-20u1.onrender.com',
+        target: 'https://diabelife-backend-3.onrender.com',
         changeOrigin: true,
         secure: true,
       }

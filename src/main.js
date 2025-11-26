@@ -6,12 +6,17 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import PrimeVue from 'primevue/config';
 import Material from '@primeuix/themes/material';
+import Avatar from "primevue/avatar";
+import Skeleton from "primevue/skeleton";
+
 import {
     Button,
     Card,
     Checkbox,
     Column,
     ConfirmationService,
+
+
     ConfirmDialog, DataTable, Dialog,
     DialogService, Drawer, FileUpload, FloatLabel, IconField, InputIcon, InputNumber, InputText, Menu,
     Rating, Row, Select, SelectButton, Tag, Textarea, Toast,
@@ -30,6 +35,9 @@ app.use(i18n)
     .use(ToastService)
     .component('pv-button', Button)
     .component('pv-card', Card)
+    .component("pv-avatar", Avatar)
+app.component("pv-skeleton", Skeleton)
+
     .component('pv-column', Column)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-checkbox', Checkbox)

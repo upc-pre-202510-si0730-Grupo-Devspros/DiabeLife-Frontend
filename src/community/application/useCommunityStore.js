@@ -18,13 +18,8 @@ export const useCommunityStore = defineStore("community", () => {
         try {
             const data = await api.getPosts();
             posts.value = data;
-
-            // opcional: precargar comentarios si quieres
-            // await Promise.all(posts.value.map(async p => {
-            //     p.comments = await api.getComments(p.id);
-            // }));
-
         } catch (err) {
+            console.error(err);
             errors.value.push(err);
         } finally {
             postsLoaded.value = true;
@@ -36,11 +31,16 @@ export const useCommunityStore = defineStore("community", () => {
         try {
             const newPost = await api.createPost({
                 authorId: post.authorId,
+                authorName: post.authorName,
+
                 content: post.content,
-                imageUrl: post.imageUrl || "",
+                imageUrl: post.imageUrl || null
             });
+
+            // Añadimos el nuevo post al inicio
             posts.value.unshift(newPost);
         } catch (err) {
+            console.error(err);
             errors.value.push(err);
         }
     };
@@ -51,29 +51,34 @@ export const useCommunityStore = defineStore("community", () => {
             const post = posts.value.find(p => p.id === postId);
             if (!post) return;
 
-            if (!likedPostsByUser.value[userId]) likedPostsByUser.value[userId] = new Set();
+            if (!likedPostsByUser.value[userId]) {
+                likedPostsByUser.value[userId] = new Set();
+            }
 
             const hasLiked = likedPostsByUser.value[userId].has(postId);
 
             if (hasLiked) {
-                await api.unlikePost(postId, userId);
+                console.warn("⚠️ Backend no soporta unlike. Quitando like solo en UI.");
                 likedPostsByUser.value[userId].delete(postId);
                 post.likes = Math.max(0, post.likes - 1);
             } else {
-                await api.likePost(postId, userId);
+                await api.likePost(postId);
                 likedPostsByUser.value[userId].add(postId);
                 post.likes = (post.likes || 0) + 1;
             }
         } catch (err) {
+            console.error(err);
             errors.value.push(err);
         }
     };
+
 
     // ================== COMMENTS ==================
     const fetchComments = async (postId) => {
         try {
             return await api.getComments(postId);
         } catch (err) {
+            console.error(err);
             errors.value.push(err);
             return [];
         }
@@ -83,7 +88,7 @@ export const useCommunityStore = defineStore("community", () => {
         try {
             const newComment = await api.addComment(postId, {
                 authorId: comment.authorId,
-                content: comment.text,
+                text: comment.text
             });
 
             const post = posts.value.find(p => p.id === postId);
@@ -92,6 +97,7 @@ export const useCommunityStore = defineStore("community", () => {
                 post.comments.push(newComment);
             }
         } catch (err) {
+            console.error(err);
             errors.value.push(err);
         }
     };
