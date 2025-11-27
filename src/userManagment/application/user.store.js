@@ -2,8 +2,9 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-// Usando el proxy de Vite para evitar problemas de CORS
-const API_URL = "/api/v1/Auth";
+const API_URL = import.meta.env.VITE_PLATFORM_API_URL + import.meta.env.VITE_AUTH_ENDPOINT_PATH;
+console.log("API_URL FINAL ===>", API_URL);
+
 
 console.log('Using proxy API_URL:', API_URL);
 
