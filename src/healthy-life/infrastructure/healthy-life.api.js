@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// Usando el proxy de Vite para conectar con el backend real
-const BASE_API = '/api/v1'
+// Usando la variable de entorno para la URL base de la API
+const BASE_API = import.meta.env.VITE_PLATFORM_API_URL + '/v1'
 
 export default {
   // Dashboard endpoints
