@@ -5,14 +5,14 @@ export class CommunityApi extends BaseApi {
     #postsEndpoint;
 
     constructor() {
-        const baseUrl = import.meta.env.VITE_PLATFORM_API_URL + import.meta.env.VITE_COMMUNITY_ENDPOINT_PATH;
+        const baseUrl = import.meta.env.VITE_PLATFORM_API_URL + "/v1";
 
         console.log("🌐 CommunityApi baseUrl:", baseUrl);
 
         super(baseUrl);
         this.baseUrl = baseUrl;
 
-        this.#postsEndpoint = new BaseEndpoint(this, "");
+        this.#postsEndpoint = new BaseEndpoint(this, "/CommunityPosts");
     }
 
 
