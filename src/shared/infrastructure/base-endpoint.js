@@ -9,6 +9,7 @@ export class BaseEndpoint {
         const token = localStorage.getItem("token");
 
         const url = `${this.baseApi.baseUrl}${this.endpointPath}`;
+        console.log("🌐 GET =>", url); // 👈 AGREGA ESTO
 
         const res = await fetch(url, {
             method: "GET",
