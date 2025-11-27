@@ -6,16 +6,15 @@ export class CommunityApi extends BaseApi {
 
     constructor() {
         const swaggerUrl = import.meta.env.API;
-        const baseUrl = swaggerUrl?.includes("/swagger/")
-            ? swaggerUrl.split("/swagger")[0] + "/api/v1"
-            : "/api/v1"; // 🔹 usar proxy
+        const BASE = import.meta.env.VITE_PLATFORM_API_URL + import.meta.env.VITE_COMMUNITY_ENDPOINT_PATH;
 
+        console.log("🌐 CommunityApi baseUrl:", BASE);
 
-        console.log("🌐 CommunityApi baseUrl:", baseUrl);
-        super(baseUrl);
+        super(BASE);
+        this.baseUrl = BASE;
 
-        this.baseUrl = baseUrl;
-        this.#postsEndpoint = new BaseEndpoint(this, "/CommunityPosts");
+        this.#postsEndpoint = new BaseEndpoint(this, "");
+
     }
 
     // ============================ POSTS ============================
