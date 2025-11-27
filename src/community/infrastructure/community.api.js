@@ -5,17 +5,19 @@ export class CommunityApi extends BaseApi {
     #postsEndpoint;
 
     constructor() {
-        const swaggerUrl = import.meta.env.API;
-        const BASE = import.meta.env.VITE_PLATFORM_API_URL + import.meta.env.VITE_COMMUNITY_ENDPOINT_PATH;
+        const swaggerUrl = import.meta.env.VITE_PLATFORM_API_URL;
 
-        console.log("🌐 CommunityApi baseUrl:", BASE);
+        const baseUrl = swaggerUrl?.includes("/swagger/")
+            ? swaggerUrl.split("/swagger")[0] + "/api/v1"
+            : "https://diabelife-backend-3.onrender.com/api/v1";
 
-        super(BASE);
-        this.baseUrl = BASE;
+        console.log("🌐 CommunityApi baseUrl:", baseUrl);
 
-        this.#postsEndpoint = new BaseEndpoint(this, "");
+        super(baseUrl);
 
+        this.#postsEndpoint = new BaseEndpoint(this, "/CommunityPosts");
     }
+
 
     // ============================ POSTS ============================
     getPosts() {
