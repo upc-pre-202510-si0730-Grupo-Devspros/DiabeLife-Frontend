@@ -58,11 +58,11 @@ export const useCommunityStore = defineStore("community", () => {
             const hasLiked = likedPostsByUser.value[userId].has(postId);
 
             if (hasLiked) {
-                console.warn("⚠️ Backend no soporta unlike. Quitando like solo en UI.");
+                console.warn("⚠️ Backend no soporta UNLIKE. Quitando UI only.");
                 likedPostsByUser.value[userId].delete(postId);
                 post.likes = Math.max(0, post.likes - 1);
             } else {
-                await api.likePost(postId);
+                await api.likePost(postId, userId);
                 likedPostsByUser.value[userId].add(postId);
                 post.likes = (post.likes || 0) + 1;
             }

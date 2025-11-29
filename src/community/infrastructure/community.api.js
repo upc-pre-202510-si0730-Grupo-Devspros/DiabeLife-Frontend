@@ -44,15 +44,28 @@ export class CommunityApi extends BaseApi {
         return res.json();
     }
 
-    async likePost(postId) {
+    async likePost(postId, authorId) {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${this.baseUrl}/CommunityPosts/${postId}/like`, {
+
+        const res = await fetch(`${this.baseUrl}/CommunityPosts/${postId}/likes`, {
             method: "POST",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                authorId: authorId
+            })
         });
-        if (!res.ok) throw new Error(`Failed to like post: ${res.status}`);
-        return res.json();
+
+        if (!res.ok) {
+            throw new Error(`Failed to like post: ${res.status}`);
+        }
+
+        const text = await res.text();
+        return text ? JSON.parse(text) : {};
     }
+
     // ============================ COMMENTS ============================
     async getComments(postId) {
         const token = localStorage.getItem("token");
