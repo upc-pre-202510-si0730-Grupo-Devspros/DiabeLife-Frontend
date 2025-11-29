@@ -24,15 +24,21 @@ export const useReportStore = defineStore('report', {
             this.error = null;
             try {
                 this.reports = await reportService.getAllReports();
+                console.log('Reports loaded successfully:', this.reports.length);
             } catch (error) {
-                this.error = error.message;
+                console.error('Error fetching reports:', error);
                 
-                // Si es error de autenticación, mostrar mensaje más claro
+                // Manejo específico de errores del backend C#
                 if (error.response?.status === 401) {
                     this.error = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
                 } else if (error.response?.status === 404) {
-                    this.error = 'El servicio de reportes no está disponible.';
+                    console.info('No reports found, showing empty list');
                     this.reports = []; // Mostrar lista vacía en lugar de error
+                    this.error = null;
+                } else if (error.response?.status === 400) {
+                    this.error = error.response.data?.message || 'Error en la solicitud';
+                } else {
+                    this.error = 'Error al cargar los reportes. Inténtalo de nuevo.';
                 }
             } finally {
                 this.loading = false;
@@ -43,11 +49,16 @@ export const useReportStore = defineStore('report', {
             this.loading = true;
             this.error = null;
             try {
+                console.log('Generating full health report with format:', this.selectedFormat);
                 await reportService.generateFullHealthReport(this.selectedFormat);
-                await this.fetchReports();
+                await this.fetchReports(); // Recargar la lista después de crear
             } catch (error) {
-                this.error = error.message;
-                console.error('Error generating report:', error);
+                console.error('Error generating full health report:', error);
+                if (error.response?.status === 400) {
+                    this.error = error.response.data?.message || 'Error al generar el reporte';
+                } else {
+                    this.error = 'Error al generar el reporte de salud completo';
+                }
             } finally {
                 this.loading = false;
             }
@@ -57,11 +68,16 @@ export const useReportStore = defineStore('report', {
             this.loading = true;
             this.error = null;
             try {
+                console.log('Generating specific report for:', dataTypes, 'Format:', this.selectedFormat);
                 await reportService.generateSpecificReport(dataTypes, this.selectedFormat);
-                await this.fetchReports();
+                await this.fetchReports(); // Recargar la lista después de crear
             } catch (error) {
-                this.error = error.message;
                 console.error('Error generating specific report:', error);
+                if (error.response?.status === 400) {
+                    this.error = error.response.data?.message || 'Error al generar el reporte específico';
+                } else {
+                    this.error = 'Error al generar el reporte específico';
+                }
             } finally {
                 this.loading = false;
             }
@@ -81,11 +97,17 @@ export const useReportStore = defineStore('report', {
             this.loading = true;
             this.error = null;
             try {
+                console.log('Sharing reports:', this.selectedReportIds);
                 await reportService.shareSelectedReports(this.selectedReportIds, true);
-                await this.fetchReports();
+                await this.fetchReports(); // Recargar para reflejar el estado compartido
+                console.log('Reports shared successfully');
             } catch (error) {
-                this.error = error.message;
                 console.error('Error sharing reports:', error);
+                if (error.response?.status === 400) {
+                    this.error = error.response.data?.message || 'Error al compartir los reportes';
+                } else {
+                    this.error = 'Error al compartir los reportes seleccionados';
+                }
                 throw error;
             } finally {
                 this.loading = false;
@@ -94,11 +116,19 @@ export const useReportStore = defineStore('report', {
 
         async deleteReport(reportId) {
             try {
+                console.log('Deleting report:', reportId);
                 await reportService.deleteReport(reportId);
-                await this.fetchReports();
+                await this.fetchReports(); // Recargar la lista después de eliminar
+                console.log('Report deleted successfully');
             } catch (error) {
-                this.error = error.message;
                 console.error('Error deleting report:', error);
+                if (error.response?.status === 404) {
+                    this.error = 'Reporte no encontrado o sin permisos para eliminarlo';
+                } else if (error.response?.status === 400) {
+                    this.error = error.response.data?.message || 'Error al eliminar el reporte';
+                } else {
+                    this.error = 'Error al eliminar el reporte';
+                }
             }
         },
 

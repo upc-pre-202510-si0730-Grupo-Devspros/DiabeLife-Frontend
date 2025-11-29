@@ -2,10 +2,8 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_PLATFORM_API_URL + import.meta.env.VITE_AUTH_ENDPOINT_PATH;
-console.log("API_URL FINAL ===>", API_URL);
-
-
+// Usar proxy configurado para evitar CORS
+const API_URL = '/api/v1/Auth';
 console.log('Using proxy API_URL:', API_URL);
 
 export const useAuthStore = defineStore("auth", {
@@ -69,28 +67,25 @@ export const useAuthStore = defineStore("auth", {
 
                 const responseData = res.data;
 
-                if (responseData) {
-                    // Extraer el token real del response del backend
-                    const token = responseData.token || responseData.accessToken || responseData.jwt;
-
-                    if (token) {
-                        this.user = responseData.user || responseData;
-                        localStorage.setItem("user", JSON.stringify(this.user));
-                        localStorage.setItem("token", token); // Usar token real del backend
-                        return true; // login exitoso
-                    } else {
-                        // Fallback: usar fake token solo para desarrollo
-                        this.user = responseData;
-                        localStorage.setItem("user", JSON.stringify(this.user));
-                        localStorage.setItem("token", "fake-jwt-token");
-                        return true;
-                    }
+                if (responseData && responseData.token) {
+                    // El backend C# retorna: { token, username, email }
+                    this.user = {
+                        username: responseData.username,
+                        email: responseData.email
+                    };
+                    
+                    localStorage.setItem("user", JSON.stringify(this.user));
+                    localStorage.setItem("token", responseData.token); // JWT real del backend C#
+                    return true; // login exitoso
                 } else {
-                    this.error = "Usuario o contraseña incorrectos";
-                    return false; // login fallido
+                    this.error = "Respuesta inválida del servidor";
+                    return false;
                 }
             } catch (err) {
-                if (err.response?.data?.message) {
+                console.error('Login error:', err);
+                if (err.response?.status === 401) {
+                    this.error = "Usuario o contraseña incorrectos";
+                } else if (err.response?.data?.message) {
                     this.error = err.response.data.message;
                 } else {
                     this.error = "Error al intentar iniciar sesión";
