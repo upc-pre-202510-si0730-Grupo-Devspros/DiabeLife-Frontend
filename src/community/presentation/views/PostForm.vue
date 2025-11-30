@@ -1,39 +1,55 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/userManagment/application/user.store.js";
-import {useCommunityStore} from "@/community/application/useCommunityStore.js";
+import { useCommunityStore } from "@/community/application/useCommunityStore.js";
+import { toRaw } from "vue";
 
 const { t } = useI18n();
-const store = useCommunityStore();
 const auth = useAuthStore();
+const store = useCommunityStore();
 
-const content = ref("");
+const text = ref("");
 const imageUrl = ref(null);
 const fileInput = ref(null);
 
+// Cargar el usuario desde localStorage
+auth.loadUser();
+
+// Computed seguro
+const currentUser = computed(() => {
+  if (!auth.user) return null;
+  return toRaw(auth.user);
+});
+
+// Image upload
 const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = () => {
-    imageUrl.value = reader.result;
-  };
+  reader.onload = () => { imageUrl.value = reader.result; };
   reader.readAsDataURL(file);
 };
 
+// Submit post
 const submitPost = async () => {
-  if (!content.value.trim() && !imageUrl.value) return;
+  if (!currentUser.value) {
+    console.error("Usuario no logueado");
+    return;
+  }
+
+  if (!text.value.trim() && !imageUrl.value) return;
 
   try {
     await store.addPost({
-      authorId: auth.user.id,
-      content: content.value,
-      imageUrl: imageUrl.value || "",
+      authorId: currentUser.value.id ?? currentUser.value.userId,
+      authorName: currentUser.value.username ?? currentUser.value.fullName ?? currentUser.value.name,
+      content: text.value,
+      imageUrl: imageUrl.value || null
     });
 
-    content.value = "";
+    text.value = "";
     imageUrl.value = null;
     if (fileInput.value) fileInput.value.value = "";
   } catch (error) {
@@ -42,26 +58,22 @@ const submitPost = async () => {
 };
 </script>
 
+
 <template>
   <div class="p-card p-3 mb-4 shadow-1 border-round">
     <div class="flex gap-3">
       <pv-avatar icon="pi pi-user" shape="circle" size="large" />
-
       <div class="flex-1">
+        <!-- ⚡ t() ya funciona -->
         <pv-textarea
-            v-model="content"
+            v-model="text"
             :placeholder="t('community.placeholder')"
             auto-resize
             rows="3"
             class="w-full mb-3"
         />
-
         <div v-if="imageUrl" class="mb-3">
-          <img
-              :src="imageUrl"
-              alt="preview"
-              class="post-image-preview"
-          />
+          <img :src="imageUrl" alt="preview" class="post-image-preview" />
         </div>
 
         <div class="flex justify-content-between align-items-center">
@@ -74,7 +86,6 @@ const submitPost = async () => {
                 @click="$refs.fileInput.click()"
                 :aria-label="t('community.addImage')"
             />
-
             <input
                 ref="fileInput"
                 type="file"
@@ -88,7 +99,7 @@ const submitPost = async () => {
               :label="t('community.publish')"
               icon="pi pi-send"
               @click="submitPost"
-              :disabled="!content.trim() && !imageUrl"
+              :disabled="!text.trim() && !imageUrl"
           />
         </div>
       </div>
@@ -96,10 +107,9 @@ const submitPost = async () => {
   </div>
 </template>
 
+
 <style scoped>
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 .post-image-preview {
   width: 100%;
   height: auto;

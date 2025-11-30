@@ -1,11 +1,16 @@
 <script setup>
+const props = defineProps({ post: Object });
+
+if (!props.post.comments) {
+  props.post.comments = [];
+}
+
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/userManagment/application/user.store.js";
-import {useCommunityStore} from "@/community/application/useCommunityStore.js";
+import { useCommunityStore } from "@/community/application/useCommunityStore.js";
 
 const { t } = useI18n();
-const props = defineProps({ post: Object });
 const store = useCommunityStore();
 const auth = useAuthStore();
 
@@ -14,16 +19,15 @@ const commentsToShow = ref(5);
 const isLiking = ref(false);
 const commentMode = ref("todos");
 
-// Determinar si el usuario actual ya dio like
 const userHasLiked = computed(() => {
   const userLikes = store.likedPostsByUser[auth.user.id];
   return userLikes ? userLikes.has(props.post.id) : false;
 });
 
-// Toggle like con el userId real
 const toggleLike = async () => {
   if (isLiking.value) return;
   isLiking.value = true;
+
   try {
     await store.toggleLike(props.post.id, auth.user.id);
   } catch (error) {
@@ -33,13 +37,14 @@ const toggleLike = async () => {
   }
 };
 
-// Enviar comentario con authorId y text
 const submitComment = async () => {
   if (!newComment.value.trim()) return;
-  await store.commentPost(props.post.id, {
+
+  await store.addComment(props.post.id, {
     authorId: auth.user.id,
-    text: newComment.value,
+    text: newComment.value,   // ✔ backend usa text
   });
+
   newComment.value = "";
 };
 
@@ -51,10 +56,16 @@ const toggleCommentMode = () => {
 
 const visibleComments = computed(() => {
   if (!props.post.comments) return [];
+
   let sorted = [...props.post.comments];
+
   if (commentMode.value === "recientes") {
-    sorted = sorted.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+    sorted = sorted.sort(
+        (a, b) =>
+            new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
+    );
   }
+
   return sorted.slice(0, commentsToShow.value);
 });
 </script>
@@ -64,13 +75,14 @@ const visibleComments = computed(() => {
     <div class="flex align-items-center gap-3 mb-3">
       <pv-avatar icon="pi pi-user" shape="circle" />
       <div>
-        <strong>{{ post.username || ('user' + post.authorId) }}</strong>
+        <strong>{{ post.authorName }}</strong>
         <div class="text-500 text-sm">
           {{ new Date(post.createdAt).toLocaleString() }}
         </div>
       </div>
     </div>
 
+    <!-- CAMBIO AQUÍ 👉 mostrar text -->
     <p class="mb-3">{{ post.content }}</p>
 
     <img
@@ -90,8 +102,8 @@ const visibleComments = computed(() => {
             @click="toggleLike"
             :disabled="isLiking"
         />
-        <span>{{ post.likes }} {{ t('post.likes') }}</span>
-        <span class="ml-3">{{ post.comments?.length || 0 }} {{ t('post.comments') }}</span>
+        <span>{{ post.likes }} {{ t("post.likes") }}</span>
+        <span class="ml-3">{{ post.comments?.length || 0 }} {{ t("post.comments") }}</span>
       </div>
 
       <pv-button
@@ -100,17 +112,13 @@ const visibleComments = computed(() => {
           class="text-sm text-blue-500"
           @click="toggleCommentMode"
       >
-        {{ commentMode === 'todos' ? t('post.viewRecent') : t('post.viewAll') }}
+        {{ commentMode === "todos" ? t("post.viewRecent") : t("post.viewAll") }}
       </pv-button>
     </div>
 
     <div v-if="post.comments && post.comments.length > 0" class="mb-3 p-2 comments-container">
-      <div
-          v-for="(comment, index) in visibleComments"
-          :key="index"
-          class="mb-2 comment-item"
-      >
-        <strong>{{ comment.author || 'user' + comment.authorId }}:</strong>
+      <div v-for="(comment, index) in visibleComments" :key="index" class="mb-2 comment-item">
+        <strong>{{ comment.author || "user" + comment.authorId }}:</strong>
         <span class="ml-2">{{ comment.text }}</span>
       </div>
 
@@ -121,7 +129,7 @@ const visibleComments = computed(() => {
             size="small"
             @click="showMore"
         >
-          {{ t('post.showMore') }}
+          {{ t("post.showMore") }}
         </pv-button>
 
         <pv-button
@@ -130,7 +138,7 @@ const visibleComments = computed(() => {
             size="small"
             @click="showLess"
         >
-          {{ t('post.showLess') }}
+          {{ t("post.showLess") }}
         </pv-button>
       </div>
     </div>
@@ -147,7 +155,6 @@ const visibleComments = computed(() => {
           rounded
           @click="submitComment"
           :disabled="!newComment.trim()"
-          :aria-label="t('post.send')"
       />
     </div>
   </div>
@@ -157,10 +164,8 @@ const visibleComments = computed(() => {
 .post-image {
   width: 100%;
   max-width: 600px;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16/9;
   object-fit: cover;
-  object-position: center;
   border-radius: 10px;
-  display: block;
 }
 </style>
