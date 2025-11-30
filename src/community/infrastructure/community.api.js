@@ -21,7 +21,7 @@ export class CommunityApi extends BaseApi {
         return this.#postsEndpoint.getAll();
     }
 
-    async createPost({ authorId, authorName, content, imageUrl }) {
+    async createPost({authorId, authorName, content, imageUrl}) {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No token found, user not logged in");
 
@@ -67,38 +67,37 @@ export class CommunityApi extends BaseApi {
     }
 
     async getComments(postId) {
-        try {
-            const response = await fetch(`${this.baseUrl}/community-posts/${postId}/Comments`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No token found, user not logged in");
 
-            if (!response.ok) throw new Error("Failed to fetch comments");
+        const res = await fetch(`${this.baseUrl}/community-posts/${postId}/comments`, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
+        });
 
-            return await response.json();
-        } catch (error) {
-            console.error("❌ Get comments error:", error);
-            throw error;
-        }
+        if (!res.ok) throw new Error(`Failed to fetch comments: ${res.status}`);
+        return res.json();
     }
 
     async addComment(postId, commentData) {
-        try {
-            const response = await fetch(`${this.baseUrl}/community-posts/${postId}/Comments`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(commentData),
-            });
+        const token = localStorage.getItem("token");
+        console.log("Token usado en addComment:", token); // <- para debug
+        if (!token) throw new Error("No token found, user not logged in");
 
-            if (!response.ok) throw new Error("Failed to add comment: " + response.status);
+        const res = await fetch(`${this.baseUrl}/community-posts/${postId}/comments`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify(commentData),
+        });
 
-            return await response.json();
-        } catch (error) {
-            console.error("❌ Add comment error:", error);
-            throw error;
+        if (!res.ok) {
+            const error = await res.text();
+            throw new Error(error || "Failed to add comment");
         }
+        return res.json();
     }
-
 }

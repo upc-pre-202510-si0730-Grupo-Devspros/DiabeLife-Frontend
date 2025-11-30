@@ -1,23 +1,21 @@
 <script setup>
-const props = defineProps({ post: Object });
-
-if (!props.post.comments) {
-  props.post.comments = [];
-}
-
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/userManagment/application/user.store.js";
 import { useCommunityStore } from "@/community/application/useCommunityStore.js";
 
 const { t } = useI18n();
+const props = defineProps({
+  post: Object,
+});
+
 const store = useCommunityStore();
 const auth = useAuthStore();
 
 const newComment = ref("");
 const commentsToShow = ref(5);
 const isLiking = ref(false);
-const commentMode = ref("todos");
+const commentMode = ref("todos"); // 'todos' o 'recientes'
 
 const userHasLiked = computed(() => {
   const userLikes = store.likedPostsByUser[auth.user.id];
@@ -27,7 +25,6 @@ const userHasLiked = computed(() => {
 const toggleLike = async () => {
   if (isLiking.value) return;
   isLiking.value = true;
-
   try {
     await store.toggleLike(props.post.id, auth.user.id);
   } catch (error) {
@@ -42,7 +39,7 @@ const submitComment = async () => {
 
   await store.addComment(props.post.id, {
     authorId: auth.user.id,
-    text: newComment.value,   // ✔ backend usa text
+    text: newComment.value, // ✔ backend usa text
   });
 
   newComment.value = "";
@@ -50,19 +47,18 @@ const submitComment = async () => {
 
 const showMore = () => (commentsToShow.value += 5);
 const showLess = () => (commentsToShow.value = 5);
+
 const toggleCommentMode = () => {
   commentMode.value = commentMode.value === "todos" ? "recientes" : "todos";
 };
 
 const visibleComments = computed(() => {
   if (!props.post.comments) return [];
-
   let sorted = [...props.post.comments];
 
   if (commentMode.value === "recientes") {
     sorted = sorted.sort(
-        (a, b) =>
-            new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
+        (a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
     );
   }
 
@@ -82,7 +78,6 @@ const visibleComments = computed(() => {
       </div>
     </div>
 
-    <!-- CAMBIO AQUÍ 👉 mostrar text -->
     <p class="mb-3">{{ post.content }}</p>
 
     <img
@@ -103,21 +98,29 @@ const visibleComments = computed(() => {
             :disabled="isLiking"
         />
         <span>{{ post.likes }} {{ t("post.likes") }}</span>
-        <span class="ml-3">{{ post.comments?.length || 0 }} {{ t("post.comments") }}</span>
+        <span class="ml-3"
+        >{{ post.comments?.length || 0 }} {{ t("") }}</span
+        >
       </div>
-
       <pv-button
           text
           size="small"
           class="text-sm text-blue-500"
           @click="toggleCommentMode"
       >
-        {{ commentMode === "todos" ? t("post.viewRecent") : t("post.viewAll") }}
+        {{ commentMode === "todos" ? t("") : t("") }}
       </pv-button>
     </div>
 
-    <div v-if="post.comments && post.comments.length > 0" class="mb-3 p-2 comments-container">
-      <div v-for="(comment, index) in visibleComments" :key="index" class="mb-2 comment-item">
+    <div
+        v-if="post.comments && post.comments.length > 0"
+        class="mb-3 p-2 comments-container"
+    >
+      <div
+          v-for="(comment, index) in visibleComments"
+          :key="index"
+          class="mb-2 comment-item"
+      >
         <strong>{{ comment.author || "user" + comment.authorId }}:</strong>
         <span class="ml-2">{{ comment.text }}</span>
       </div>
@@ -131,7 +134,6 @@ const visibleComments = computed(() => {
         >
           {{ t("post.showMore") }}
         </pv-button>
-
         <pv-button
             v-else-if="commentsToShow > 5"
             text
@@ -143,20 +145,6 @@ const visibleComments = computed(() => {
       </div>
     </div>
 
-    <div class="flex gap-2">
-      <pv-input-text
-          v-model="newComment"
-          :placeholder="t('post.writeComment')"
-          class="flex-1"
-          @keydown.enter.prevent="submitComment"
-      />
-      <pv-button
-          icon="pi pi-send"
-          rounded
-          @click="submitComment"
-          :disabled="!newComment.trim()"
-      />
-    </div>
   </div>
 </template>
 
