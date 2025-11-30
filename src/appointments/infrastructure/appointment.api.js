@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Using Vite proxy to connect with the deployed backend
-const BASE_API = '/api/v1'
+const BASE_API = import.meta.env.VITE_PLATFORM_API_URL + '/v1'
 
 // Auth header helper
 const getAuthHeader = () => {
