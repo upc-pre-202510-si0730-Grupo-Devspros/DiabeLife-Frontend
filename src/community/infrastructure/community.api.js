@@ -67,38 +67,18 @@ export class CommunityApi extends BaseApi {
     }
 
     async getComments(postId) {
-        try {
-            const response = await fetch(`${this.baseUrl}/community-posts/${postId}/Comments`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
-
-            if (!response.ok) throw new Error("Failed to fetch comments");
-
-            return await response.json();
-        } catch (error) {
-            console.error("❌ Get comments error:", error);
-            throw error;
-        }
+        const response = await fetch(`${this.baseUrl}/CommunityPosts/${postId}/Comments`);
+        return response.json();
     }
 
     async addComment(postId, commentData) {
-        try {
-            const response = await fetch(`${this.baseUrl}/community-posts/${postId}/Comments`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(commentData),
-            });
-
-            if (!response.ok) throw new Error("Failed to add comment: " + response.status);
-
-            return await response.json();
-        } catch (error) {
-            console.error("❌ Add comment error:", error);
-            throw error;
-        }
+        const response = await fetch(`${this.baseUrl}/CommunityPosts/${postId}/Comments`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(commentData),
+        });
+        return response.json();
     }
+
 
 }
