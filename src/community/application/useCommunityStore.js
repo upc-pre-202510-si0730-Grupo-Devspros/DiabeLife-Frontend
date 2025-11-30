@@ -88,8 +88,10 @@ export const useCommunityStore = defineStore("community", () => {
         try {
             const newComment = await api.addComment(postId, {
                 authorId: comment.authorId,
+                authorName: comment.authorName,
                 text: comment.text
             });
+
 
             const post = posts.value.find(p => p.id === postId);
             if (post) {

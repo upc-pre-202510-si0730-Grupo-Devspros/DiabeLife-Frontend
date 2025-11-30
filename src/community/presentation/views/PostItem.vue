@@ -1,11 +1,16 @@
 <script setup>
+const props = defineProps({ post: Object });
+
+if (!props.post.comments) {
+  props.post.comments = [];
+}
+
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/userManagment/application/user.store.js";
 import { useCommunityStore } from "@/community/application/useCommunityStore.js";
 
 const { t } = useI18n();
-const props = defineProps({ post: Object });
 const store = useCommunityStore();
 const auth = useAuthStore();
 

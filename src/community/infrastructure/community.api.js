@@ -66,41 +66,39 @@ export class CommunityApi extends BaseApi {
         return text ? JSON.parse(text) : {};
     }
 
-    // ============================ COMMENTS ============================
     async getComments(postId) {
-        const token = localStorage.getItem("token");
+        try {
+            const response = await fetch(`${this.baseUrl}/community-posts/${postId}/Comments`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
 
-        const res = await fetch(`${this.baseUrl}/CommunityPosts/${postId}/comments`, {
-            method: "GET",
-            headers: { "Authorization": `Bearer ${token}` }
-        });
+            if (!response.ok) throw new Error("Failed to fetch comments");
 
-        if (!res.ok) throw new Error(`Failed to fetch comments: ${res.status}`);
-        return res.json();
-    }
-
-    async addComment(postId, comment) {
-        const token = localStorage.getItem("token");
-
-        const res = await fetch(`${this.baseUrl}/CommunityPosts/${postId}/comments`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                authorId: comment.authorId,
-                text: comment.text
-            })
-        });
-
-        if (!res.ok) {
-            console.error("❌ Add comment error:", res.status);
-            throw new Error(`Failed to add comment: ${res.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error("❌ Get comments error:", error);
+            throw error;
         }
-
-        return res.json();
     }
 
-    // Puedes agregar toggleLike/unlikePost si tu backend los soporta
+    async addComment(postId, commentData) {
+        try {
+            const response = await fetch(`${this.baseUrl}/community-posts/${postId}/Comments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(commentData),
+            });
+
+            if (!response.ok) throw new Error("Failed to add comment: " + response.status);
+
+            return await response.json();
+        } catch (error) {
+            console.error("❌ Add comment error:", error);
+            throw error;
+        }
+    }
+
 }
