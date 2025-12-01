@@ -134,6 +134,10 @@
   },
   "appointment": {
     "title": "Citas",
+    "management": "Gestión de Citas Médicas",
+    "subtitle": "Sistema DiabeLife - Plataforma de Gestión Diabética",
+    "newAppointment": "Nueva Cita Médica",
+    "scheduledAppointments": "Citas Programadas",
     "calendar": "Calendario",
     "appointments": "Citas",
     "add": "Agregar",
@@ -144,6 +148,9 @@
     "delete": "Eliminar",
     "save": "Guardar",
     "cancel": "Cancelar",
+    "clear": "Limpiar",
+    "create": "Crear Cita",
+    "creating": "Creando...",
     "confirmDelete": "¿Estás seguro de que deseas eliminar esta cita?",
     "fillRequiredFields": "Por favor, completa todos los campos obligatorios",
     "timeConflict": "Ya hay una cita programada para {date} a las {time}. Por favor, elige una hora diferente.",
@@ -151,20 +158,62 @@
     "errorDeleting": "Error al eliminar la cita. Por favor, inténtalo de nuevo.",
     "dr": "Dr.",
     "fields": {
+      "patient": "Paciente",
+      "doctor": "Doctor",
+      "appointmentType": "Tipo de Cita",
       "date": "Fecha",
       "time": "Hora",
-      "doctor": "Doctor",
+      "location": "Ubicación",
+      "duration": "Duración (minutos)",
+      "notes": "Notas adicionales",
       "specialty": "Especialidad",
-      "status": "Estado",
-      "notes": "Notas"
+      "status": "Estado"
     },
     "placeholders": {
+      "patient": "Nombre completo del paciente",
+      "doctor": "Seleccionar doctor",
+      "appointmentType": "Seleccionar tipo",
       "date": "Selecciona una fecha",
-      "time": "Selecciona una hora de la cita",
-      "doctor": "Selecciona un doctor",
+      "time": "Seleccionar hora",
+      "location": "Seleccionar consultorio",
+      "notes": "Información adicional sobre la cita",
       "specialty": "La especialidad se llenará automáticamente",
-      "status": "Selecciona un estado",
-      "notes": "Notas adicionales (opcional)..."
+      "status": "Selecciona un estado"
+    },
+    "types": {
+      "consultation": "Consulta de Control",
+      "specialized": "Consulta Especializada",
+      "emergency": "Emergencia",
+      "treatmentReview": "Revisión de Tratamiento",
+      "followUp": "Consulta de Seguimiento",
+      "initial": "Evaluación Inicial",
+      "general": "Consulta General"
+    },
+    "locations": {
+      "office1": "Consultorio 1",
+      "office2": "Consultorio 2",
+      "office3": "Consultorio 3",
+      "emergency": "Sala de Emergencias",
+      "lab": "Laboratorio",
+      "procedures": "Sala de Procedimientos",
+      "mainClinic": "Main Clinic"
+    },
+    "doctors": {
+      "maria": "Dr. María González Herrera",
+      "carlos": "Dr. Carlos Rodríguez López",
+      "elena": "Dra. Elena Martínez Silva",
+      "jose": "Dr. José Antonio Fernández",
+      "carmen": "Dra. Carmen Ruiz Moreno",
+      "miguel": "Dr. Miguel Ángel Torres",
+      "garcia": "Dr. García López"
+    },
+    "durations": {
+      "15": "15 minutos",
+      "30": "30 minutos",
+      "45": "45 minutos",
+      "60": "60 minutos",
+      "90": "90 minutos",
+      "120": "120 minutos"
     },
     "status": {
       "scheduled": "Programada",
@@ -181,13 +230,6 @@
       "time": "La hora es obligatoria",
       "doctor": "El doctor es obligatorio",
       "saveFailed": "Error al guardar la cita. Inténtalo nuevamente."
-    },
-    "doctors": {
-      "ramos": "Dr. Ramos - Endocrinología",
-      "garcia": "Dr. García - Cardiología", 
-      "lopez": "Dr. López - Medicina Interna",
-      "martinez": "Dr. Martínez - Nutrición",
-      "torres": "Dr. Torres - Podiatría"
     },
     "times": {
       "08:00": "08:00 AM",
@@ -209,7 +251,8 @@
       "16:00": "04:00 PM",
       "16:30": "04:30 PM",
       "17:00": "05:00 PM",
-      "17:30": "05:30 PM"
+      "17:30": "05:30 PM",
+      "18:00": "06:00 PM"
     }
   },
   "healthyLife": {

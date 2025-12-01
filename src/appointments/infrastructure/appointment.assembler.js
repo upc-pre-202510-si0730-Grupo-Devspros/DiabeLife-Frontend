@@ -1,173 +1,256 @@
-/**
- * Converts an appointment entity from the database into a standardized resource object.
- * @function toAppointmentResource
- * @param {Object} entity - The appointment entity from the database.
- * @returns {Object} The formatted appointment resource.
- * @property {number|null} id - The unique identifier of the appointment.
- * @property {string} date - The appointment date (YYYY-MM-DD).
- * @property {string} time - The appointment time (HH:mm).
- * @property {string} doctor - The name or ID of the assigned doctor.
- * @property {string} specialty - The related medical specialty.
- * @property {string} status - The current appointment status ('scheduled', 'completed', 'cancelled').
- * @property {string} notes - Additional notes about the appointment.
- * @property {Date|null} createdAt - The creation timestamp.
- * @property {Date|null} updatedAt - The last update timestamp.
- *
- * @example
- * const resource = toAppointmentResource({
- *   id: 1,
- *   date: '2025-10-08',
- *   time: '15:00',
- *   doctor: 'Dr. Ruiz',
- *   specialty: 'Dermatology',
- *   status: 'scheduled'
- * });
- * console.log(resource.date); // '2025-10-08'
- */
-
-export function toAppointmentResource(entity) {
-  console.log('toAppointmentResource - Input entity:', entity)
-  
-  if (!entity) {
-    console.warn('toAppointmentResource - Entity is null or undefined, returning default')
-    return { 
-      id: null, 
-      date: '', 
-      time: '', 
-      doctor: '', 
-      specialty: '', 
-      status: 'scheduled', 
-      notes: '',
-      patient: '',
-      location: '',
-      appointmentType: '',
-      createdAt: null,
-      updatedAt: null
-    }
-  }
-  
-  // Extract date and time from appointmentDate if it exists
-  let date = entity.date ?? ''
-  let time = entity.time ?? ''
-  
-  if (entity.appointmentDate && !date && !time) {
-    try {
-      const appointmentDateTime = new Date(entity.appointmentDate)
-      if (appointmentDateTime.getFullYear() > 1900) { // Valid date check
-        date = appointmentDateTime.toISOString().split('T')[0] // YYYY-MM-DD format
-        time = appointmentDateTime.toTimeString().split(' ')[0].substring(0, 5) // HH:MM format
-      }
-    } catch (error) {
-      console.warn('Could not parse appointmentDate:', entity.appointmentDate, error)
-    }
-  }
-  
-  // If we still don't have valid date/time, try to use the sent data
-  if (!date || !time) {
-    // The backend sometimes returns "0001-01-01T00:00:00" for invalid dates
-    // In this case, we should try to reconstruct from the original request data
-    if (entity.appointmentDate === "0001-01-01T00:00:00") {
-      console.warn('Backend returned invalid date, appointment may not display correctly in calendar')
-    }
-  }
-  
-  const result = {
-    id: entity.id,
-    date: date,
-    time: time,
-    doctor: entity.doctor ?? '',
-    specialty: entity.specialty ?? '',
-    status: (entity.status ?? 'scheduled').toLowerCase(), // Backend returns "Scheduled", we want "scheduled"
-    notes: entity.notes ?? '',
-    patient: entity.patient ?? '',
-    location: entity.location ?? '',
-    appointmentType: entity.appointmentType ?? '',
-    createdAt: entity.createdAt,
-    updatedAt: entity.updatedAt
-  }
-  
-  console.log('toAppointmentResource - Output result:', result)
-  return result
-}
-
-export function toAppointmentRequest(data) {
-  // Include all required fields based on backend validation
-  const request = {
-    date: data.date,
-    time: data.time,
-    doctor: data.doctor,
-    specialty: data.specialty || 'General',
-    // Required fields from backend validation error
-    notes: data.notes || 'No additional notes', // Notes is required
-    patient: data.patient || 'Default Patient', // Patient is required
-    location: data.location || 'Main Clinic', // Location is required
-    appointmentType: data.appointmentType || 'Consultation', // AppointmentType is required
+// Google Calendar Event Assembler
+export class AppointmentAssembler {
+  // Transform Google Calendar event to appointment entity
+  static toEntity(googleEvent) {
+    if (!googleEvent) return null;
     
-    // Also send as appointmentDate in ISO format for backend compatibility
-    appointmentDate: `${data.date}T${data.time}:00.000Z`
+    return {
+      id: googleEvent.id,
+      title: googleEvent.summary || 'Cita médica',
+      doctorName: this.extractDoctorName(googleEvent.description),
+      patientName: this.extractPatientName(googleEvent.description),
+      startDate: new Date(googleEvent.start.dateTime || googleEvent.start.date),
+      endDate: new Date(googleEvent.end.dateTime || googleEvent.end.date),
+      notes: googleEvent.description || '',
+      location: googleEvent.location || 'Clínica DiabeLife',
+      status: this.mapGoogleStatus(googleEvent.status),
+      type: this.extractAppointmentType(googleEvent.description),
+      attendees: this.extractAttendees(googleEvent.attendees),
+      created: new Date(googleEvent.created),
+      updated: new Date(googleEvent.updated)
+    };
   }
-  
-  console.log('Assembler - toAppointmentRequest (with required fields and appointmentDate):', request)
-  return request
+
+  // Transform appointment entity to Google Calendar event format
+  static toGoogleEvent(appointment) {
+    const description = this.buildDescription(appointment);
+    
+    return {
+      summary: appointment.title || `Cita con ${appointment.doctorName}`,
+      description,
+      start: {
+        dateTime: appointment.startDate instanceof Date 
+          ? appointment.startDate.toISOString() 
+          : new Date(appointment.startDate).toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      },
+      end: {
+        dateTime: appointment.endDate instanceof Date 
+          ? appointment.endDate.toISOString() 
+          : new Date(appointment.endDate).toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      },
+      location: appointment.location || 'Clínica DiabeLife',
+      attendees: this.buildAttendees(appointment),
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: 'email', minutes: 24 * 60 }, // 24 hours before
+          { method: 'popup', minutes: 30 }      // 30 minutes before
+        ]
+      }
+    };
+  }
+
+  // Transform multiple Google Calendar events to appointment entities
+  static toEntityList(googleEvents) {
+    if (!Array.isArray(googleEvents)) return [];
+    return googleEvents.map(event => this.toEntity(event)).filter(Boolean);
+  }
+
+  // Helper methods
+  static extractDoctorName(description) {
+    if (!description) return 'No especificado';
+    const match = description.match(/Doctor:\s*(.+?)(?:\n|$)/);
+    return match ? match[1].trim() : 'No especificado';
+  }
+
+  static extractPatientName(description) {
+    if (!description) return 'No especificado';
+    const match = description.match(/Paciente:\s*(.+?)(?:\n|$)/);
+    return match ? match[1].trim() : 'No especificado';
+  }
+
+  static extractAppointmentType(description) {
+    if (!description) return 'consulta';
+    const match = description.match(/Tipo:\s*(.+?)(?:\n|$)/);
+    return match ? match[1].trim() : 'consulta';
+  }
+
+  static extractAttendees(googleAttendees) {
+    if (!googleAttendees) return [];
+    return googleAttendees.map(attendee => ({
+      email: attendee.email,
+      displayName: attendee.displayName,
+      responseStatus: attendee.responseStatus
+    }));
+  }
+
+  static mapGoogleStatus(googleStatus) {
+    const statusMap = {
+      'confirmed': 'confirmada',
+      'tentative': 'tentativa',
+      'cancelled': 'cancelada'
+    };
+    return statusMap[googleStatus] || 'confirmada';
+  }
+
+  static buildDescription(appointment) {
+    const lines = [
+      `Doctor: ${appointment.doctorName || 'No especificado'}`,
+      `Paciente: ${appointment.patientName || 'No especificado'}`,
+      `Tipo: ${appointment.type || 'consulta'}`
+    ];
+    
+    if (appointment.notes && appointment.notes.trim()) {
+      lines.push(`Notas: ${appointment.notes.trim()}`);
+    }
+    
+    return lines.join('\n');
+  }
+
+  static buildAttendees(appointment) {
+    const attendees = [];
+    
+    if (appointment.patientEmail) {
+      attendees.push({
+        email: appointment.patientEmail,
+        displayName: appointment.patientName
+      });
+    }
+    
+    if (appointment.doctorEmail) {
+      attendees.push({
+        email: appointment.doctorEmail,
+        displayName: appointment.doctorName
+      });
+    }
+    
+    return attendees;
+  }
+
+  // Format appointment for calendar view
+  static toCalendarEvent(appointment) {
+    return {
+      id: appointment.id,
+      title: appointment.title || `${appointment.doctorName}`,
+      start: appointment.startDate,
+      end: appointment.endDate,
+      backgroundColor: this.getStatusColor(appointment.status),
+      borderColor: this.getStatusColor(appointment.status),
+      textColor: '#ffffff',
+      extendedProps: {
+        doctorName: appointment.doctorName,
+        patientName: appointment.patientName,
+        type: appointment.type,
+        location: appointment.location,
+        notes: appointment.notes,
+        status: appointment.status
+      }
+    };
+  }
+
+  static getStatusColor(status) {
+    const colorMap = {
+      'confirmada': '#28a745',
+      'tentativa': '#ffc107',
+      'cancelada': '#dc3545',
+      'completed': '#6c757d'
+    };
+    return colorMap[status] || '#007bff';
+  }
+
+  // Validate appointment data before sending to Google Calendar
+  static validateAppointment(appointment) {
+    const errors = [];
+    
+    if (!appointment.title && !appointment.doctorName) {
+      errors.push('Se requiere un título o nombre del doctor');
+    }
+    
+    if (!appointment.startDate) {
+      errors.push('Se requiere una fecha de inicio');
+    }
+    
+    if (!appointment.endDate) {
+      errors.push('Se requiere una fecha de fin');
+    }
+    
+    if (appointment.startDate && appointment.endDate) {
+      const start = new Date(appointment.startDate);
+      const end = new Date(appointment.endDate);
+      
+      if (start >= end) {
+        errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
+      }
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
 }
 
-export function toDoctorResource(entity) {
-  if (!entity) return { 
-    id: null, 
-    name: '', 
-    specialty: '', 
-    available: true 
-  }
+// Legacy support - keeping backward compatibility
+export const toAppointmentResource = (entity) => {
+  if (!entity) return null;
   
   return {
-    id: entity.id,
-    name: entity.name ?? '',
-    specialty: entity.specialty ?? '',
-    available: entity.available ?? true
-  }
-}
+    id: entity.id || null,
+    title: entity.title || '',
+    doctor: entity.doctor || entity.doctorName || '',
+    specialty: entity.specialty || 'General',
+    date: entity.date || (entity.startDate ? entity.startDate.split('T')[0] : ''),
+    time: entity.time || (entity.startDate ? new Date(entity.startDate).toTimeString().slice(0, 5) : ''),
+    status: entity.status || 'scheduled',
+    notes: entity.notes || '',
+    location: entity.location || '',
+    createdAt: entity.createdAt || entity.created || new Date(),
+    updatedAt: entity.updatedAt || entity.updated || new Date()
+  };
+};
 
-export function formatAppointmentDateTime(date, time) {
-  if (!date || !time) return ''
-  try {
-    const dateObj = new Date(`${date}T${time}`)
-    return dateObj.toLocaleString('en-US', {
-      month: 'long',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  } catch {
-    return `${date} - ${time}`
-  }
-}
+export const toAppointmentRequest = (appointment) => {
+  if (!appointment) return null;
+  
+  return {
+    title: appointment.title,
+    doctor: appointment.doctor,
+    specialty: appointment.specialty,
+    date: appointment.date,
+    time: appointment.time,
+    status: appointment.status || 'scheduled',
+    notes: appointment.notes || '',
+    location: appointment.location || 'Clínica DiabeLife'
+  };
+};
 
-export function formatAppointmentDate(date) {
-  if (!date) return ''
-  try {
-    const dateObj = new Date(date)
-    return dateObj.toLocaleDateString('en-US', {
-      month: 'long',
-      day: '2-digit'
-    })
-  } catch {
-    return date
-  }
-}
+export const toDoctorResource = (doctor) => {
+  if (!doctor) return null;
+  
+  return {
+    id: doctor.id,
+    name: doctor.name,
+    specialty: doctor.specialty,
+    available: doctor.available !== false
+  };
+};
 
-export function formatAppointmentTime(time) {
-  if (!time) return ''
-  try {
-    const [hours, minutes] = time.split(':')
-    const date = new Date()
-    date.setHours(parseInt(hours), parseInt(minutes))
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  } catch {
-    return time
-  }
-}
+export const formatAppointmentDateTime = (date, time) => {
+  if (!date || !time) return '';
+  return `${date} ${time}`;
+};
+
+export const formatAppointmentDate = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString();
+};
+
+export const formatAppointmentTime = (time) => {
+  if (!time) return '';
+  return time;
+};
+
+// Main export compatibility
+export const fromAppointmentResource = (resource) => AppointmentAssembler.toGoogleEvent(resource);

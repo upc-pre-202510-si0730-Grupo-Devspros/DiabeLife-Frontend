@@ -2,7 +2,7 @@ export default [
   {
     path: '/appointments',
     name: 'appointments',
-    component: () => import('./views/appointment.vue'),
-    meta: { title: 'Appointments' }
+    component: () => import('./views/AppointmentManagement.vue'),
+    meta: { title: 'Gestión de Citas' }
   }
 ]

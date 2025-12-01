@@ -20,7 +20,8 @@ export const useAppointmentStore = defineStore('appointments', () => {
     isLoading: false,
     availableSlots: [],
     currentMonth: new Date().getMonth(),
-    currentYear: new Date().getFullYear()
+    currentYear: new Date().getFullYear(),
+    googleCalendarSyncEnabled: false // Control para sincronización con Google Calendar
   })
 
   // Computed properties
@@ -353,9 +354,36 @@ export const useAppointmentStore = defineStore('appointments', () => {
     updateAppointmentStatus,
     addAppointmentNotes,
     
+    // Google Calendar Sync Control
+    enableGoogleCalendarSync,
+    disableGoogleCalendarSync,
+    isGoogleCalendarEnabled,
+    
     // Utilities
     formatAppointmentDateTime,
     formatAppointmentDate,
     formatAppointmentTime
+  }
+
+  // Google Calendar Sync Methods
+  const enableGoogleCalendarSync = async () => {
+    try {
+      const enabled = await api.enableGoogleCalendarSync()
+      state.googleCalendarSyncEnabled = enabled
+      console.log('Google Calendar sync enabled:', enabled)
+      return enabled
+    } catch (error) {
+      console.error('Failed to enable Google Calendar sync:', error)
+      return false
+    }
+  }
+
+  const disableGoogleCalendarSync = () => {
+    state.googleCalendarSyncEnabled = false
+    console.log('Google Calendar sync disabled')
+  }
+
+  const isGoogleCalendarEnabled = () => {
+    return state.googleCalendarSyncEnabled && api.isGoogleCalendarEnabled()
   }
 })
